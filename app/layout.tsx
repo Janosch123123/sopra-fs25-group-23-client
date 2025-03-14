@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ConfigProvider, theme } from "antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@/styles/globals.css";
+import React from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student 23-731-011",
+  title: "Snake",
   description: "sopra-fs25-template-client",
 };
 
