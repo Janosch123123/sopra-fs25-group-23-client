@@ -3,13 +3,15 @@
 import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { User } from "@/types/user";
 import { Button, Form, Input } from "antd";
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
 
 interface FormFieldProps {
-  label: string;
-  value: string;
+  username: string;
+  name: string;
+  passwiord: string;
 }
 
 const Login: React.FC = () => {
@@ -28,15 +30,15 @@ const Login: React.FC = () => {
 
   const handleLogin = async (values: FormFieldProps) => {
     try {
-      // Call the API service to authenticate the user
-      const response = await apiService.post<{ token: string }>("/auth/login", values);
-
-      // Use the useLocalStorage hook that returned a setter function (setToken) to store the token if available
+      // Call the API service and let it handle JSON serialization and error handling
+      const response = await apiService.post<User>("/users",  values );
+      
+      // Use the useLocalStorage hook that returned a setter function (setToken in line 41) to store the token if available
       if (response.token) {
         setToken(response.token);
       }
 
-      // Navigate to the user page
+      // Navigate to the user overview
       router.push("/users");
     } catch (error) {
       if (error instanceof Error) {
@@ -64,26 +66,25 @@ const Login: React.FC = () => {
         >
           <Input placeholder="Enter username" />
         </Form.Item>
+
         <Form.Item
           name="password"
           label="Password"
-          rules={[{ required: true, message: "Please input your password!" }]}
+          rules={[{ required: true, message: "Please input a password!" }]}
         >
-          <Input placeholder="Enter your password" />
+          <Input placeholder="Enter a password" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" className="login-button">
-            Login
+            Register
           </Button>
         </Form.Item>
         <Form.Item>
           <Button type="link" 
-                  className="login-button" 
-                  onClick={() => router.push("/register")}>
-            or register here
+                  onClick={() => router.push("/login")}>
+            or login here with an existing account
           </Button>
         </Form.Item>
-
       </Form>
     </div>
   );

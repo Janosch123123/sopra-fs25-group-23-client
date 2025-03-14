@@ -1,0 +1,32 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.form-container .ant-form {
+  flex: 1;
+}
+
+.form-item-long .ant-input,
+.form-item-long .ant-input-password,
+.form-item-long .react-datepicker-wrapper {
+  width: 100%;
+}
+
+.date-picker-wrapper {
+  width: 100%;
+  height: auto;
+}
+
+.form-item-center {
+  display: flex;
+  justify-content: center;
+  margin-top: auto; /* Push the button to the bottom */
+}
+.form-item-back {
+  display: flex;
+  justify-content: center;
+  margin-top: auto; /* Push the button to the bottom */
+  color: red;
+}

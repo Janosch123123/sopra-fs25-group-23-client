@@ -20,11 +20,6 @@ const columns: TableProps<User>["columns"] = [
     key: "username",
   },
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
     title: "Id",
     dataIndex: "id",
     key: "id",
@@ -40,24 +35,62 @@ const Dashboard: React.FC = () => {
   // Simply choose what you need from the hook:
   const {
     // value: token, // is commented out because we dont need to know the token value for logout
-    // set: setToken, // is commented out because we dont need to set or update the token value
     clear: clearToken, // all we need in this scenario is a method to clear the token
   } = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
 
-  const handleLogout = (): void => {
-    // Clear token using the returned function 'clear' from the hook
-    clearToken();
-    router.push("/login");
+  const handleLogout = async (): Promise<void> => {
+    try {
+      // Get the current user token from local storage
+      const token = localStorage.getItem("token");
+      
+      // Call the backend logout endpoint with the token in the request body
+      if (token) {
+        await apiService.post("/auth/logout", { token: token.replace(/"/g, '') });
+      } else {
+        throw new Error("Token is null");
+      }
+
+      // Clear token using the returned function 'clear' from the hook
+      clearToken();
+      router.push("/login");
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(`Something went wrong while logging out:\n${error.message}`);
+      } else {
+        console.error("An unknown error occurred while logging out.");
+      }
+    }
   };
 
   useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+  
+      try {
+        const formatedToken = token.replace(/"/g, '');
+        const response = await apiService.post<{ authorized: boolean }>("/auth/verify", { formatedToken });
+        if (!response.authorized) {
+          router.push("/login");
+          return;
+        }
+      } catch (error) {
+        console.error('Error verifying user token:', error);
+        router.push("/login");
+      }
+    };
+  
+    checkToken();
+  
     const fetchUsers = async () => {
       try {
         // apiService.get<User[]> returns the parsed JSON object directly,
         // thus we can simply assign it to our users variable.
         const users: User[] = await apiService.get<User[]>("/users");
         setUsers(users);
-        console.log("Fetched users:", users);
       } catch (error) {
         if (error instanceof Error) {
           alert(`Something went wrong while fetching users:\n${error.message}`);
@@ -68,7 +101,7 @@ const Dashboard: React.FC = () => {
     };
 
     fetchUsers();
-  }, [apiService]); // dependency apiService does not re-trigger the useEffect on every render because the hook uses memoization (check useApi.tsx in the hooks).
+  }, [apiService, router]); // dependency apiService does not re-trigger the useEffect on every render because the hook uses memoization (check useApi.tsx in the hooks).
   // if the dependency array is left empty, the useEffect will trigger exactly once
   // if the dependency array is left away, the useEffect will run on every state change. Since we do a state change to users in the useEffect, this results in an infinite loop.
   // read more here: https://react.dev/reference/react/useEffect#specifying-reactive-dependencies
