@@ -1,10 +1,51 @@
 "use client";
 
-import React from "react";
+import React, {useEffect} from "react";
 import { Button } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
+import { useRouter } from "next/navigation";
+import { useApi } from "@/hooks/useApi";
+
 
 const MainPage: React.FC = () => {
+  const router = useRouter();
+  const apiService = useApi();
+
+  useEffect(() => {
+    const checkToken = async () => {
+    // Check if token exists in localStorage
+      const token = localStorage.getItem("token");
+      if (!token) {
+        // If no token, redirect to login page
+        router.push("/login");
+        return;
+      }
+
+    try {
+      // If token exists, verify it's still valid with the backend
+      const formatedToken = token.replace(/"/g, '');
+      const response = await apiService.post<{ authorized: boolean }>(
+        "/auth/verify", 
+        { formatedToken }
+      );
+      
+      // If token is not authorized, redirect to login
+      if (!response.authorized) {
+        router.push("/login");
+        return;
+      }
+    } catch (error) {
+      console.error('Error verifying user token:', error);
+      router.push("/login");
+    }
+  };
+
+  checkToken();
+  
+}, [apiService, router]);
+
+
+
   return (
     <div className={styles.mainPage}>
       <div className={styles.dashboardContainer}>
