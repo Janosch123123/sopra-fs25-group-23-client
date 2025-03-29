@@ -1,7 +1,7 @@
 "use client";
 
-import React, {useEffect} from "react";
-import { Button } from "antd";
+import React, {useEffect, useState} from "react";
+import { Button, Modal, Input } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
@@ -44,7 +44,23 @@ const MainPage: React.FC = () => {
   
 }, [apiService, router]);
 
+const handleCreateLobby = async () => {
+  try {
+    // Call API to create a new lobby with default settings
+    const response = await apiService.post('/lobbies/create', {
+      settings: {
+        spawnRate: "Medium",
+        includePowerUps: false
+      }
+    });
 
+    const { code } = response;
+
+    router.push(`/lobby/${code}`);
+    } catch (error) {
+      console.error('Error creating lobby:', error);
+    }
+  };
 
   return (
     <div className={styles.mainPage}>
@@ -79,6 +95,7 @@ const MainPage: React.FC = () => {
               color="volcano"
               className={styles.lobbyButtons}
               style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+              onClick={handleCreateLobby}
               >
               Create Lobby
           </Button>
