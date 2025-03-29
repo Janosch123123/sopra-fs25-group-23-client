@@ -7,9 +7,31 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 
 
+interface UserStats {
+  username: string;
+  level: number;
+  wins: number;
+  kills: number;}
+
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserStats = async () => {
+    try {
+      setLoading(true);
+  
+      const response = await apiService.get<UserStats>('/users/current/stats');
+       
+      setUserStats(response);
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -34,6 +56,9 @@ const MainPage: React.FC = () => {
         router.push("/login");
         return;
       }
+
+      await fetchUserStats();
+
     } catch (error) {
       console.error('Error verifying user token:', error);
       router.push("/login");
@@ -43,6 +68,8 @@ const MainPage: React.FC = () => {
   checkToken();
   
 }, [apiService, router]);
+
+
 
 const handleCreateLobby = async () => {
   try {
@@ -66,26 +93,32 @@ const handleCreateLobby = async () => {
     <div className={styles.mainPage}>
       <div className={styles.dashboardContainer}>
         <h2>User Statistics</h2>
+        {loading ? (
+          <p>Loading statistics...</p>
+        ) : userStats ? (
         <table className={styles.statisticsTable}>
           <tbody>
             <tr>
               <td>Username:</td>
-              <td>Snake123</td>
+              <td>{userStats.username}</td>
             </tr>
             <tr>
               <td>Level:</td>
-              <td>10</td>
+              <td>{userStats.level}</td>
             </tr>
             <tr>
               <td>#Wins:</td>
-              <td>25</td>
+              <td>{userStats.wins}</td>
             </tr>
             <tr>
               <td>#Kills:</td>
-              <td>150</td>
+              <td>{userStats.kills}</td>
             </tr>
           </tbody>
         </table>
+        ) : (
+          <p>No statistics available</p>
+        )}
       </div>
       <div className={styles.playButtonContainer} style={{ fontSize: '10px', fontWeight: 'bold', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', alignItems: 'flex-start' }}>
