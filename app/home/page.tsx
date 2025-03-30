@@ -5,11 +5,14 @@ import { Button, Modal, Input } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { useLobbySocket } from '@/hooks/useLobbySocket';
 
 
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
+  const { connect, send, disconnect, isConnected } = useLobbySocket();
+
 
   useEffect(() => {
     const checkToken = async () => {
@@ -41,26 +44,51 @@ const MainPage: React.FC = () => {
   };
 
   checkToken();
-  
-}, [apiService, router]);
 
-const handleCreateLobby = async () => {
+  return () => {
+    disconnect(); // Clean up WebSocket when component unmounts
+  };
+
+}, [apiService, router, disconnect]); // Add disconnect to dependencies
+
+const handleCreateLobby = () => {
   try {
-    // Call API to create a new lobby with default settings
-    const response = await apiService.post('/lobbies/create', {
+    // Get token from localStorage
+    const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+    
+    // Establish WebSocket connection with the token
+    const socket = connect({ token });
+    
+    // Add a basic message handler
+    if (socket) {
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Received message:', data);
+          
+          // If server responds with lobby code, navigate to that lobby
+          if (data.type === 'lobby_created' && data.code) {
+            router.push(`/lobby/${data.code}`);
+          }
+        } catch (error) {
+          console.error('Error parsing message:', error);
+        }
+      };
+    }
+    
+    // Send a message to create a lobby (instead of API call)
+    send({
+      action: 'create_lobby',
       settings: {
         spawnRate: "Medium",
         includePowerUps: false
       }
     });
-
-    const { code } = response;
-
-    router.push(`/lobby/${code}`);
-    } catch (error) {
-      console.error('Error creating lobby:', error);
-    }
-  };
+    
+  } catch (error) {
+    console.error('Error connecting to WebSocket:', error);
+  }
+};
 
   return (
     <div className={styles.mainPage}>

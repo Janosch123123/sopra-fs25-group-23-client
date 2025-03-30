@@ -11,3 +11,14 @@ export function getApiDomain(): string {
   const devUrl = "http://localhost:8080";
   return isProduction() ? prodUrl : devUrl;
 }
+
+// Add this to @/utils/domain.ts
+export function getWebSocketDomain(): string {
+  if (isProduction()) {
+    const prodUrl = process.env.NEXT_PUBLIC_PROD_WS_URL || 
+      "wss://sopra-fs25-group-23-server.oa.r.appspot.com/ws";
+    return prodUrl;
+  } else {
+    return "ws://localhost:8080/ws";
+  }
+}
