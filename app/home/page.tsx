@@ -22,27 +22,33 @@ const MainPage: React.FC = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const userId = localStorage.getItem("userId");
+ 
 
-  const fetchUserStats = async () => {
-    try {
-      setLoading(true);
-
-      if (!userId) {
-        console.error('User ID not available');
-        return;
-      }
   
-      const response = await apiService.get<User>(`/users/${userId}`);
-      setUserStats(response);
-    } catch (error) {
-      console.error('Error fetching user stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    const userId = localStorage.getItem("userId");
+
+    const fetchUserStats = async () => {
+      try {
+        setLoading(true);
+        
+        if (!userId) {
+          console.error('User ID not available');
+          setLoading(false);
+          return;
+        }
+      
+        const response = await apiService.get<User>(`/users/${userId}`);
+        setUserStats(response);
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
     const checkToken = async () => {
       // Check if token exists in localStorage
       const token = localStorage.getItem("token");
@@ -51,7 +57,7 @@ const MainPage: React.FC = () => {
         router.push("/login");
         return;
       }
-
+    
       try {
         // If token exists, verify it's still valid with the backend
         const formatedToken = token.replace(/"/g, '');
@@ -80,7 +86,7 @@ const MainPage: React.FC = () => {
     return () => {
       disconnect();
     };
-  }, [apiService, router, disconnect, fetchUserStats]); // Added proper dependencies
+  }, [apiService, router, disconnect]); // Added proper dependencies
 
 
   const handleCreateLobby = async () => {
