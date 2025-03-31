@@ -22,12 +22,18 @@ const MainPage: React.FC = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const userId = localStorage.getItem("userId");
+
   const fetchUserStats = async () => {
     try {
       setLoading(true);
+
+      if (!userId) {
+        console.error('User ID not available');
+        return;
+      }
   
-      const response = await apiService.get<UserStats>('/users/current/stats');
-       
+      const response = await apiService.get<User>(`/users/${userId}`);
       setUserStats(response);
     } catch (error) {
       console.error('Error fetching user stats:', error);
