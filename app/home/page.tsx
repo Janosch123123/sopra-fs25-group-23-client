@@ -98,14 +98,22 @@ const MainPage: React.FC = () => {
       socket.onmessage = (event) => {
         try {
           console.log("Raw message:", event.data);
-          const data = JSON.parse(event.data);
-          console.log('Received message:', data);
           
-          if (data.type === 'lobby_created' && data.code) {
-            router.push(`/lobby/${data.code}`);
+          // Try to parse as JSON
+          try {
+            const data = JSON.parse(event.data);
+            console.log('Parsed JSON message:', data);
+            
+            if (data.type === 'lobby_created' && data.code) {
+              router.push(`/lobby/${data.code}`);
+            }
+          } catch (e) {
+            // Not JSON, handle as plain text
+            console.log('Received text message:', event.data);
+            // Process text message if needed
           }
         } catch (error) {
-          console.error('Error parsing message:', error);
+          console.error('Error handling message:', error);
         }
       };
       
