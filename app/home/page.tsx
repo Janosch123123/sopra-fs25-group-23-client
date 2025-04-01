@@ -1,12 +1,12 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import { Button, Modal, Input } from "antd";
-import styles from "@/styles/page.module.css"; // Import styles
+import styles from "@/styles/page.module.css";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
-
+import { WebSocketService } from '@/api/websocketService';
 
 interface UserStats {
   username: string;
@@ -18,9 +18,10 @@ interface UserStats {
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { connect, send, disconnect, isConnected } = useLobbySocket(); // Added this line for WebSocket
+  const { connect, send, disconnect, isConnected } = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const serviceRef = useRef<WebSocketService | null>(null);
 
   const fetchUserStats = async () => {
     try {
@@ -37,6 +38,11 @@ const MainPage: React.FC = () => {
   };
 
   useEffect(() => {
+    // Initialize WebSocketService
+    if (!serviceRef.current) {
+      serviceRef.current = new WebSocketService();
+    }
+    
     const checkToken = async () => {
       // Check if token exists in localStorage
       const token = localStorage.getItem("token");
@@ -74,8 +80,7 @@ const MainPage: React.FC = () => {
     return () => {
       disconnect();
     };
-  }, [apiService, router, disconnect, fetchUserStats]); // Added proper dependencies
-
+  }, [apiService, router, disconnect]);
 
   const handleCreateLobby = async () => {
     try {
@@ -83,27 +88,29 @@ const MainPage: React.FC = () => {
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
       // Establish WebSocket connection with the token
-      const socket = connect({ token });
-      
-      // Add a basic message handler
-      if (socket) {
-        socket.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            console.log('Received message:', data);
-            
-            // If server responds with lobby code, navigate to that lobby
-            if (data.type === 'lobby_created' && data.code) {
-              router.push(`/lobby/${data.code}`);
-            }
-          } catch (error) {
-            console.error('Error parsing message:', error);
-          }
-        };
+      if (!serviceRef.current) {
+        serviceRef.current = new WebSocketService();
       }
       
+      const socket = serviceRef.current.connect({ token });
+      
+      // Set the message handler immediately before connection happens
+      socket.onmessage = (event) => {
+        try {
+          console.log("Raw message:", event.data);
+          const data = JSON.parse(event.data);
+          console.log('Received message:', data);
+          
+          if (data.type === 'lobby_created' && data.code) {
+            router.push(`/lobby/${data.code}`);
+          }
+        } catch (error) {
+          console.error('Error parsing message:', error);
+        }
+      };
+      
       // Send a message to create a lobby (instead of API call)
-      send({
+      serviceRef.current.send({
         action: 'create_lobby',
         settings: {
           spawnRate: "Medium",
