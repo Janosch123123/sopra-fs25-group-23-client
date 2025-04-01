@@ -23,19 +23,9 @@ const MainPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const serviceRef = useRef<WebSocketService | null>(null);
 
-  const fetchUserStats = async () => {
-    try {
-      setLoading(true);
+ 
+
   
-      const response = await apiService.get<UserStats>('/users/current/stats');
-       
-      setUserStats(response);
-    } catch (error) {
-      console.error('Error fetching user stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     // Initialize WebSocketService
@@ -43,6 +33,28 @@ const MainPage: React.FC = () => {
       serviceRef.current = new WebSocketService();
     }
     
+    const userId = localStorage.getItem("userId");
+
+    const fetchUserStats = async () => {
+      try {
+        setLoading(true);
+        
+        if (!userId) {
+          console.error('User ID not available');
+          setLoading(false);
+          return;
+        }
+      
+        const response = await apiService.get<User>(`/users/${userId}`);
+        setUserStats(response);
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
     const checkToken = async () => {
       // Check if token exists in localStorage
       const token = localStorage.getItem("token");
@@ -51,7 +63,7 @@ const MainPage: React.FC = () => {
         router.push("/login");
         return;
       }
-
+    
       try {
         // If token exists, verify it's still valid with the backend
         const formatedToken = token.replace(/"/g, '');
