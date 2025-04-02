@@ -35,7 +35,7 @@ reason).
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **[jojo2-8902]** | [date]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/issues/36] | [Check if user is allowed to access this page] | [authentication] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/e17326d08b70b6d2790a71ed50a558ad13df5027]| [create homepage] | [homepage is needed] |
 | **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
