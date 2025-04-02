@@ -32,8 +32,8 @@ reason).
 
 ## Contributions Week 1 - [26.3.] to [2.4.]
 
-| **Student**          | **Date** | **Link to Commit** | **Description**                                                                                                               | **Relevance**                                                                                                   |
-|----------------------|--------| ------------------ |-------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| **Student**          | **Date** | **Link to Commit** |  **Description**                                                                                                                    | **Relevance**                                                                                                   |
+|----------------------|--------| ------------- |-------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | **[jojo2-8902]**     | [29.03] | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/2ca7bfbbb3870f78f7e6f1834c834c76d612fd7b] | [Check if user is allowed to access this page]                                                                                | [authentication]                                                                                                |
 |                      | [30.03] | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/e17326d08b70b6d2790a71ed50a558ad13df5027]| [create homepage]                                                                                                             | [homepage is needed]                                                                                            |
 | **[MarcMahler]**     | 29.03  | https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/d5c5799645149d4f3e50f5abfb412a3441022eb0 | #16 I adjusted the user repository and the database connection such that the user stats get saved with the corresponding user | store Player statistics                                                                                         |
@@ -42,7 +42,8 @@ reason).
 |                      | [30.03] | [[https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/f0dcde300f0cc8473f4d94677f763fa4bca9ea90] | [Websocket Service]                                                                                                           | [Created the lobby service for websocketin the frontend]                                                        |
 | **[@Janosch123123]** | [31.3.] | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/8f183ced7937add4f7110b7b61e5cd9d20de2fb4] | [creading Rest endpoints for validating users]                                                                                | [make it more secure, doont send the password anymore.]                                                         |
 |                      | [31.3] | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/d74a76b5422ddefb7c516615b6c83bf940d6b750] | [cleand the whole backend up, removed legacy code from M1, and also better styling]                                           | [So that we are not confused by bad code in the backend, (a lot of this was done in the commit above as well!)] |
-
+| **[@StalyTV]** | [02.04.]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/d2050f7257900455c4e8fdab2ab3a12f3b43aded] | [This User Story focused on implementing the login and register functionality. A lot of it could be reused form Milestone 1. Major Changes to Design were made] | [Making the Implementation look smooth and make registered and logged in Users get pushed to /home page] |
+|                    | [02.04.]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/7e1a11d6238171aef1c02621dff5362f3c28199d] | [Fixed Linting Errors from S1 and S2] | [Making the client deployable for online purposes] |
 ---
 
 ## Contributions Week 2 - [Begin Date] to [End Date]
@@ -56,6 +57,8 @@ reason).
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 
 ---
