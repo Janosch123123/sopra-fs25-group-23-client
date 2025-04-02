@@ -40,12 +40,12 @@ export class WebSocketService {
       return this.socket && this.socket.readyState === WebSocket.OPEN;
     }
 
-    addEventListener(event: string, callback: (data: unknown) => void): void {
-      if (!this.socket) {
-        throw new Error('WebSocket is not connected');
-      }
-      this.socket.addEventListener(event, (event) => {
-        callback(event.data);
-      });
-    }
+    // addEventListener(event: string, callback: (data: unknown) => void): void {
+    //   if (!this.socket) {
+    //     throw new Error('WebSocket is not connected');
+    //   }
+    //   this.socket.addEventListener(event, (event) => {
+    //     callback(event.data);
+    //   });
+    // }
   }

@@ -111,7 +111,11 @@ const MainPage: React.FC = () => {
   if (loading) {
     return <div>Loading lobby data...</div>;
   }
-  const topPlayer = lobbyData?.players.reduce((prev, current) => (prev.level > current.level ? prev : current), lobbyData?.players[0]);
+  
+  // Ensure topPlayer always has a value by providing a default empty object if players array is empty
+  const topPlayer = lobbyData?.players.length ? 
+    lobbyData.players.reduce((prev, current) => (prev.level > current.level ? prev : current), lobbyData.players[0]) 
+    : { username: "", level: 0 };
 
   return (
     <div className={styles.mainPage}>
@@ -130,7 +134,7 @@ const MainPage: React.FC = () => {
             {lobbyData?.players.map((player, index) => (
               <tr key={index}>
                 <td>
-                  {player.username} {player.username === topPlayer.username && "👑"}
+                  {player.username} {player.username === topPlayer?.username && "👑"}
                 </td>
                 <td>{player.level}</td>
               </tr>

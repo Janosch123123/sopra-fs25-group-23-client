@@ -45,7 +45,7 @@ const MainPage: React.FC = () => {
           return;
         }
       
-        const response = await apiService.get<User>(`/users/${userId}`);
+        const response = await apiService.get<UserStats>(`/users/${userId}`);
         setUserStats(response);
       } catch (error) {
         console.error('Error fetching user stats:', error);
