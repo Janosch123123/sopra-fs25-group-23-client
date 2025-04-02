@@ -40,7 +40,7 @@ const Login: React.FC = () => {
       console.log("Username stored in LocalStorage:", values.username);
 
       // Navigate to the user overview
-      router.push("/home");
+      router.push("/users");
     } catch (error) {
       if (error instanceof Error) {
         alert(`Something went wrong during the registration:\n${error.message}`);
@@ -102,7 +102,7 @@ const Login: React.FC = () => {
                 variant="solid"
                 color="blue"
                 className="login-button"
-                onClick={() => router.push("/login")}
+                onClick={() => router.push("/mock/login")}
               >
                 Login with an existing User
             </Button>

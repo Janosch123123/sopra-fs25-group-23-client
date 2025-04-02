@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { User } from "@/types/user";
 import { Button, Form, Input } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
 
@@ -22,14 +21,14 @@ const Login: React.FC = () => {
 
   const handleLogin = async (values: FormFieldProps) => {
     try {
-      // Call the API service and let it handle JSON serialization and error handling
-      const response = await apiService.post<User>("/users", values);
-      
+      // Call the API service to authenticate the user
+      const response = await apiService.post<{ token: string; id: string }>("/auth/login", values);
+
       // Store token if available
       if (response.token) {
         setToken(response.token);
       }
-
+      
       // Store user ID if available
       if (response.id) {
         setUserId(response.id);
@@ -39,13 +38,13 @@ const Login: React.FC = () => {
       setUsername(values.username);
       console.log("Username stored in LocalStorage:", values.username);
 
-      // Navigate to the user overview
-      router.push("/home");
+      // Navigate to the user page
+      router.push("/users");
     } catch (error) {
       if (error instanceof Error) {
-        alert(`Something went wrong during the registration:\n${error.message}`);
+        alert(`Something went wrong during the login:\n${error.message}`);
       } else {
-        console.error("An unknown error occurred during registration.");
+        console.error("An unknown error occurred during login.");
       }
     }
   };
@@ -65,7 +64,7 @@ const Login: React.FC = () => {
               layout="vertical"
             >
               <Form.Item>
-                <h1 className="login-title">Register a new User</h1>
+                <h1 className="login-title">Login with existing User</h1>
               </Form.Item>
               <Form.Item
                 name="username"
@@ -88,24 +87,21 @@ const Login: React.FC = () => {
                   color="blue"
                   htmlType="submit"
                   className="login-button">
-                  Register
+                  Login
                 </Button>
               </Form.Item>
+              <h3 className="login-title">Or</h3>
+              <br></br>
+              <Button
+                  type="primary"
+                  variant="solid"
+                  color="blue"
+                  className="login-button"
+                  onClick={() => router.push("/mock/register")}
+                >
+                  Register a new User
+              </Button>
             </Form>
-          </div>
-          <br></br>
-          <div className={styles.greenContainer}>
-            <h2 className="login-title">Already have an Account?</h2>
-            <br></br>
-            <Button
-                type="primary"
-                variant="solid"
-                color="blue"
-                className="login-button"
-                onClick={() => router.push("/login")}
-              >
-                Login with an existing User
-            </Button>
           </div>
         </div>
       </div>
