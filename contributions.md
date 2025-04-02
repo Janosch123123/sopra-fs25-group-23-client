@@ -30,7 +30,7 @@ reason).
 
 ---
 
-## Contributions Week 1 - [Begin Date] to [End Date]
+## Contributions Week 1 - [26.3.] to [2.4.]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
@@ -40,8 +40,8 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@Janosch123123]** | [31.3.]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/8f183ced7937add4f7110b7b61e5cd9d20de2fb4] | [creading Rest endpoints for validating users] | [make it more secure, doont send the password anymore.] |
+|                    | [31.3]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/8f183ced7937add4f7110b7b61e5cd9d20de2fb4] | [cleand the whole backend up, removed legacy code from M1, and also better styling] | [So that we are not confused by bad code in the backend] |
 
 ---
 
