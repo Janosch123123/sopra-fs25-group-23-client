@@ -34,8 +34,8 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[jojo2-8902]** | [date]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/2ca7bfbbb3870f78f7e6f1834c834c76d612fd7b] | [Check if user is allowed to access this page] | [authentication] |
-|                    | [date]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/e17326d08b70b6d2790a71ed50a558ad13df5027]| [create homepage] | [homepage is needed] |
+| **[jojo2-8902]** | [29.03]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/2ca7bfbbb3870f78f7e6f1834c834c76d612fd7b] | [Check if user is allowed to access this page] | [authentication] |
+|                    | [30.03]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/e17326d08b70b6d2790a71ed50a558ad13df5027]| [create homepage] | [homepage is needed] |
 | **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@LuckyLuke637]** | [29.03]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/6d8b4b112629d6592c832d4af0b5db3cd851b706] | [Websocket Service] | [Created the lobby service for websocket in the backend] |
