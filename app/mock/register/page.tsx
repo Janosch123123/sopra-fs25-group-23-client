@@ -7,30 +7,45 @@ import { User } from "@/types/user";
 import { Button, Form, Input } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
 
+interface FormFieldProps {
+  username: string;
+  password: string;
+}
+
 const Login: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
+  const { set: setToken } = useLocalStorage<string>("token", "");
+  const { set: setUserId } = useLocalStorage<string>("userId", "");
   const { set: setUsername } = useLocalStorage<string>("username", "");
 
-  const handleLogin = async (values: { username: string; password: string }) => {
+  const handleLogin = async (values: FormFieldProps) => {
     try {
-      const requestData = {
-        username: values.username,
-        password: values.password
-      };
+      // Call the API service and let it handle JSON serialization and error handling
+      const response = await apiService.post<User>("/users", values);
+      
+      // Store token if available
+      if (response.token) {
+        setToken(response.token);
+      }
 
-      await apiService.post<User>("/users/login", requestData);
+      // Store user ID if available
+      if (response.id) {
+        setUserId(response.id);
+      }
 
-      setUsername(values.username); // Store the username in useLocalStorage
+      // Store username (keep this from the original mock implementation)
+      setUsername(values.username);
       console.log("Username stored in LocalStorage:", values.username);
 
+      // Navigate to the user overview
       router.push("/users");
     } catch (error) {
       if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
+        alert(`Something went wrong during the registration:\n${error.message}`);
       } else {
-        console.error("An unknown error occurred during login.");
+        console.error("An unknown error occurred during registration.");
       }
     }
   };
@@ -39,7 +54,7 @@ const Login: React.FC = () => {
     <div className={styles.mainPage}>
       <div className={styles.loginContainer}>
         <div className={styles.loginContent}>
-          <h1 className={styles.title}>Snake with Friends</h1> {/* Add title */}
+          <h1 className={styles.title}>Snake with Friends</h1>
           <div className={styles.greenContainer}>
             <Form
               form={form}
@@ -67,28 +82,30 @@ const Login: React.FC = () => {
                 <Input.Password placeholder="Enter password" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary"
+                <Button 
+                  type="primary"
                   variant="solid"
-                  color = "blue"
+                  color="blue"
+                  htmlType="submit"
                   className="login-button">
                   Register
                 </Button>
               </Form.Item>
-              </Form>
-              </div>
-              <br></br>
-              <div className={styles.greenContainer}>
-              <h2 className="login-title">Already have an Account?</h2>
-              <br></br>
-              <Button
-                  type="primary"
-                  variant="solid"
-                  color = "blue"
-                  className="login-button"
-                  onClick={() => router.push("/mock/login")}
-                >
-                  Login with an existing User
-              </Button>
+            </Form>
+          </div>
+          <br></br>
+          <div className={styles.greenContainer}>
+            <h2 className="login-title">Already have an Account?</h2>
+            <br></br>
+            <Button
+                type="primary"
+                variant="solid"
+                color="blue"
+                className="login-button"
+                onClick={() => router.push("/mock/login")}
+              >
+                Login with an existing User
+            </Button>
           </div>
         </div>
       </div>
