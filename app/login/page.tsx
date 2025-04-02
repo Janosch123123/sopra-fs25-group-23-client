@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { User } from "@/types/user";
 import { Button, Form, Input } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
 

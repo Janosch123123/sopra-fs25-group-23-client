@@ -1,4 +1,3 @@
-
 import { getWebSocketDomain } from "@/utils/domain";
 
 
@@ -22,7 +21,7 @@ export class WebSocketService {
       return this.socket;
     }
     
-    send(data: any) {
+    send(data: unknown) {
       if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
         throw new Error('WebSocket is not connected');
       }
@@ -39,5 +38,14 @@ export class WebSocketService {
     
     isConnected() {
       return this.socket && this.socket.readyState === WebSocket.OPEN;
+    }
+
+    addEventListener(event: string, callback: (data: unknown) => void): void {
+      if (!this.socket) {
+        throw new Error('WebSocket is not connected');
+      }
+      this.socket.addEventListener(event, (event) => {
+        callback(event.data);
+      });
     }
   }

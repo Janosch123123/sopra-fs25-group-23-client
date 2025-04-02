@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useEffect, useState, useRef} from "react";
-import { Button, Modal, Input } from "antd";
+import { Button} from "antd";
 import styles from "@/styles/page.module.css";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
@@ -18,7 +18,7 @@ interface UserStats {
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { connect, send, disconnect, isConnected } = useLobbySocket();
+  const {disconnect} = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const serviceRef = useRef<WebSocketService | null>(null);
@@ -119,7 +119,7 @@ const MainPage: React.FC = () => {
             if (data.type === 'lobby_created' && data.code) {
               router.push(`/lobby/${data.code}`);
             }
-          } catch (e) {
+          } catch{
             // Not JSON, handle as plain text
             console.log('Received text message:', event.data);
             // Process text message if needed

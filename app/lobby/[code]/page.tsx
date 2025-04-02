@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import styles from "@/styles/page.module.css"; // Import styles
@@ -10,65 +10,25 @@ interface Player {
 }
 
 interface LobbyData {
-    code: string;
-    players: Player[];
-    settings: {
-        spawnRate: "Slow" | "Medium" | "Fast";
-        includePowerUps: boolean;
-    };
+  code: string;
+  players: Player[];
+  settings: {
+    spawnRate: "Slow" | "Medium" | "Fast";
+    includePowerUps: boolean;
+  };
 }
 
 const MainPage: React.FC = () => {
-    const router = useRouter();
-    const params = useParams();
-    const lobbyCode = params?.code as string;
-    const apiService = useApi();
+  const router = useRouter();
+  const params = useParams();
+  const lobbyCode = params?.code as string;
+  const apiService = useApi();
 
-    const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
-    const [loading, setLoading] = useState(true);
+  const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    const [spawnRate, setSpawnRate] = useState("Medium");
-    const [includePowerUps, setIncludePowerUps] = useState(false);
-
-    const fetchLobbyData = async () => {
-        try {
-            setLoading(true);
-            const response = await apiService.get<LobbyData>(`/lobby/${lobbyCode}`);
-            setLobbyData(response);
-            setSpawnRate(response.settings.spawnRate);
-            setIncludePowerUps(response.settings.includePowerUps);
-        } catch (error) {
-            console.error('Error fetching lobby data:', error);
-
-            setLobbyData({
-                code: lobbyCode || "5HK7UZH",
-                players: [
-                    { username: "Snake123", level: 5 },
-                    { username: "Jarno", level: 10 },
-                    { username: "MarMahl", level: 7 },
-                    { username: "Joello33", level: 3 }
-                ],
-                settings: {
-                    spawnRate: "Medium",
-                    includePowerUps: false
-                }
-            }); 
-        } finally {
-            setLoading(false);
-        }
-    };
-
-//    const players = [
-  //      { username: "Snake123", level: 5 },
-    //    { username: "Jarno", level: 10 },
-      //  { username: "MarMahl", level: 7 },
-        //{ username: "Joello33", level: 3 }
-//    ]; // Example player list
-
-  //const topPlayer = players.reduce((prev, current) => (prev.level > current.level) ? prev : current);
-
-//  const [spawnRate, setSpawnRate] = useState("Medium");
-  //const [includePowerUps, setIncludePowerUps] = useState(false);
+  const [spawnRate, setSpawnRate] = useState("Medium");
+  const [includePowerUps, setIncludePowerUps] = useState(false);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -84,17 +44,45 @@ const MainPage: React.FC = () => {
         // If token exists, verify it's still valid with the backend
         const formatedToken = token.replace(/"/g, '');
         const response = await apiService.post<{ authorized: boolean }>(
-          "/auth/verify", 
+          "/auth/verify",
           { formatedToken }
         );
-        
+
         // If token is not authorized, redirect to login
         if (!response.authorized) {
           router.push("/login");
           return;
         }
 
-    await fetchLobbyData();
+        const fetchLobbyData = async () => {
+          try {
+            setLoading(true);
+            const response = await apiService.get<LobbyData>(`/lobby/${lobbyCode}`);
+            setLobbyData(response);
+            setSpawnRate(response.settings.spawnRate);
+            setIncludePowerUps(response.settings.includePowerUps);
+          } catch (error) {
+            console.error('Error fetching lobby data:', error);
+
+            setLobbyData({
+              code: lobbyCode || "5HK7UZH",
+              players: [
+                { username: "Snake123", level: 5 },
+                { username: "Jarno", level: 10 },
+                { username: "MarMahl", level: 7 },
+                { username: "Joello33", level: 3 }
+              ],
+              settings: {
+                spawnRate: "Medium",
+                includePowerUps: false
+              }
+            });
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        await fetchLobbyData();
 
       } catch (error) {
         console.error('Error verifying user token:', error);
@@ -103,7 +91,11 @@ const MainPage: React.FC = () => {
     };
 
     checkToken();
-}, [apiService, router]);
+
+    return () => {
+      // Cleanup code if necessary
+    };
+  }, [apiService, router, lobbyCode]);
 
   const handleSpawnRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -116,11 +108,10 @@ const MainPage: React.FC = () => {
     setIncludePowerUps(event.target.checked);
   };
 
-
-    if (loading) {
-        return <div>Loading lobby data...</div>;
-    }
-    const topPlayer = lobbyData?.players.reduce((prev, current) => (prev.level > current.level ? prev : current), lobbyData?.players[0]);
+  if (loading) {
+    return <div>Loading lobby data...</div>;
+  }
+  const topPlayer = lobbyData?.players.reduce((prev, current) => (prev.level > current.level ? prev : current), lobbyData?.players[0]);
 
   return (
     <div className={styles.mainPage}>

@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
 
 const MainPage: React.FC = () => {
