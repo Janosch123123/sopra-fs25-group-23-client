@@ -38,8 +38,8 @@ reason).
 |                    | [date]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/e17326d08b70b6d2790a71ed50a558ad13df5027]| [create homepage] | [homepage is needed] |
 | **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@LuckyLuke637]** | [29.03]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/6d8b4b112629d6592c832d4af0b5db3cd851b706] | [Brief description of the task] | [Created the lobby service for websocket in the backend] |
+|                    | [30.03]   | [[https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/f0dcde300f0cc8473f4d94677f763fa4bca9ea90] | [Brief description of the task] | [Created the lobby service for websocketin the frontend] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 
