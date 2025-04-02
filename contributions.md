@@ -34,14 +34,14 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[jojo2-8902]** | [date]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/2ca7bfbbb3870f78f7e6f1834c834c76d612fd7b] | [Check if user is allowed to access this page] | [authentication] |
+|                    | [date]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/e17326d08b70b6d2790a71ed50a558ad13df5027]| [create homepage] | [homepage is needed] |
 | **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@LuckyLuke637]** | [29.03]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/6d8b4b112629d6592c832d4af0b5db3cd851b706] | [Brief description of the task] | [Created the lobby service for websocket in the backend] |
+|                    | [30.03]   | [[https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/f0dcde300f0cc8473f4d94677f763fa4bca9ea90] | [Brief description of the task] | [Created the lobby service for websocketin the frontend] |
 | **[@Janosch123123]** | [31.3.]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/8f183ced7937add4f7110b7b61e5cd9d20de2fb4] | [creading Rest endpoints for validating users] | [make it more secure, doont send the password anymore.] |
-|                    | [31.3]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/8f183ced7937add4f7110b7b61e5cd9d20de2fb4] | [cleand the whole backend up, removed legacy code from M1, and also better styling] | [So that we are not confused by bad code in the backend] |
+|                    | [31.3]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/d74a76b5422ddefb7c516615b6c83bf940d6b750] | [cleand the whole backend up, removed legacy code from M1, and also better styling] | [So that we are not confused by bad code in the backend, (a lot of this was done in the commit above as well!)] |
 
 ---
 
