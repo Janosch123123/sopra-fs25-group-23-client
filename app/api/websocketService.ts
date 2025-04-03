@@ -1,3 +1,4 @@
+
 import { getWebSocketDomain } from "@/utils/domain";
 
 
@@ -6,22 +7,58 @@ export class WebSocketService {
     private url: string = getWebSocketDomain();
 
     
-    connect(params?: Record<string, string>) {
-      // Build URL with query parameters if provided
-      let connectionUrl = this.url;
-      if (params && Object.keys(params).length > 0) {
-        const queryString = Object.entries(params)
-          .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-          .join('&');
-        connectionUrl = `${connectionUrl}?${queryString}`;
-      }
-      
-      // Create new WebSocket connection
-      this.socket = new WebSocket(connectionUrl);
-      return this.socket;
+    connect(params?: Record<string, string>): Promise<WebSocket> {
+    // Build URL with query parameters if provided
+    let connectionUrl = this.url;
+    if (params && Object.keys(params).length > 0) {
+      const queryString = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      connectionUrl = `${connectionUrl}?${queryString}`;
     }
     
-    send(data: unknown) {
+    // Close existing connection if there is one
+    if (this.socket) {
+      this.socket.close();
+    }
+    
+    // Create new WebSocket connection
+    this.socket = new WebSocket(connectionUrl);
+    
+    // Return a promise that resolves when the connection is open
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        reject(new Error('Failed to create WebSocket'));
+        return;
+      }
+      
+      // If socket is already open, resolve immediately
+      if (this.socket.readyState === WebSocket.OPEN) {
+        resolve(this.socket);
+        return;
+      }
+      
+      // Otherwise wait for it to open
+      this.socket.onopen = () => {
+        console.log('WebSocket connection established');
+        resolve(this.socket!);
+      };
+      
+      this.socket.onerror = (event) => {
+        console.error('WebSocket connection error');
+        reject(new Error('WebSocket connection error'));
+      };
+      
+      // Set a timeout to reject if it takes too long
+      setTimeout(() => {
+        if (this.socket?.readyState !== WebSocket.OPEN) {
+          reject(new Error('WebSocket connection timeout'));
+        }
+      }, 5000);
+    });
+  }
+    
+    send(data: any) {
       if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
         throw new Error('WebSocket is not connected');
       }
@@ -39,13 +76,4 @@ export class WebSocketService {
     isConnected() {
       return this.socket && this.socket.readyState === WebSocket.OPEN;
     }
-
-    // addEventListener(event: string, callback: (data: unknown) => void): void {
-    //   if (!this.socket) {
-    //     throw new Error('WebSocket is not connected');
-    //   }
-    //   this.socket.addEventListener(event, (event) => {
-    //     callback(event.data);
-    //   });
-    // }
   }

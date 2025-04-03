@@ -2,13 +2,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { WebSocketService } from '@/api/websocketService';
 
-// // Define an interface for Player type
-// interface Player {
-//   id: string;
-//   username: string;
-//   // Add other properties as needed
-// }
-
 export function useLobbySocket() {
   const [isConnected, setIsConnected] = useState(false);
   const serviceRef = useRef<WebSocketService | null>(null);
@@ -59,7 +52,7 @@ export function useLobbySocket() {
   }, []);
   
   // Wrapper for sending messages
-  const send = useCallback((data: { type: string; payload: unknown }) => {
+  const send = useCallback((data: any) => {
     if (!serviceRef.current) {
       console.error('Cannot send message: WebSocket service not initialized');
       return false;
@@ -82,15 +75,6 @@ export function useLobbySocket() {
     }
   }, []);
   
-  useEffect(() => {
-    // This effect can be used to set up event handlers in the future
-    // For now we're keeping it empty but ready for future implementation
-    
-    return () => {
-      // Clean up event handlers if necessary
-    };
-  }, []);
-
   return {
     isConnected,
     connect,

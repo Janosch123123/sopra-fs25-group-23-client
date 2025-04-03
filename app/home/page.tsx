@@ -96,50 +96,42 @@ const MainPage: React.FC = () => {
 
   const handleCreateLobby = async () => {
     try {
-      // Get token from localStorage
+      // Get token
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
-      // Establish WebSocket connection with the token
+      // Create WebSocket service if it doesn't exist
       if (!serviceRef.current) {
         serviceRef.current = new WebSocketService();
       }
       
-      const socket = serviceRef.current.connect({ token });
+      // Connect to the WebSocket server and wait for the connection to be established
+      const socket = await serviceRef.current.connect({ token });
       
-      // Set the message handler immediately before connection happens
+      // Set up message handler
       socket.onmessage = (event) => {
         try {
           console.log("Raw message:", event.data);
           
           // Try to parse as JSON
-          try {
-            const data = JSON.parse(event.data);
-            console.log('Parsed JSON message:', data);
-            
-            if (data.type === 'lobby_created' && data.code) {
-              router.push(`/lobby/${data.code}`);
-            }
-          } catch{
-            // Not JSON, handle as plain text
-            console.log('Received text message:', event.data);
-            // Process text message if needed
+          const data = JSON.parse(event.data);
+          console.log('Parsed JSON message:', data);
+          
+          if (data.type === 'lobby_created' && data.lobbyId) {
+            router.push(`/lobby/${data.lobbyId}`);
           }
         } catch (error) {
           console.error('Error handling message:', error);
         }
       };
       
-      // Send a message to create a lobby (instead of API call)
+      // Send the create lobby message
       serviceRef.current.send({
-        action: 'create_lobby',
-        settings: {
-          spawnRate: "Medium",
-          includePowerUps: false
-        }
+        type: 'create_lobby'
       });
       
     } catch (error) {
-      console.error('Error connecting to WebSocket:', error);
+      console.error('Error creating lobby:', error);
+      // Show error to user
     }
   };
 
