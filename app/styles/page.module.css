@@ -349,13 +349,15 @@ a.secondary {
   min-height: 80px; /* Smaller height */
   border: 5px solid #ffffff; /* Thinner border */
   border-radius: 200px; /* Smaller border radius */
+  background-color: #fa541c !important; /* Volcano color */
+  color: #ffffff !important; /* Ensure text color is applied */
 }
 
 .stretchedInput {
   border: 4px solid #ffffff !important;
   border-radius: 20px !important;
-  padding: 18px 20px !important;
-  font-size: 28px !important;
+  padding: 18px 0px !important;
+  font-size: 35px !important;
   height: 70px !important;
   flex: 1;
   line-height: 1.5 !important;
@@ -363,6 +365,17 @@ a.secondary {
   letter-spacing: -1px !important;
   font-stretch: ultra-condensed !important;
   text-transform: uppercase !important;
+  background-color: white !important; /* Ensure background is white */
+  color: #333 !important; /* Ensure text color is visible */
+}
+
+.joinButtonContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+  background-color: transparent; /* Ensure container has no background */
 }
 
 .timer {
