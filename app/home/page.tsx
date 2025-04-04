@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useEffect, useState, useRef} from "react";
-import { Button} from "antd";
+import { Button, Input } from "antd";
 import styles from "@/styles/page.module.css";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
@@ -22,10 +22,8 @@ const MainPage: React.FC = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const serviceRef = useRef<WebSocketService | null>(null);
-
- 
-
-  
+  const [showButtons, setShowButtons] = useState(true);
+  const [lobbyCode, setLobbyCode] = useState('');
 
   useEffect(() => {
     // Initialize WebSocketService
@@ -135,6 +133,16 @@ const MainPage: React.FC = () => {
     }
   };
 
+  const handleJoinLobbyClick = () => {
+    setShowButtons(false);
+  };
+
+  const handleJoinWithCode = () => {
+    if (lobbyCode.trim()) {
+      router.push(`/lobby/${lobbyCode}`);
+    }
+  };
+
   return (
     <div className={styles.mainPage}>
       <div className={styles.dashboardContainer}>
@@ -168,25 +176,50 @@ const MainPage: React.FC = () => {
       </div>
       <div className={styles.playButtonContainer} style={{ fontSize: '10px', fontWeight: 'bold', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', alignItems: 'flex-start' }}>
-          <Button
-              type="primary"
-              variant="solid"
-              color="volcano"
-              className={styles.lobbyButtons}
-              style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
-              onClick={handleCreateLobby}
+          {showButtons ? (
+            <>
+              <Button
+                type="primary"
+                variant="solid"
+                color="volcano"
+                className={styles.lobbyButtons}
+                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleCreateLobby}
               >
-              Create Lobby
-          </Button>
-          <Button
-              type="primary"
-              variant="solid"
-              color="volcano"
-              className={styles.lobbyButtons}
-              style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                Create Lobby
+              </Button>
+              <Button
+                type="primary"
+                variant="solid"
+                color="volcano"
+                className={styles.lobbyButtons}
+                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleJoinLobbyClick}
               >
-              Join Lobby
-          </Button>
+                Join Lobby
+              </Button>
+            </>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', width: '100%', alignItems: 'center' }}>
+              <Input
+                placeholder="Enter Lobby Code"
+                value={lobbyCode}
+                onChange={(e) => setLobbyCode(e.target.value)}
+                className={styles.stretchedInput}
+                style={{ flex: '1' }}
+              />
+              <Button
+                type="primary"
+                variant="solid"
+                color="volcano"
+                className={styles.joinButton}
+                style={{ border: '4px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleJoinWithCode}
+              >
+                Join
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
