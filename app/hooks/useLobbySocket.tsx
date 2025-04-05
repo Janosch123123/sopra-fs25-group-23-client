@@ -2,83 +2,74 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { WebSocketService } from '@/api/websocketService';
 
+let globalIsConnected = false;
+
 export function useLobbySocket() {
-  const [isConnected, setIsConnected] = useState(false);
-  const serviceRef = useRef<WebSocketService | null>(null);
+  const [isConnected, setIsConnected] = useState(globalIsConnected);
+  const service = WebSocketService.getInstance();
   
+
   // Initialize WebSocketService once
   useEffect(() => {
-    if (!serviceRef.current) {
-      serviceRef.current = new WebSocketService();
-    }
-    
+    setIsConnected(globalIsConnected);
+
     // Clean up on unmount
     return () => {
-      if (serviceRef.current) {
-        serviceRef.current.disconnect();
-      }
     };
   }, []);
   
   // Connect with auth token
   const connect = useCallback((params?: Record<string, string>) => {
-    if (!serviceRef.current) return null;
-    
     // Format token if not provided in params
     const connectionParams = { ...params };
     if (!connectionParams.token && localStorage.getItem("token")) {
       connectionParams.token = localStorage.getItem("token")?.replace(/"/g, '') || '';
     }
     
-    const socket = serviceRef.current.connect(connectionParams);
-    
-    // Update React state based on connection events
-    socket.onopen = () => {
-      console.log('WebSocket connected');
-      setIsConnected(true);
-    };
-    
-    socket.onclose = () => {
-      console.log('WebSocket disconnected');
-      setIsConnected(false);
-    };
-    
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setIsConnected(false);
-    };
-    
-    return socket;
-  }, []);
-  
-  // Wrapper for sending messages
-  const send = useCallback((data: any) => {
-    if (!serviceRef.current) {
-      console.error('Cannot send message: WebSocket service not initialized');
-      return false;
-    }
-    
     try {
-      serviceRef.current.send(data);
-      return true;
+      const socketPromise = service.connect(connectionParams);
+      
+      socketPromise.then(socket => {
+        // Update both local and global connection state
+        globalIsConnected = true;
+        setIsConnected(true);
+        
+        // Set up event handlers if not already set
+        if (!socket.onclose || !socket.onerror) {
+          socket.onclose = () => {
+            globalIsConnected = false;
+            setIsConnected(false);
+          };
+          
+          socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            globalIsConnected = false;
+            setIsConnected(false);
+          };
+        }
+      });
+      
+      return socketPromise;
     } catch (error) {
-      console.error('Failed to send message:', error);
-      return false;
+      console.error('Connection error:', error);
+      return Promise.reject(error);
     }
   }, []);
   
-  // Wrapper for disconnecting
+  
+  // Update disconnect to be more explicit
   const disconnect = useCallback(() => {
-    if (serviceRef.current) {
-      serviceRef.current.disconnect();
-      setIsConnected(false);
-    }
+    service.disconnect();
+    globalIsConnected = false;
+    setIsConnected(false);
   }, []);
   
   return {
     isConnected,
     connect,
-    send,
-    disconnect
+    send: (data: any) => service.send(data),
+    disconnect,
+    // Add a getter for the socket
+    getSocket: () => service.isConnected() ? (service as any).socket : null
   };
 }

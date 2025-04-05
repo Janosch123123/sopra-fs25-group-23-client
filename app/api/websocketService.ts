@@ -1,11 +1,20 @@
 
 import { getWebSocketDomain } from "@/utils/domain";
 
+let instance: WebSocketService | null = null;
 
 export class WebSocketService {
     private socket: WebSocket | null = null;
     private url: string = getWebSocketDomain();
 
+      
+    constructor() {
+      // Ensure only one instance exists
+      if (instance) {
+        return instance;
+      }
+      instance = this;
+    }
     
     connect(params?: Record<string, string>): Promise<WebSocket> {
     // Build URL with query parameters if provided
@@ -75,5 +84,12 @@ export class WebSocketService {
     
     isConnected() {
       return this.socket && this.socket.readyState === WebSocket.OPEN;
+    }
+    // Add a static method to get the instance
+    static getInstance(): WebSocketService {
+      if (!instance) {
+        instance = new WebSocketService();
+      }
+      return instance;
     }
   }

@@ -18,21 +18,14 @@ interface UserStats {
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const {disconnect} = useLobbySocket();
+  const { connect, send, isConnected} = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const serviceRef = useRef<WebSocketService | null>(null);
-
- 
 
   
 
   useEffect(() => {
-    // Initialize WebSocketService
-    if (!serviceRef.current) {
-      serviceRef.current = new WebSocketService();
-    }
-    
+
     const userId = localStorage.getItem("userId");
 
     const fetchUserStats = async () => {
@@ -90,29 +83,16 @@ const MainPage: React.FC = () => {
     
     // Add cleanup for WebSocket
     return () => {
-      disconnect();
     };
-  }, [apiService, router, disconnect]);
+  }, [apiService, router]);
 
   const handleCreateLobby = async () => {
     try {
-      // Get token
-      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+      const socket = await connect();
       
-      // Create WebSocket service if it doesn't exist
-      if (!serviceRef.current) {
-        serviceRef.current = new WebSocketService();
-      }
-      
-      // Connect to the WebSocket server and wait for the connection to be established
-      const socket = await serviceRef.current.connect({ token });
-      
-      // Set up message handler
       socket.onmessage = (event) => {
         try {
           console.log("Raw message:", event.data);
-          
-          // Try to parse as JSON
           const data = JSON.parse(event.data);
           console.log('Parsed JSON message:', data);
           
@@ -124,14 +104,10 @@ const MainPage: React.FC = () => {
         }
       };
       
-      // Send the create lobby message
-      serviceRef.current.send({
-        type: 'create_lobby'
-      });
+      send({ type: 'create_lobby' });
       
     } catch (error) {
       console.error('Error creating lobby:', error);
-      // Show error to user
     }
   };
 
