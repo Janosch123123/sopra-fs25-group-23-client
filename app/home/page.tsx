@@ -18,21 +18,14 @@ interface UserStats {
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const {disconnect} = useLobbySocket();
+  const { connect, send, isConnected} = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const serviceRef = useRef<WebSocketService | null>(null);
-
- 
 
   
 
   useEffect(() => {
-    // Initialize WebSocketService
-    if (!serviceRef.current) {
-      serviceRef.current = new WebSocketService();
-    }
-    
+
     const userId = localStorage.getItem("userId");
 
     const fetchUserStats = async () => {
@@ -90,56 +83,31 @@ const MainPage: React.FC = () => {
     
     // Add cleanup for WebSocket
     return () => {
-      disconnect();
     };
-  }, [apiService, router, disconnect]);
+  }, [apiService, router]);
 
   const handleCreateLobby = async () => {
     try {
-      // Get token from localStorage
-      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+      const socket = await connect();
       
-      // Establish WebSocket connection with the token
-      if (!serviceRef.current) {
-        serviceRef.current = new WebSocketService();
-      }
-      
-      const socket = serviceRef.current.connect({ token });
-      
-      // Set the message handler immediately before connection happens
       socket.onmessage = (event) => {
         try {
           console.log("Raw message:", event.data);
+          const data = JSON.parse(event.data);
+          console.log('Parsed JSON message:', data);
           
-          // Try to parse as JSON
-          try {
-            const data = JSON.parse(event.data);
-            console.log('Parsed JSON message:', data);
-            
-            if (data.type === 'lobby_created' && data.code) {
-              router.push(`/lobby/${data.code}`);
-            }
-          } catch{
-            // Not JSON, handle as plain text
-            console.log('Received text message:', event.data);
-            // Process text message if needed
+          if (data.type === 'lobby_created' && data.lobbyId) {
+            router.push(`/lobby/${data.lobbyId}`);
           }
         } catch (error) {
           console.error('Error handling message:', error);
         }
       };
       
-      // Send a message to create a lobby (instead of API call)
-      serviceRef.current.send({
-        action: 'create_lobby',
-        settings: {
-          spawnRate: "Medium",
-          includePowerUps: false
-        }
-      });
+      send({ type: 'create_lobby' });
       
     } catch (error) {
-      console.error('Error connecting to WebSocket:', error);
+      console.error('Error creating lobby:', error);
     }
   };
 
