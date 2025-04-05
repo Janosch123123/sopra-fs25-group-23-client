@@ -1,8 +1,9 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import styles from "@/styles/page.module.css"; // Import styles
+import { useLobbySocket } from '@/hooks/useLobbySocket';
 
 interface Player {
   username: string;
@@ -23,12 +24,94 @@ const MainPage: React.FC = () => {
   const params = useParams();
   const lobbyCode = params?.code as string;
   const apiService = useApi();
-
+  
+  // Use the existing WebSocket connection through the hook
+  const { disconnect, isConnected, connect, send } = useLobbySocket();
+  const socketRef = useRef<WebSocket | null>(null);
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
 
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
+
+  // Initialize connection in a separate useEffect with proper async handling
+  useEffect(() => {
+    // Connect to WebSocket when component mounts
+    const connectWebSocket = async () => {
+      try {
+        // Wait for the Promise to resolve to get the actual WebSocket
+        const socket = await connect();
+        socketRef.current = socket;
+        
+        // Set up message handler for the WebSocket once connection is established
+        socket.addEventListener('message', (event) => {
+          try {
+            console.log("Received WebSocket message:", event.data);
+            const data = JSON.parse(event.data);
+            
+            // Handle different types of messages
+            if (data.type === 'lobby_data' || data.type === 'lobby_update') {
+              if (data.lobby) {
+                setLobbyData(data.lobby);
+                
+                // Only update settings if they exist in the data
+                if (data.lobby.settings) {
+                  setSpawnRate(data.lobby.settings.spawnRate);
+                  setIncludePowerUps(data.lobby.settings.includePowerUps);
+                }
+                
+                setLoading(false);
+                setConnectionError(false);
+              }
+            } 
+            else if (data.type === 'connection_success') {
+              console.log("WebSocket connection established successfully");
+              setConnectionError(false);
+            }
+            else if (data.type === 'error') {
+              console.error("WebSocket error:", data.message);
+            }
+          } catch (error) {
+            console.error('Error handling WebSocket message:', error);
+          }
+        });
+      } catch (error) {
+        console.error('WebSocket connection failed:', error);
+        setConnectionError(true);
+        // Still show the UI even if WebSocket isn't connected
+        setLoading(false);
+        
+        // Create some placeholder data for the UI
+        setLobbyData({
+          code: lobbyCode,
+          players: [
+            { username: localStorage.getItem("username") || "You", level: 1 }
+          ],
+          settings: {
+            spawnRate: "Medium",
+            includePowerUps: false
+          }
+        });
+      }
+    };
+    
+    connectWebSocket();
+    
+    // Clean up handled by the hook
+  }, [connect, lobbyCode]);
+
+  const updateSettings = () => {
+    // Use the send function from the hook
+    send({
+      type: 'update_settings',
+      lobbyCode: lobbyCode,
+      settings: {
+        spawnRate: spawnRate,
+        includePowerUps: includePowerUps
+      }
+    });
+  };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -53,36 +136,9 @@ const MainPage: React.FC = () => {
           router.push("/login");
           return;
         }
-
-        const fetchLobbyData = async () => {
-          try {
-            setLoading(true);
-            const response = await apiService.get<LobbyData>(`/lobby/${lobbyCode}`);
-            setLobbyData(response);
-            setSpawnRate(response.settings.spawnRate);
-            setIncludePowerUps(response.settings.includePowerUps);
-          } catch (error) {
-            console.error('Error fetching lobby data:', error);
-
-            setLobbyData({
-              code: lobbyCode || "5HK7UZH",
-              players: [
-                { username: "Snake123", level: 5 },
-                { username: "Jarno", level: 10 },
-                { username: "MarMahl", level: 7 },
-                { username: "Joello33", level: 3 }
-              ],
-              settings: {
-                spawnRate: "Medium",
-                includePowerUps: false
-              }
-            });
-          } finally {
-            setLoading(false);
-          }
-        };
-
-        await fetchLobbyData();
+        
+        // We don't need to set up WebSocket event handlers here anymore
+        // They're now set up in the connectWebSocket function above
 
       } catch (error) {
         console.error('Error verifying user token:', error);
@@ -91,25 +147,43 @@ const MainPage: React.FC = () => {
     };
 
     checkToken();
-
-    return () => {
-      // Cleanup code if necessary
-    };
-  }, [apiService, router, lobbyCode]);
+  }, [apiService, router]);
 
   const handleSpawnRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    if (value === "0") setSpawnRate("Slow");
-    else if (value === "1") setSpawnRate("Medium");
-    else if (value === "2") setSpawnRate("Fast");
+    const newSpawnRate = value === "0" ? "Slow" : value === "1" ? "Medium" : "Fast";
+    setSpawnRate(newSpawnRate);
+    
+    // Update the setting immediately via WebSocket
+    setTimeout(() => updateSettings(), 100);
   };
 
   const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIncludePowerUps(event.target.checked);
+    
+    // Update the setting immediately via WebSocket
+    setTimeout(() => updateSettings(), 100);
+  };
+  
+  const handleStartGame = () => {
+    send({
+      type: 'start_game',
+      lobbyCode: lobbyCode
+    });
+  };
+  
+  const handleLeaveLobby = () => {
+    send({
+      type: 'leave_lobby',
+      lobbyCode: lobbyCode
+    });
+    
+    // Redirect to dashboard
+    router.push('/');
   };
 
   if (loading) {
-    return <div>Loading lobby data...</div>;
+    return <div>Loading lobby data... {connectionError ? "(WebSocket connection issue)" : ""}</div>;
   }
   
   // Ensure topPlayer always has a value by providing a default empty object if players array is empty
@@ -122,6 +196,7 @@ const MainPage: React.FC = () => {
       <div className={styles.lobbyContainer}>
         <h1>Lobby</h1>
         <h3>({lobbyData?.code})</h3>
+        {connectionError && <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may not work.</div>}
         <br></br>
         <table className={styles.lobbyTable}>
           <thead>
@@ -168,8 +243,8 @@ const MainPage: React.FC = () => {
           />
           <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
         </div>
-        <button className={styles.startGameButton}>Start Game</button>
-        <button className={styles.leaveLobbyButton}>Leave Lobby</button>
+        <button className={styles.startGameButton} onClick={handleStartGame}>Start Game</button>
+        <button className={styles.leaveLobbyButton} onClick={handleLeaveLobby}>Leave Lobby</button>
       </div>
     </div>
   );
