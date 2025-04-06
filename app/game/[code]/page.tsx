@@ -19,6 +19,7 @@ const GamePage: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [players, setPlayers] = useState<PlayerData>({});
   const [cookies, setCookies] = useState<number[]>([]);
+  const [timestamp, setTimestamp] = useState<number>(0);
   
   // Get lobby code from URL parameters
   const params = useParams();
@@ -58,6 +59,17 @@ const GamePage: React.FC = () => {
                 renderGameElements(data.players || {}, data.cookies || []);
               }
               
+              // Handle gameState updates
+              if (data.type === 'gameState') {
+                setGameLive(true);
+                setCountdown(null);
+                setPlayers(data.players || {});
+                setCookies(data.cookies || []);
+                
+                // Render all elements with updated positions
+                renderGameElements(data.players || {}, data.cookies || []);
+              }
+              
             } catch (error) {
               console.error("Error parsing message:", error);
             }
@@ -76,12 +88,11 @@ const GamePage: React.FC = () => {
     };
   }, [connect, disconnect, lobbyCode]);
 
-  // Pseudo example of preGame state for testing rendering
+  // Simulate countdown messages
   useEffect(() => {
-    // This simulates receiving a preGame message from the server
-    // In a real scenario, this would come from the WebSocket
-    const simulatePreGameState = () => {
-      const pseudoGameData = {
+    // Create an array of countdown states
+    const countdownStates = [
+      {
         type: 'preGame',
         countdown: 5,
         players: {
@@ -91,29 +102,291 @@ const GamePage: React.FC = () => {
           'player4': [posToIndex(20, 4), posToIndex(21,4), posToIndex(22, 4)]
         },
         cookies: [75, 120, 210, 350]
-      };
+      },
+      {
+        type: 'preGame',
+        countdown: 4,
+        players: {
+          'player1': [posToIndex(4,4), posToIndex(4,3), posToIndex(4,2)],
+          'player2': [posToIndex(4,25), posToIndex(3,25), posToIndex(2,25)],
+          'player3': [posToIndex(20,25), posToIndex(20,26), posToIndex(20,27)],
+          'player4': [posToIndex(20, 4), posToIndex(21,4), posToIndex(22, 4)]
+        },
+        cookies: [75, 120, 210, 350]
+      },
+      {
+        type: 'preGame',
+        countdown: 3,
+        players: {
+          'player1': [posToIndex(4,4), posToIndex(4,3), posToIndex(4,2)],
+          'player2': [posToIndex(4,25), posToIndex(3,25), posToIndex(2,25)],
+          'player3': [posToIndex(20,25), posToIndex(20,26), posToIndex(20,27)],
+          'player4': [posToIndex(20, 4), posToIndex(21,4), posToIndex(22, 4)]
+        },
+        cookies: [75, 120, 210, 350]
+      },
+      {
+        type: 'preGame',
+        countdown: 2,
+        players: {
+          'player1': [posToIndex(4,4), posToIndex(4,3), posToIndex(4,2)],
+          'player2': [posToIndex(4,25), posToIndex(3,25), posToIndex(2,25)],
+          'player3': [posToIndex(20,25), posToIndex(20,26), posToIndex(20,27)],
+          'player4': [posToIndex(20, 4), posToIndex(21,4), posToIndex(22, 4)]
+        },
+        cookies: [75, 120, 210, 350]
+      },
+      {
+        type: 'preGame',
+        countdown: 1,
+        players: {
+          'player1': [posToIndex(4,4), posToIndex(4,3), posToIndex(4,2)],
+          'player2': [posToIndex(4,25), posToIndex(3,25), posToIndex(2,25)],
+          'player3': [posToIndex(20,25), posToIndex(20,26), posToIndex(20,27)],
+          'player4': [posToIndex(20, 4), posToIndex(21,4), posToIndex(22, 4)]
+        },
+        cookies: [75, 120, 210, 350]
+      },
+      {
+        type: 'preGame',
+        countdown: 0,
+        players: {
+          'player1': [posToIndex(4,4), posToIndex(4,3), posToIndex(4,2)],
+          'player2': [posToIndex(4,25), posToIndex(3,25), posToIndex(2,25)],
+          'player3': [posToIndex(20,25), posToIndex(20,26), posToIndex(20,27)],
+          'player4': [posToIndex(20, 4), posToIndex(21,4), posToIndex(22, 4)]
+        },
+        cookies: [75, 120, 210, 350]
+      }
+    ];
 
-      console.log("Simulating preGame state:", pseudoGameData);
-      
-      // Set state with pseudo data
-      setGameLive(false);
-      setCountdown(pseudoGameData.countdown);
-      setPlayers(pseudoGameData.players);
-      setCookies(pseudoGameData.cookies);
-      
-      // Render game elements
-      renderGameElements(pseudoGameData.players, pseudoGameData.cookies);
-      
-      // Simulate countdown
+    // Create an array of game states for player movement simulation
+    const gameStates = [
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(4,5), posToIndex(4,4), posToIndex(4,3)],
+          'player2': [posToIndex(5,25), posToIndex(4,25), posToIndex(3,25)],
+          'player3': [posToIndex(20,24), posToIndex(20,25), posToIndex(20,26)],
+          'player4': [posToIndex(19, 4), posToIndex(20, 4), posToIndex(21, 4)]
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 1
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(4,6), posToIndex(4,5), posToIndex(4,4)],
+          'player2': [posToIndex(6,25), posToIndex(5,25), posToIndex(4,25)],
+          'player3': [posToIndex(20,23), posToIndex(20,24), posToIndex(20,25)],
+          'player4': [posToIndex(18, 4), posToIndex(19, 4), posToIndex(20, 4)]
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 2
+      },
+      // Add 10 more game states with random turns
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(4,7), posToIndex(4,6), posToIndex(4,5)],
+          'player2': [posToIndex(7,25), posToIndex(6,25), posToIndex(5,25)],
+          'player3': [posToIndex(20,22), posToIndex(20,23), posToIndex(20,24)],
+          'player4': [posToIndex(17, 4), posToIndex(18, 4), posToIndex(19, 4)]
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 3
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(5,7), posToIndex(4,7), posToIndex(4,6)], // Turn right
+          'player2': [posToIndex(7,24), posToIndex(7,25), posToIndex(6,25)], // Turn left
+          'player3': [posToIndex(20,21), posToIndex(20,22), posToIndex(20,23)], // Continue straight
+          'player4': [posToIndex(16, 4), posToIndex(17, 4), posToIndex(18, 4)] // Continue straight
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 4
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(6,7), posToIndex(5,7), posToIndex(4,7)], // Continue right
+          'player2': [posToIndex(7,23), posToIndex(7,24), posToIndex(7,25)], // Continue left
+          'player3': [posToIndex(19,21), posToIndex(20,21), posToIndex(20,22)], // Turn left
+          'player4': [posToIndex(16, 3), posToIndex(16, 4), posToIndex(17, 4)] // Turn up
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 5
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(7,7), posToIndex(6,7), posToIndex(5,7)], // Continue right
+          'player2': [posToIndex(7,22), posToIndex(7,23), posToIndex(7,24)], // Continue left
+          'player3': [posToIndex(18,21), posToIndex(19,21), posToIndex(20,21)], // Continue left
+          'player4': [posToIndex(16, 2), posToIndex(16, 3), posToIndex(16, 4)] // Continue up
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 6
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(7,8), posToIndex(7,7), posToIndex(6,7)], // Turn right (down)
+          'player2': [posToIndex(7,21), posToIndex(7,22), posToIndex(7,23)], // Continue left
+          'player3': [posToIndex(17,21), posToIndex(18,21), posToIndex(19,21)], // Continue left
+          'player4': [posToIndex(15, 2), posToIndex(16, 2), posToIndex(16, 3)] // Turn left
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 7
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(7,9), posToIndex(7,8), posToIndex(7,7)], // Continue down
+          'player2': [posToIndex(6,21), posToIndex(7,21), posToIndex(7,22)], // Turn up
+          'player3': [posToIndex(17,20), posToIndex(17,21), posToIndex(18,21)], // Turn up
+          'player4': [posToIndex(14, 2), posToIndex(15, 2), posToIndex(16, 2)] // Continue left
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 8
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(7,10), posToIndex(7,9), posToIndex(7,8)], // Continue down
+          'player2': [posToIndex(5,21), posToIndex(6,21), posToIndex(7,21)], // Continue up
+          'player3': [posToIndex(17,19), posToIndex(17,20), posToIndex(17,21)], // Continue up
+          'player4': [posToIndex(13, 2), posToIndex(14, 2), posToIndex(15, 2)] // Continue left
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 9
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(8,10), posToIndex(7,10), posToIndex(7,9)], // Turn right (continue down)
+          'player2': [posToIndex(5,20), posToIndex(5,21), posToIndex(6,21)], // Turn left
+          'player3': [posToIndex(17,18), posToIndex(17,19), posToIndex(17,20)], // Continue up
+          'player4': [posToIndex(13, 4), posToIndex(13, 3), posToIndex(13, 2)] // Turn down
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 10
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(9,10), posToIndex(8,10), posToIndex(7,10)], // Continue down
+          'player2': [posToIndex(5,19), posToIndex(5,20), posToIndex(5,21)], // Continue left
+          'player3': [posToIndex(16,18), posToIndex(17,18), posToIndex(17,19)], // Turn left
+          'player4': [posToIndex(13, 4), posToIndex(13, 3), posToIndex(13, 2)] // Continue down
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 11
+      },
+      {
+        type: 'gameState',
+        players: {
+          'player1': [posToIndex(10,10), posToIndex(9,10), posToIndex(8,10)], // Continue down
+          'player2': [posToIndex(4,19), posToIndex(5,19), posToIndex(5,20)], // Turn up
+          'player3': [posToIndex(15,18), posToIndex(16,18), posToIndex(17,18)], // Continue left
+          'player4': [posToIndex(14, 4), posToIndex(13, 4), posToIndex(13, 3)] // Turn right
+        },
+        cookies: [75, 120, 210, 350],
+        timestamp: 12
+      }
+    ];
 
-      return;
+    // Process countdown states sequentially
+    const processCountdownStates = () => {
+      countdownStates.forEach((state, index) => {
+        setTimeout(() => {
+          console.log(`Simulating countdown: ${state.countdown}`);
+          
+          // Update state
+          setGameLive(false);
+          setCountdown(state.countdown);
+          setPlayers(state.players);
+          setCookies(state.cookies);
+          
+          // Render game elements
+          renderGameElements(state.players, state.cookies);
+          
+          // After the last countdown state, start the game
+          if (index === countdownStates.length - 1) {
+            setTimeout(() => {
+              // Initial game state
+              const initialGameState = {
+                type: 'gameState',
+                players: state.players,
+                cookies: state.cookies,
+                timestamp: 0
+              };
+              
+              console.log("Starting game after countdown");
+              
+              // Set game live state
+              setGameLive(true);
+              setCountdown(null);
+              setTimestamp(0);
+              setPlayers(initialGameState.players);
+              setCookies(initialGameState.cookies);
+              
+              // Render initial game state
+              renderGameElements(initialGameState.players, initialGameState.cookies);
+              
+              // Start processing game states
+              gameStates.forEach((gameState, gameIndex) => {
+                setTimeout(() => {
+                  console.log(`Processing game state with timestamp: ${gameState.timestamp}`);
+                  
+                  // Update game state
+                  setTimestamp(gameState.timestamp);
+                  setPlayers(gameState.players);
+                  setCookies(gameState.cookies);
+                  
+                  // Render updated game elements
+                  renderGameElements(gameState.players, gameState.cookies);
+                }, (gameIndex + 1) * 500); // Start 1 second after game starts, then 1 second apart
+              });
+              
+              // Continue incrementing timestamp after the predefined states
+              const startTime = Date.now();
+              const lastDefinedTimestamp = gameStates.length > 0 ? 
+                gameStates[gameStates.length - 1].timestamp : 0;
+              
+              const timerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const newTimestamp = lastDefinedTimestamp + elapsedSeconds - gameStates.length;
+                
+                if (newTimestamp > lastDefinedTimestamp) {
+                  setTimestamp(newTimestamp);
+                }
+              }, 1000);
+              
+              return () => clearInterval(timerInterval);
+            }, 1000); // Start game 1 second after countdown reaches 0
+          }
+        }, index * 1000); // Process each state 1 second apart
+      });
     };
 
-    // Wait a bit before simulating the preGame state
-    const timer = setTimeout(simulatePreGameState, 1500);
-    
-    return () => clearTimeout(timer);
+    // Start the countdown sequence after a short delay
+    const initialDelay = setTimeout(() => {
+      processCountdownStates();
+    }, 1000);
+
+    return () => {
+      clearTimeout(initialDelay);
+    };
   }, []);
+
+  // Function to format timestamp in MM:SS format
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   // Handle keyboard input for snake movement
   useEffect(() => {
@@ -204,8 +477,26 @@ const GamePage: React.FC = () => {
   const renderPlayerSnake = (username: string, positions: number[]) => {
     if (!positions || positions.length === 0) return;
     
-    // Generate a distinct color for each player based on username hash
-    const playerColor = stringToColor(username);
+    // Assign fixed colors based on player username
+    let playerColor: string;
+    
+    switch (username) {
+      case 'player1':
+        playerColor = '#FF0000'; // Red
+        break;
+      case 'player2':
+        playerColor = '#0000FF'; // Blue
+        break;
+      case 'player3':
+        playerColor = '#FFFF00'; // Yellow
+        break;
+      case 'player4':
+        playerColor = '#8A2BE2'; // Violet (BlueViolet)
+        break;
+      default:
+        // Fallback to using the hash function for any other usernames
+        playerColor = stringToColor(username);
+    }
     
     positions.forEach((index, i) => {
       const cell = getCell(index);
@@ -298,6 +589,13 @@ const GamePage: React.FC = () => {
 
   return (
     <div className={styles.mainPage}>
+      
+      {/* Timer display */}
+      {gameLive && (
+        <div className={styles.timer}>
+          Time: {formatTime(timestamp)}
+        </div>
+      )}
       
       {/* Overlay for when game is not live */}
       {!gameLive && (
