@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { useLobbySocket } from "@/hooks/useLobbySocket";
 import styles from "@/styles/page.module.css"; // Import styles
 
 interface Player {
@@ -29,6 +30,77 @@ const MainPage: React.FC = () => {
 
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
+  
+  // Initialize WebSocket connection
+  const { isConnected, connect, send, disconnect } = useLobbySocket();
+  const [connectionEstablished, setConnectionEstablished] = useState(false);
+
+  // Establish WebSocket connection on component mount
+  useEffect(() => {
+    const establishConnection = async () => {
+      try {
+        console.log("Attempting to connect to WebSocket with lobby code:", lobbyCode);
+        const socket = await connect({ 
+          lobbyCode,
+          token: localStorage.getItem("token")?.replace(/"/g, '') || ''
+        });
+        
+        if (socket) {
+          console.log("WebSocket connection successful!");
+          
+          // Set up message handler
+          socket.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              console.log("Received WebSocket message:", data);
+              
+              // Handle different message types
+              if (data.type === "gameStarted") {
+                console.log("Game started! Redirecting to game page...");
+                // Redirect to the game page with the same lobby code
+                router.push(`/game/${lobbyCode}`);
+              }
+              
+              // Handle other message types...
+              
+            } catch (error) {
+              console.error("Error parsing WebSocket message:", error);
+            }
+          };
+          setConnectionEstablished(true);
+        }
+      } catch (error) {
+        console.error("Failed to connect to WebSocket:", error);
+        alert("Failed to connect to the game server. Please try refreshing the page.");
+      }
+    };
+
+    if (lobbyCode) {
+      establishConnection();
+    } else {
+      console.error("No lobby code available for WebSocket connection");
+    }
+
+    // Clean up on unmount
+    return () => {
+      console.log("Disconnecting WebSocket");
+      disconnect();
+    };
+  }, [connect, disconnect, lobbyCode, router]);
+
+  // Function to handle start game
+  const handleStartGame = () => {
+    console.log("handleStartGame function called");
+    // Send start game message
+    send({
+      type: "startGame",
+      lobbyId: lobbyCode
+    });
+    console.log("Sent startGame message");
+    
+    // You could add a visual feedback here
+    alert("Starting game...");
+  };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -122,6 +194,9 @@ const MainPage: React.FC = () => {
       <div className={styles.lobbyContainer}>
         <h1>Lobby</h1>
         <h3>({lobbyData?.code})</h3>
+        <div className={styles.connectionStatus}>
+          {isConnected ? "Connected to lobby" : "Connecting..."}
+        </div>
         <br></br>
         <table className={styles.lobbyTable}>
           <thead>
@@ -168,7 +243,15 @@ const MainPage: React.FC = () => {
           />
           <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
         </div>
-        <button className={styles.startGameButton}>Start Game</button>
+        <button 
+          className={styles.startGameButton} 
+          onClick={() => {
+            console.log("Start Game button clicked");
+            handleStartGame();
+          }}
+        >
+          Start Game
+        </button>
         <button className={styles.leaveLobbyButton}>Leave Lobby</button>
       </div>
     </div>

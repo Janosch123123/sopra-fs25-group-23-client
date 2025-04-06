@@ -1,21 +1,20 @@
 "use client"
 import React, { useRef, useEffect, useState } from "react";
 import styles from "@/styles/page.module.css";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useLobbySocket } from "@/hooks/useLobbySocket";
 
 const GamePage: React.FC = () => {
   // Grid dimensions
   const COLS = 30;
   const ROWS = 25;
   
-  // Get lobby code from URL parameters and initialize router
+  // Get lobby code from URL parameters
   const params = useParams();
-  const router = useRouter();
   const lobbyCode = params.code as string;
   
   // Initialize WebSocket connection
   const { isConnected, connect, send, disconnect } = useLobbySocket();
-  const [connectionEstablished, setConnectionEstablished] = useState(false);
   
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
@@ -26,7 +25,12 @@ const GamePage: React.FC = () => {
   useEffect(() => {
     const establishConnection = async () => {
       try {
-        const socket = await connect({ lobbyCode });
+        // Get the authentication token
+        const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+        
+        // Connect with both token and lobbyCode
+        const socket = await connect({ token, lobbyCode });
+        
         if (socket) {
           // Set up message handler
           socket.onmessage = (event: MessageEvent) => {
@@ -34,19 +38,12 @@ const GamePage: React.FC = () => {
               const data = JSON.parse(event.data);
               console.log("Received message:", data);
               
-              // Handle different message types
-              if (data.type === "gameStarted") {
-                // Redirect to the game page with the same lobby code
-                router.push(`/game/${lobbyCode}`);
-              }
-              
-              // Handle other message types...
+              // Handle game-specific messages here
               
             } catch (error) {
               console.error("Error parsing message:", error);
             }
           };
-          setConnectionEstablished(true);
         }
       } catch (error) {
         console.error("Failed to connect to WebSocket:", error);
@@ -59,20 +56,49 @@ const GamePage: React.FC = () => {
     return () => {
       disconnect();
     };
-  }, [connect, disconnect, lobbyCode, router]);
+  }, [connect, disconnect, lobbyCode]);
 
-  // Function to handle start game
-  const handleStartGame = () => {
-    if (isConnected) {
-      // Send start game message
-      send({
-        type: "startGame"
-      });
-      console.log("Sent startGame message");
-    } else {
-      console.error("Cannot start game: WebSocket not connected");
-    }
-  };
+  // Handle keyboard input for snake movement
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      let direction: string | null = null;
+      
+      // Map arrow keys to directions
+      switch (event.key) {
+        case 'ArrowUp':
+          direction = 'up';
+          break;
+        case 'ArrowDown':
+          direction = 'down';
+          break;
+        case 'ArrowLeft':
+          direction = 'left';
+          break;
+        case 'ArrowRight':
+          direction = 'right';
+          break;
+        default:
+          return; // Ignore other keys
+      }
+      
+      // Send movement direction to the server
+      if (direction) {
+        send({
+          type: 'player_move',
+          direction: direction
+        });
+        console.log(`Sent direction: ${direction}`);
+      }
+    };
+    
+    // Add event listener for key presses
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [send]);
 
   // Function to display squares on specific grid indices
   const displayCircles = (indices: number[]) => {
@@ -99,13 +125,6 @@ const GamePage: React.FC = () => {
     // Update state to keep track of squares
     setCircleIndices(indices);
   };
-
-  // Example usage: Add circles when component mounts
-  useEffect(() => {
-    // Example: Display circles at these indices
-    const sampleIndices = [45, 46, 47, 48, 49, 50];
-    displayCircles(sampleIndices);
-  }, []);
 
   // Create a 30x25 grid
   const renderGrid = () => {
@@ -158,21 +177,6 @@ const GamePage: React.FC = () => {
       <div className={styles.gameContainer}>
         <div className={styles.gameGrid}>
           {renderGrid()}
-        </div>
-        <div className={styles.controls}>
-          <button onClick={() => displayCircles([100, 200, 300, 400])}>
-            Change Circles
-          </button>
-          <button 
-            onClick={handleStartGame}
-            className={styles.startGameButton}
-            disabled={!isConnected}
-          >
-            Start Game
-          </button>
-          <div className={styles.connectionStatus}>
-            {isConnected ? "Connected to lobby" : "Connecting..."}
-          </div>
         </div>
       </div>
     </div>

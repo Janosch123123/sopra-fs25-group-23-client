@@ -21,8 +21,11 @@ export function useLobbySocket() {
   }, []);
   
   // Connect with auth token
-  const connect = useCallback((params?: Record<string, string>) => {
-    if (!serviceRef.current) return null;
+  const connect = useCallback(async (params?: Record<string, string>) => {
+    if (!serviceRef.current) {
+      console.error("WebSocket service not initialized");
+      return null;
+    }
     
     // Format token if not provided in params
     const connectionParams = { ...params };
@@ -30,25 +33,38 @@ export function useLobbySocket() {
       connectionParams.token = localStorage.getItem("token")?.replace(/"/g, '') || '';
     }
     
-    const socket = serviceRef.current.connect(connectionParams);
+    console.log("Connecting to WebSocket with params:", 
+      JSON.stringify({
+        ...connectionParams,
+        token: connectionParams.token ? "****" : undefined // Don't log the actual token
+      })
+    );
     
-    // Update React state based on connection events
-    socket.onopen = () => {
-      console.log('WebSocket connected');
-      setIsConnected(true);
-    };
-    
-    socket.onclose = () => {
-      console.log('WebSocket disconnected');
+    try {
+      const socket = await serviceRef.current.connect(connectionParams);
+      
+      // Update React state based on connection events
+      socket.onopen = () => {
+        console.log('WebSocket connected successfully');
+        setIsConnected(true);
+      };
+      
+      socket.onclose = (event) => {
+        console.log(`WebSocket disconnected with code: ${event.code}, reason: ${event.reason}`);
+        setIsConnected(false);
+      };
+      
+      socket.onerror = (error) => {
+        console.error('WebSocket connection error:', error);
+        setIsConnected(false);
+      };
+      
+      return socket;
+    } catch (error) {
+      console.error("Error connecting to WebSocket:", error);
       setIsConnected(false);
-    };
-    
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setIsConnected(false);
-    };
-    
-    return socket;
+      throw error;
+    }
   }, []);
   
   // Wrapper for sending messages
@@ -58,7 +74,13 @@ export function useLobbySocket() {
       return false;
     }
     
+    if (!serviceRef.current.isConnected()) {
+      console.error('Cannot send message: WebSocket is not connected');
+      return false;
+    }
+    
     try {
+      console.log('Sending WebSocket message:', data);
       serviceRef.current.send(data);
       return true;
     } catch (error) {
