@@ -175,12 +175,14 @@ const MainPage: React.FC = () => {
           if (data.type === 'validateLobbyResponse') {
             // Clean up event listener
             socket.removeEventListener('message', messageHandler);
-            setValidatingLobby(false);
             
             if (data.valid === true) {
-              // Navigate to the lobby if it exists
+              // Keep validating state active until navigation completes
+              // and navigate to the lobby if it exists
               router.push(`/lobby/${lobbyCode}`);
             } else {
+              // Only set validatingLobby to false if lobby doesn't exist
+              setValidatingLobby(false);
               // Show error if lobby doesn't exist
               setLobbyCodeError('The lobby does not exist');
             }

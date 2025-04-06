@@ -71,7 +71,6 @@ const MainPage: React.FC = () => {
         }
       } catch (error) {
         console.error("Failed to connect to WebSocket:", error);
-        alert("Failed to connect to the game server. Please try refreshing the page.");
       }
     };
 
@@ -100,6 +99,12 @@ const MainPage: React.FC = () => {
     
     // You could add a visual feedback here
     alert("Starting game...");
+  };
+
+  // Function to handle leave lobby
+  const handleLeaveLobby = () => {
+    console.log("Leaving lobby");
+    router.push("/home");
   };
 
   useEffect(() => {
@@ -252,7 +257,12 @@ const MainPage: React.FC = () => {
         >
           Start Game
         </button>
-        <button className={styles.leaveLobbyButton}>Leave Lobby</button>
+        <button 
+          className={styles.leaveLobbyButton} 
+          onClick={handleLeaveLobby}
+        >
+          Leave Lobby
+        </button>
       </div>
     </div>
   );
