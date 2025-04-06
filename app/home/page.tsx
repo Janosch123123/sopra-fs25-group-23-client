@@ -25,6 +25,7 @@ const MainPage: React.FC = () => {
   const serviceRef = useRef<WebSocketService | null>(null);
   const [showButtons, setShowButtons] = useState(true);
   const [lobbyCode, setLobbyCode] = useState('');
+  const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
 
   useEffect(() => {
     // Initialize WebSocketService
@@ -151,6 +152,7 @@ const MainPage: React.FC = () => {
     }
 
     setValidatingLobby(true);
+    setLobbyCodeError(null); // Reset error state
     
     try {
       // Get token
@@ -180,7 +182,7 @@ const MainPage: React.FC = () => {
               router.push(`/lobby/${lobbyCode}`);
             } else {
               // Show error if lobby doesn't exist
-              message.error('The lobby does not exist');
+              setLobbyCodeError('The lobby does not exist');
             }
           }
         } catch (error) {
@@ -280,16 +282,25 @@ const MainPage: React.FC = () => {
             </>
           ) : (
             <div className={styles.joinButtonContainer}>
-              <Input
-                placeholder="Enter Lobby Code"
-                value={lobbyCode}
-                onChange={handleLobbyCodeChange}
-                className={styles.stretchedInput}
-                style={{ flex: '1' }}
-                disabled={validatingLobby}
-                type="number" // Set input type to number
-                min={0} // Only positive integers
-              />
+              <div className={styles.inputContainer}>
+                <Input
+                  placeholder="Enter Lobby Code"
+                  value={lobbyCode}
+                  onChange={handleLobbyCodeChange}
+                  className={styles.stretchedInput}
+                  style={{ 
+                    flex: '1',
+                    borderColor: lobbyCodeError ? '#ff4d4f' : '#ffffff'
+                  }}
+                  disabled={validatingLobby}
+                  type="number" // Set input type to number
+                  min={0} // Only positive integers
+                  status={lobbyCodeError ? "error" : ""}
+                />
+                {lobbyCodeError && (
+                  <div className={styles.errorMessage}>{lobbyCodeError}</div>
+                )}
+              </div>
               <Button
                 type="primary"
                 variant="solid"

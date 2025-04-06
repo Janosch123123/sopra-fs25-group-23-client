@@ -374,8 +374,28 @@ a.secondary {
   flex-direction: row;
   gap: 10px;
   width: 100%;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start to accommodate error message */
   background-color: transparent; /* Ensure container has no background */
+  padding: 30px;
+  border-radius: 20px;
+  background-color: #66bb6a;
+  border: 5px solid #43a047;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.inputContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.errorMessage {
+  color: #ff4d4f;
+  font-size: 1.6rem;
+  font-weight: 900;
+  padding: 5px 10px;
+  margin-top: 5px;
+  border-color: white;
 }
 
 .timer {
