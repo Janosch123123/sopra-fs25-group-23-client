@@ -268,7 +268,7 @@ const GamePage: React.FC = () => {
           'player1': [posToIndex(8,10), posToIndex(7,10), posToIndex(7,9)], // Turn right (continue down)
           'player2': [posToIndex(5,20), posToIndex(5,21), posToIndex(6,21)], // Turn left
           'player3': [posToIndex(17,18), posToIndex(17,19), posToIndex(17,20)], // Continue up
-          'player4': [posToIndex(13, 4), posToIndex(13, 3), posToIndex(13, 2)] // Turn down
+          'player4': [posToIndex(13, 3), posToIndex(13, 2), posToIndex(14, 2)] // Turn down
         },
         cookies: [75, 120, 210, 350],
         timestamp: 10
@@ -347,7 +347,7 @@ const GamePage: React.FC = () => {
                   
                   // Render updated game elements
                   renderGameElements(gameState.players, gameState.cookies);
-                }, (gameIndex + 1) * 500); // Start 1 second after game starts, then 1 second apart
+                }, (gameIndex + 1) * 500); // Start 1 second after game starts, then 0.5 seconds apart
               });
               
               // Continue incrementing timestamp after the predefined states
