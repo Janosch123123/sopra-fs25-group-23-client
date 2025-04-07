@@ -1,12 +1,11 @@
 "use client";
 
-import React, {useEffect, useState, useRef} from "react";
-import { Button} from "antd";
+import React, { useEffect, useState } from "react";
+import { Button } from "antd";
 import styles from "@/styles/page.module.css";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
-import { WebSocketService } from '@/api/websocketService';
 
 interface UserStats {
   username: string;
@@ -18,14 +17,11 @@ interface UserStats {
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { connect, send, isConnected} = useLobbySocket();
+  const { isConnected, connect, send, disconnect } = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  
-
   useEffect(() => {
-
     const userId = localStorage.getItem("userId");
 
     const fetchUserStats = async () => {
@@ -46,7 +42,6 @@ const MainPage: React.FC = () => {
         setLoading(false);
       }
     };
-
 
     const checkToken = async () => {
       // Check if token exists in localStorage
@@ -81,33 +76,47 @@ const MainPage: React.FC = () => {
 
     checkToken();
     
-    // Add cleanup for WebSocket
+    // Disconnect WebSocket when component unmounts
     return () => {
     };
   }, [apiService, router]);
 
   const handleCreateLobby = async () => {
     try {
-      const socket = await connect();
+      // Get token from localStorage for authentication
+      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
-      socket.onmessage = (event) => {
-        try {
-          console.log("Raw message:", event.data);
-          const data = JSON.parse(event.data);
-          console.log('Parsed JSON message:', data);
-          
-          if (data.type === 'lobby_created' && data.lobbyId) {
-            router.push(`/lobby/${data.lobbyId}`);
+      // Connect to WebSocket server if not already connected
+      if (!isConnected) {
+        const socket = await connect({ token });
+        
+        // Set up message handler for WebSocket events
+        socket.onmessage = (event) => {
+          try {
+            console.log("Raw message:", event.data);
+            
+            // Parse the message data
+            const data = JSON.parse(event.data);
+            console.log('Parsed JSON message:', data);
+            
+            // Handle lobby creation response
+            if (data.type === 'lobby_created' && data.lobbyId) {
+              router.push(`/lobby/${data.lobbyId}`);
+            }
+          } catch (error) {
+            console.error('Error handling message:', error);
           }
-        } catch (error) {
-          console.error('Error handling message:', error);
-        }
-      };
+        };
+      }
       
-      send({ type: 'create_lobby' });
+      // Send the create lobby request
+      send({
+        type: 'create_lobby'
+      });
       
     } catch (error) {
       console.error('Error creating lobby:', error);
+      // Show error to user
     }
   };
 

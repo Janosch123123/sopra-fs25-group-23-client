@@ -1,8 +1,8 @@
 "use client"
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import styles from "@/styles/page.module.css"; // Import styles
+import styles from "@/styles/page.module.css";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
 
 interface Player {
@@ -19,15 +19,15 @@ interface LobbyData {
   };
 }
 
-const MainPage: React.FC = () => {
+const LobbyPage: React.FC = () => {
   const router = useRouter();
   const params = useParams();
   const lobbyCode = params?.code as string;
   const apiService = useApi();
   
-  // Use the existing WebSocket connection through the hook
-  const { disconnect, isConnected, connect, send } = useLobbySocket();
-  const socketRef = useRef<WebSocket | null>(null);
+  // Use the singleton WebSocket service through the hook
+  const { isConnected, connect, send, disconnect } = useLobbySocket();
+  
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [connectionError, setConnectionError] = useState(false);
@@ -35,54 +35,73 @@ const MainPage: React.FC = () => {
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
 
-  // Initialize connection in a separate useEffect with proper async handling
+
+
+  // Initialize connection and set up message handlers
   useEffect(() => {
-    // Connect to WebSocket when component mounts
-    const connectWebSocket = async () => {
+    
+    const setupWebSocket = async () => {
       try {
-        // Wait for the Promise to resolve to get the actual WebSocket
-        const socket = await connect();
-        socketRef.current = socket;
-        
-        // Set up message handler for the WebSocket once connection is established
-        socket.addEventListener('message', (event) => {
-          try {
-            console.log("Received WebSocket message:", event.data);
-            const data = JSON.parse(event.data);
-            
-            // Handle different types of messages
-            if (data.type === 'lobby_data' || data.type === 'lobby_update') {
-              if (data.lobby) {
-                setLobbyData(data.lobby);
-                
-                // Only update settings if they exist in the data
-                if (data.lobby.settings) {
-                  setSpawnRate(data.lobby.settings.spawnRate);
-                  setIncludePowerUps(data.lobby.settings.includePowerUps);
+        // Connect if not already connected
+        if (!isConnected) {
+          const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+          const userId = localStorage.getItem("userId") || '';
+          const socket = await connect({ token, userId });
+          
+          // Set up message handler for the WebSocket
+          socket.onmessage = (event) => {
+            try {
+              console.log("Received WebSocket message:", event.data);
+              const data = JSON.parse(event.data);
+              
+              // Handle all possible lobby update message types
+              if (data.type === 'lobby_data' || data.type === 'lobby_update' || data.type === 'lobby_state') {
+                if (data.lobby) {
+                  setLobbyData(data.lobby);
+                  
+                  // Only update settings if they exist in the data
+                  if (data.lobby.settings) {
+                    setSpawnRate(data.lobby.settings.spawnRate);
+                    setIncludePowerUps(data.lobby.settings.includePowerUps);
+                  }
+                  
+                  setLoading(false);
+                  setConnectionError(false);
                 }
-                
-                setLoading(false);
+              } 
+              else if (data.type === 'connection_success') {
+                console.log("WebSocket connection established successfully");
                 setConnectionError(false);
+                
+                // No need to request lobby data as server will push updates automatically
               }
-            } 
-            else if (data.type === 'connection_success') {
-              console.log("WebSocket connection established successfully");
-              setConnectionError(false);
+              else if (data.type === 'error') {
+                console.error("WebSocket error:", data.message);
+                setConnectionError(true);
+              }
+              else if (data.type === 'lobby_joined') {
+                console.log("Successfully joined lobby:", data);
+                if (data.lobby) {
+                  setLobbyData(data.lobby);
+                  if (data.lobby.settings) {
+                    setSpawnRate(data.lobby.settings.spawnRate);
+                    setIncludePowerUps(data.lobby.settings.includePowerUps);
+                  }
+                  setLoading(false);
+                }
+              }
+              else if (data.type === 'game_started') {
+                // Redirect to the game page with the lobby code
+                router.push(`/game/${lobbyCode}`);
+              }
+            } catch (error) {
+              console.error('Error handling WebSocket message:', error);
             }
-            else if (data.type === 'error') {
-              console.error("WebSocket error:", data.message);
-            }
-          } catch (error) {
-            console.error('Error handling WebSocket message:', error);
-          }
-        });
-      } catch (error) {
-        console.error('WebSocket connection failed:', error);
-        setConnectionError(true);
-        // Still show the UI even if WebSocket isn't connected
-        setLoading(false);
+          };
+        } 
         
-        // Create some placeholder data for the UI
+        // Create some placeholder data for the UI in case of connection error
+        if (!lobbyData) {
         setLobbyData({
           code: lobbyCode,
           players: [
@@ -93,19 +112,27 @@ const MainPage: React.FC = () => {
             includePowerUps: false
           }
         });
+        setLoading(false);
+      }
+      }catch (error) {
+        console.error('WebSocket setup error:', error);
+        setConnectionError(true);
+        setLoading(false);
       }
     };
     
-    connectWebSocket();
+    setupWebSocket();
     
-    // Clean up handled by the hook
-  }, [connect, lobbyCode]);
+    // Don't disconnect on unmount, as we want to keep the connection alive
+    // when navigating between pages
+  }, [connect, lobbyCode, isConnected, send]);
 
   const updateSettings = () => {
-    // Use the send function from the hook
+    // Send updated settings to server
     send({
-      type: 'update_settings',
+      type: 'update_lobby_settings',
       lobbyCode: lobbyCode,
+      userId: localStorage.getItem("userId") || '',
       settings: {
         spawnRate: spawnRate,
         includePowerUps: includePowerUps
@@ -136,10 +163,6 @@ const MainPage: React.FC = () => {
           router.push("/login");
           return;
         }
-        
-        // We don't need to set up WebSocket event handlers here anymore
-        // They're now set up in the connectWebSocket function above
-
       } catch (error) {
         console.error('Error verifying user token:', error);
         router.push("/login");
@@ -154,28 +177,30 @@ const MainPage: React.FC = () => {
     const newSpawnRate = value === "0" ? "Slow" : value === "1" ? "Medium" : "Fast";
     setSpawnRate(newSpawnRate);
     
-    // Update the setting immediately via WebSocket
+    // Update the setting via WebSocket after a short delay
     setTimeout(() => updateSettings(), 100);
   };
 
   const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIncludePowerUps(event.target.checked);
     
-    // Update the setting immediately via WebSocket
+    // Update the setting via WebSocket after a short delay
     setTimeout(() => updateSettings(), 100);
   };
   
   const handleStartGame = () => {
     send({
       type: 'start_game',
-      lobbyCode: lobbyCode
+      lobbyCode: lobbyCode,
+      userId: localStorage.getItem("userId") || ''
     });
   };
   
   const handleLeaveLobby = () => {
     send({
       type: 'leave_lobby',
-      lobbyCode: lobbyCode
+      lobbyCode: lobbyCode,
+      userId: localStorage.getItem("userId") || ''
     });
     
     // Redirect to dashboard
@@ -250,4 +275,4 @@ const MainPage: React.FC = () => {
   );
 };
 
-export default MainPage;
+export default LobbyPage;
