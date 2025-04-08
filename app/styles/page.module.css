@@ -622,46 +622,98 @@ a.secondary {
   display: grid;
   grid-template-columns: repeat(30, 1fr);
   grid-template-rows: repeat(25, 1fr);
-  gap: 1px;
-  width: 100vmin;  /* Increased from 90vmin */
-  height: 88vmin; /* Increased from 75vmin */
+  gap: 0; /* Remove gap between cells */
+  width: 100vmin;
+  height: 88vmin;
   background-color: #004d00;
   border: 4px solid #004d00;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }
 
 .gridCell {
-  background-color: #4ad64f;
   width: 100%;
   height: 100%;
-  border-radius: 2px;
-  position: relative; /* Added to position the circle properly */
+  border-radius: 0; /* Remove rounded corners */
+  position: relative;
 }
 
+/* Create a chessboard pattern using odd/even alternating colors */
 .gridCell:nth-child(odd) {
-  background-color: #41bd45;
+  background-color: #47c64d; /* Lighter green */
 }
 
-/* Style for the square markers */
-.circle::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 0, 0, 0.7); /* Red semi-transparent square */
-  border-radius: 0; /* Remove border-radius to make it square */
-  transform: translate(-50%, -50%);
-  z-index: 1;
+.gridCell:nth-child(even) {
+  background-color: #3db442; /* Darker green */
 }
 
-/* Style for the first square in the list */
-.firstSquare::after {
-  background-color: rgba(139, 0, 0, 0.8); /* Darker red (dark red) with higher opacity */
+/* Fix the chessboard pattern by adjusting for grid width (30 columns) */
+.gridCell:nth-child(60n+1):nth-child(odd),
+.gridCell:nth-child(60n+3):nth-child(odd),
+.gridCell:nth-child(60n+5):nth-child(odd),
+.gridCell:nth-child(60n+7):nth-child(odd),
+.gridCell:nth-child(60n+9):nth-child(odd),
+.gridCell:nth-child(60n+11):nth-child(odd),
+.gridCell:nth-child(60n+13):nth-child(odd),
+.gridCell:nth-child(60n+15):nth-child(odd),
+.gridCell:nth-child(60n+17):nth-child(odd),
+.gridCell:nth-child(60n+19):nth-child(odd),
+.gridCell:nth-child(60n+21):nth-child(odd),
+.gridCell:nth-child(60n+23):nth-child(odd),
+.gridCell:nth-child(60n+25):nth-child(odd),
+.gridCell:nth-child(60n+27):nth-child(odd),
+.gridCell:nth-child(60n+29):nth-child(odd),
+.gridCell:nth-child(60n+30):nth-child(odd),
+.gridCell:nth-child(60n+32):nth-child(odd),
+.gridCell:nth-child(60n+34):nth-child(odd),
+.gridCell:nth-child(60n+36):nth-child(odd),
+.gridCell:nth-child(60n+38):nth-child(odd),
+.gridCell:nth-child(60n+40):nth-child(odd),
+.gridCell:nth-child(60n+42):nth-child(odd),
+.gridCell:nth-child(60n+44):nth-child(odd),
+.gridCell:nth-child(60n+46):nth-child(odd),
+.gridCell:nth-child(60n+48):nth-child(odd),
+.gridCell:nth-child(60n+50):nth-child(odd),
+.gridCell:nth-child(60n+52):nth-child(odd),
+.gridCell:nth-child(60n+54):nth-child(odd),
+.gridCell:nth-child(60n+56):nth-child(odd),
+.gridCell:nth-child(60n+58):nth-child(odd) {
+  background-color: #3db442; /* Darker green */
 }
 
-/* Player cell styling */
+.gridCell:nth-child(60n+2):nth-child(even),
+.gridCell:nth-child(60n+4):nth-child(even),
+.gridCell:nth-child(60n+6):nth-child(even),
+.gridCell:nth-child(60n+8):nth-child(even),
+.gridCell:nth-child(60n+10):nth-child(even),
+.gridCell:nth-child(60n+12):nth-child(even),
+.gridCell:nth-child(60n+14):nth-child(even),
+.gridCell:nth-child(60n+16):nth-child(even),
+.gridCell:nth-child(60n+18):nth-child(even),
+.gridCell:nth-child(60n+20):nth-child(even),
+.gridCell:nth-child(60n+22):nth-child(even),
+.gridCell:nth-child(60n+24):nth-child(even),
+.gridCell:nth-child(60n+26):nth-child(even),
+.gridCell:nth-child(60n+28):nth-child(even),
+.gridCell:nth-child(60n+30):nth-child(even),
+.gridCell:nth-child(60n+31):nth-child(even),
+.gridCell:nth-child(60n+33):nth-child(even),
+.gridCell:nth-child(60n+35):nth-child(even),
+.gridCell:nth-child(60n+37):nth-child(even),
+.gridCell:nth-child(60n+39):nth-child(even),
+.gridCell:nth-child(60n+41):nth-child(even),
+.gridCell:nth-child(60n+43):nth-child(even),
+.gridCell:nth-child(60n+45):nth-child(even),
+.gridCell:nth-child(60n+47):nth-child(even),
+.gridCell:nth-child(60n+49):nth-child(even),
+.gridCell:nth-child(60n+51):nth-child(even),
+.gridCell:nth-child(60n+53):nth-child(even),
+.gridCell:nth-child(60n+55):nth-child(even),
+.gridCell:nth-child(60n+57):nth-child(even),
+.gridCell:nth-child(60n+59):nth-child(even) {
+  background-color: #47c64d; /* Lighter green */
+}
+
+/* Player cell styling - remove border radius */
 .playerCell::after {
   content: '';
   position: absolute;
@@ -669,16 +721,16 @@ a.secondary {
   left: 50%;
   width: 95%;
   height: 95%;
-  background-color: var(--player-color, rgba(255, 0, 0, 0.7)); /* Use player color or default to red */
-  border-radius: 2px;
+  background-color: var(--player-color, rgba(255, 0, 0, 0.7));
+  border-radius: 0; /* Remove rounded corners */
   transform: translate(-50%, -50%);
   z-index: 1;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
 }
 
-/* First square (snake head) styling */
+/* First square (snake head) styling - keep border for visibility */
 .firstSquare::after {
-  background-color: var(--player-color, rgba(139, 0, 0, 0.8)); /* Darker variant of player color */
+  background-color: var(--player-color, rgba(139, 0, 0, 0.8));
   border: 2px solid white;
 }
 
@@ -695,6 +747,96 @@ a.secondary {
   transform: translate(-50%, -50%);
   z-index: 1;
   box-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
+}
+
+/* Current player's cell styling for easier visibility */
+.currentPlayerCell::after {
+  border: 3px solid white;  /* Add a white border for the current player's cells */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);  /* Add a glowing effect */
+}
+
+/* Leaderboard styling */
+.leaderboard {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #004d00; /* Solid dark green background (no transparency) */
+  color: white;
+  padding: 20px; /* Increased padding */
+  border-radius: 8px;
+  border: 2px solid #ffffff; /* Added white border for better visibility */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); /* Enhanced shadow */
+  z-index: 2;
+  min-width: 260px; /* Increased minimum width */
+  max-width: 300px; /* Increased maximum width */
+}
+
+.leaderboard h3 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px; /* Increased margin */
+  font-size: 1.8rem; /* Increased font size */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Thicker border */
+  padding-bottom: 10px;
+}
+
+.leaderboardTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboardTable th,
+.leaderboardTable td {
+  padding: 10px; /* Increased padding */
+  text-align: center;
+  font-size: 1.2rem; /* Increased font size */
+}
+
+.leaderboardTable th {
+  font-weight: bold;
+  font-size: 1.1rem; /* Increased font size */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.leaderboardTable tr:not(:last-child) td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Highlight the current player in the leaderboard */
+.currentPlayerRow {
+  background-color: rgba(255, 255, 255, 0.3); /* Slightly more visible highlight */
+  font-weight: bold;
+}
+
+/* Use player color for rank indicator */
+.leaderboardTable tr td:first-child {
+  color: var(--player-row-color);
+  font-weight: bold;
+  font-size: 1.4rem; /* Increased font size for rank */
+}
+
+/* Make sure the leaderboard remains visible in different screen sizes */
+@media (max-width: 1200px) {
+  .leaderboard {
+    left: 15px;
+    padding: 15px;
+    min-width: 220px;
+  }
+  
+  .leaderboardTable th,
+  .leaderboardTable td {
+    padding: 8px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .leaderboard {
+    top: 15px;
+    transform: none;
+    min-width: 200px;
+  }
 }
 
 .controls {

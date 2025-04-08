@@ -91,7 +91,7 @@ const MainPage: React.FC = () => {
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
       // Connect to WebSocket server if not already connected
-      if (!isConnected) {
+      // if (!isConnected) {
         const socket = await connect({ token });
         
         // Set up message handler for WebSocket events
@@ -111,7 +111,7 @@ const MainPage: React.FC = () => {
             console.error('Error handling message:', error);
           }
         };
-      }
+      // }
       
       // Send the create lobby request
       send({
@@ -150,7 +150,7 @@ const MainPage: React.FC = () => {
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
       // Connect to WebSocket server if not already connected
-      if (!isConnected) {
+      
         const socket = await connect({ token });
       
       // Set up a one-time message handler for lobby validation response
@@ -197,7 +197,6 @@ const MainPage: React.FC = () => {
           message.error('Server did not respond. Please try again.');
         }
       }, 5000);
-    }
     } catch (error) {
       console.error('Error validating lobby:', error);
       setValidatingLobby(false);

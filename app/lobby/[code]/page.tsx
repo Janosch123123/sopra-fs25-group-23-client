@@ -67,12 +67,17 @@ const LobbyPage: React.FC = () => {
     const setupWebSocket = async () => {
       try {
         // Connect if not already connected
+        let socket;
         if (!isConnected) {
           const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
-          const socket = await connect({ token });
-          
-          // Set up message handler for the WebSocket
-          socket.onmessage = (event) => {
+          socket = await connect({ token });
+        }
+        
+        // Always set up the message handler regardless of connection status
+        // This ensures we handle messages even after reconnection
+        const currentSocket = socket || useLobbySocket()?.getSocket();
+        if (currentSocket) {
+          currentSocket.onmessage = (event: MessageEvent) => {
             try {
               console.log("Received WebSocket message:", event.data);
               const data = JSON.parse(event.data);
@@ -125,23 +130,23 @@ const LobbyPage: React.FC = () => {
               console.error('Error handling WebSocket message:', error);
             }
           };
-        } 
+        }
         
         // Create some placeholder data for the UI in case of connection error
         if (!lobbyData) {
-        setLobbyData({
-          code: lobbyCode,
-          players: [
-            { username: localStorage.getItem("username") || "You", level: 1 }
-          ],
-          settings: {
-            spawnRate: "Medium",
-            includePowerUps: false
-          }
-        });
-        setLoading(false);
-      }
-      }catch (error) {
+          setLobbyData({
+            code: lobbyCode,
+            players: [
+              { username: localStorage.getItem("username") || "You", level: 1 }
+            ],
+            settings: {
+              spawnRate: "Medium",
+              includePowerUps: false
+            }
+          });
+          setLoading(false);
+        }
+      } catch (error) {
         console.error('WebSocket setup error:', error);
         setConnectionError(true);
         setLoading(false);

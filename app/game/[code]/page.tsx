@@ -31,6 +31,12 @@ const GamePage: React.FC = () => {
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
   
+  // Log the current username from localStorage
+  useEffect(() => {
+    const currentUsername = localStorage.getItem("username");
+    console.log("Current user playing the game:", currentUsername);
+  }, []);
+  
   // Establish WebSocket connection on component mount
   useEffect(() => {
     const establishConnection = async () => {
@@ -65,6 +71,19 @@ const GamePage: React.FC = () => {
                 setCountdown(null);
                 setPlayers(data.players || {});
                 setCookies(data.cookies || []);
+
+                // Check if the current player is alive
+                const currentUsername = localStorage.getItem("username");
+                if (currentUsername && data.players) {
+                  // If the player's position array is empty or doesn't exist, they're dead
+                  const playerPositions = data.players[currentUsername];
+                  const playerIsAlive = playerPositions && playerPositions.length > 0;
+                  setIsAlive(playerIsAlive);
+                  
+                  if (!playerIsAlive && isAlive) {
+                    console.log("Player has died!");
+                  }
+                }
                 
                 // Render all elements with updated positions
                 renderGameElements(data.players || {}, data.cookies || []);
@@ -86,7 +105,7 @@ const GamePage: React.FC = () => {
     return () => {
       disconnect();
     };
-  }, [connect, disconnect, lobbyCode]);
+  }, [connect, disconnect, lobbyCode, isAlive]);
 
   // Simulate countdown messages
   useEffect(() => {
@@ -268,7 +287,7 @@ const GamePage: React.FC = () => {
           'player1': [posToIndex(8,10), posToIndex(7,10), posToIndex(7,9)], // Turn right (continue down)
           'player2': [posToIndex(5,20), posToIndex(5,21), posToIndex(6,21)], // Turn left
           'player3': [posToIndex(17,18), posToIndex(17,19), posToIndex(17,20)], // Continue up
-          'player4': [posToIndex(13, 3), posToIndex(13, 2), posToIndex(14, 2)] // Turn down
+          'player4': [posToIndex(13, 3), posToIndex(13, 2), posToIndex(12, 2)] // Turn 12wn
         },
         cookies: [75, 120, 210, 350],
         timestamp: 10
@@ -279,7 +298,7 @@ const GamePage: React.FC = () => {
           'player1': [posToIndex(9,10), posToIndex(8,10), posToIndex(7,10)], // Continue down
           'player2': [posToIndex(5,19), posToIndex(5,20), posToIndex(5,21)], // Continue left
           'player3': [posToIndex(16,18), posToIndex(17,18), posToIndex(17,19)], // Turn left
-          'player4': [posToIndex(13, 4), posToIndex(13, 3), posToIndex(13, 2)] // Continue down
+          'player4': [posToIndex(13, 4), posToIndex(13, 3), posToIndex(13, 2)] // Turn right
         },
         cookies: [75, 120, 210, 350],
         timestamp: 11
@@ -448,13 +467,29 @@ const GamePage: React.FC = () => {
     // Clear all cells first
     clearAllCells();
     
-    // Render each player's snake
-    Object.entries(players).forEach(([username, positions]) => {
-      renderPlayerSnake(username, positions);
+    // Get sorted list of player usernames to ensure consistent color assignment
+    const playerUsernames = Object.keys(players);
+    
+    // Render each player's snake with colors assigned by position in the list
+    playerUsernames.forEach((username, playerIndex) => {
+      renderPlayerSnake(username, players[username], playerIndex);
     });
     
     // Render cookies
     renderCookies(cookies);
+  };
+  
+  // Function to get sorted players for the leaderboard
+  const getSortedPlayers = (players: PlayerData): { username: string; length: number; index: number }[] => {
+    // Map players to include username, length and index
+    const playerArray = Object.entries(players).map(([username, positions], index) => ({
+      username,
+      length: positions ? positions.length : 0,
+      index
+    }));
+    
+    // Sort by length in descending order
+    return playerArray.sort((a, b) => b.length - a.length);
   };
   
   // Function to clear all cell styles
@@ -474,29 +509,27 @@ const GamePage: React.FC = () => {
   };
   
   // Function to render a player's snake
-  const renderPlayerSnake = (username: string, positions: number[]) => {
+  const renderPlayerSnake = (username: string, positions: number[], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
     
-    // Assign fixed colors based on player username
-    let playerColor: string;
+    // Assign colors based on player order rather than specific usernames
+    const playerColors = [
+      '#FF0000', // Red (1st player)
+      '#0000FF', // Blue (2nd player)
+      '#FFFF00', // Yellow (3rd player)
+      '#8A2BE2'  // Violet (4th player)
+    ];
     
-    switch (username) {
-      case 'player1':
-        playerColor = '#FF0000'; // Red
-        break;
-      case 'player2':
-        playerColor = '#0000FF'; // Blue
-        break;
-      case 'player3':
-        playerColor = '#FFFF00'; // Yellow
-        break;
-      case 'player4':
-        playerColor = '#8A2BE2'; // Violet (BlueViolet)
-        break;
-      default:
-        // Fallback to using the hash function for any other usernames
-        playerColor = stringToColor(username);
+    // Get color from player index, fallback to hash color if more than 4 players
+    let playerColor: string;
+    if (playerIndex < playerColors.length) {
+      playerColor = playerColors[playerIndex];
+    } else {
+      playerColor = stringToColor(username); // Fallback for extra players
     }
+    
+    // Get current username
+    const currentUsername = localStorage.getItem("username");
     
     positions.forEach((index, i) => {
       const cell = getCell(index);
@@ -509,6 +542,11 @@ const GamePage: React.FC = () => {
         // Highlight the snake head
         if (i === 0) {
           cell.classList.add(styles.firstSquare);
+        }
+        
+        // Add indicator if this is the current player's snake
+        if (username === currentUsername) {
+          cell.classList.add(styles.currentPlayerCell);
         }
       }
     });
@@ -596,6 +634,51 @@ const GamePage: React.FC = () => {
           Time: {formatTime(timestamp)}
         </div>
       )}
+      
+      {/* Statistics Leaderboard */}
+      <div className={styles.leaderboard}>
+        <h3>Leaderboard</h3>
+        <table className={styles.leaderboardTable}>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Length</th>
+            </tr>
+          </thead>
+          <tbody>
+            {getSortedPlayers(players).map((player, index) => {
+              // Get the player color for the rank
+              const playerColors = [
+                '#FF0000', // Red (1st player)
+                '#0000FF', // Blue (2nd player)
+                '#FFFF00', // Yellow (3rd player)
+                '#8A2BE2'  // Violet (4th player)
+              ];
+              
+              const playerColor = player.index < playerColors.length 
+                ? playerColors[player.index] 
+                : stringToColor(player.username);
+              
+              // Check if this is the current player
+              const currentUsername = localStorage.getItem("username");
+              const isCurrentPlayer = player.username === currentUsername;
+              
+              return (
+                <tr 
+                  key={index} 
+                  className={isCurrentPlayer ? styles.currentPlayerRow : ''}
+                  style={{ '--player-row-color': playerColor } as React.CSSProperties}
+                >
+                  <td>{index + 1}</td>
+                  <td>{player.username}</td>
+                  <td>{player.length}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       
       {/* Overlay for when game is not live */}
       {!gameLive && (
