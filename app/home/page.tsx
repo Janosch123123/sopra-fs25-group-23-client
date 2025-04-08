@@ -21,7 +21,6 @@ const MainPage: React.FC = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [validatingLobby, setValidatingLobby] = useState(false);
-  const serviceRef = useRef<WebSocketService | null>(null);
   const [showButtons, setShowButtons] = useState(true);
   const [lobbyCode, setLobbyCode] = useState('');
   const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
@@ -125,6 +124,8 @@ const MainPage: React.FC = () => {
     }
   };
 
+
+
   const handleJoinLobbyClick = () => {
     setShowButtons(false);
   };
@@ -148,13 +149,9 @@ const MainPage: React.FC = () => {
       // Get token from localStorage for authentication
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
-      // Create WebSocket service if it doesn't exist
-      if (!serviceRef.current) {
-        serviceRef.current = new WebSocketService();
-      }
-      
-      // Connect to the WebSocket server if not connected
-      const socket = await serviceRef.current.connect({ token });
+      // Connect to WebSocket server if not already connected
+      if (!isConnected) {
+        const socket = await connect({ token });
       
       // Set up a one-time message handler for lobby validation response
       const messageHandler = (event: MessageEvent) => {
@@ -182,103 +179,12 @@ const MainPage: React.FC = () => {
           setValidatingLobby(false);
         }
       };
-      
-      // Add the message event listener
-      socket.addEventListener('message', messageHandler);
-      
-      // Send the validate lobby request
-      serviceRef.current.send({
-        type: 'validateLobby',
-        lobbyCode: lobbyCode
-      });
-      
-      // Set a timeout to prevent infinite waiting
-      setTimeout(() => {
-        if (validatingLobby) {
-          socket.removeEventListener('message', messageHandler);
-          setValidatingLobby(false);
-          message.error('Server did not respond. Please try again.');
-        }
-      }, 5000);
-      
-    } catch (error) {
-      console.error('Error validating lobby:', error);
-      setValidatingLobby(false);
-      message.error('Failed to validate lobby code');
-    }
-  };
-
-  const handleLobbyCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow digits (integers)
-    const value = e.target.value;
-    if (value === '' || /^\d+$/.test(value)) {
-      setLobbyCode(value);
-    }
-  };
-
-  const handleJoinLobbyClick = () => {
-    setShowButtons(false);
-  };
-
-  const handleJoinWithCode = async () => {
-    if (!lobbyCode.trim()) {
-      message.error('Please enter a lobby code');
-      return;
-    }
-
-    // Validate that the input is a valid integer
-    if (!/^\d+$/.test(lobbyCode)) {
-      message.error('Lobby code must be a valid integer number');
-      return;
-    }
-
-    setValidatingLobby(true);
-    setLobbyCodeError(null); // Reset error state
     
-    try {
-      // Get token
-      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
-      
-      // Create WebSocket service if it doesn't exist
-      if (!serviceRef.current) {
-        serviceRef.current = new WebSocketService();
-      }
-      
-      // Connect to the WebSocket server if not connected
-      const socket = await serviceRef.current.connect({ token });
-      
-      // Set up a one-time message handler for lobby validation response
-      const messageHandler = (event: MessageEvent) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('Received validation response:', data);
-          
-          if (data.type === 'validateLobbyResponse') {
-            // Clean up event listener
-            socket.removeEventListener('message', messageHandler);
-            
-            if (data.valid === true) {
-              // Keep validating state active until navigation completes
-              // and navigate to the lobby if it exists
-              router.push(`/lobby/${lobbyCode}`);
-            } else {
-              // Only set validatingLobby to false if lobby doesn't exist
-              setValidatingLobby(false);
-              // Show error if lobby doesn't exist
-              setLobbyCodeError('The lobby does not exist');
-            }
-          }
-        } catch (error) {
-          console.error('Error handling message:', error);
-          setValidatingLobby(false);
-        }
-      };
-      
       // Add the message event listener
       socket.addEventListener('message', messageHandler);
       
       // Send the validate lobby request
-      serviceRef.current.send({
+      send({
         type: 'validateLobby',
         lobbyCode: lobbyCode
       });
@@ -291,7 +197,7 @@ const MainPage: React.FC = () => {
           message.error('Server did not respond. Please try again.');
         }
       }, 5000);
-      
+    }
     } catch (error) {
       console.error('Error validating lobby:', error);
       setValidatingLobby(false);
