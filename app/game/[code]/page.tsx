@@ -1,7 +1,7 @@
 "use client"
 import React, { useRef, useEffect, useState } from "react";
 import styles from "@/styles/page.module.css";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useLobbySocket } from "@/hooks/useLobbySocket";
 
 // Update the interface to match the expected message format
@@ -39,6 +39,9 @@ const GamePage: React.FC = () => {
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
   
+  // Add router for navigation
+  const router = useRouter();
+  
   // Log the current username from localStorage
   useEffect(() => {
     const currentUsername = localStorage.getItem("username");
@@ -70,6 +73,8 @@ const GamePage: React.FC = () => {
                 // Convert data to our internal format if needed
                 if (data.snakes) {
                   setSnakes(data.snakes);
+                  // Update snake positions immediately without waiting for state update
+                  renderPlayerSnakes(data.snakes);
                 } else if (data.players) {
                   // Handle legacy format for compatibility
                   const convertedSnakes: SnakeData = {};
@@ -77,30 +82,41 @@ const GamePage: React.FC = () => {
                     convertedSnakes[username] = positions.map(pos => indexToColRow(pos));
                   });
                   setSnakes(convertedSnakes);
+                  // Update snake positions immediately
+                  renderPlayerSnakes(convertedSnakes);
                 }
                 
                 // Handle cookies in the new format
+                let cookiePositions: [number, number][] = [];
                 if (Array.isArray(data.cookies) && data.cookies.length > 0 && Array.isArray(data.cookies[0])) {
+                  cookiePositions = data.cookies;
                   setCookiesLocations(data.cookies);
                 } else if (Array.isArray(data.cookies)) {
                   // Convert legacy format (array of indexes) to [col, row] format
-                  setCookiesLocations(data.cookies.map((index: number) => indexToColRow(index)));
+                  cookiePositions = data.cookies.map((index: number) => indexToColRow(index));
+                  setCookiesLocations(cookiePositions);
                 }
                 
-                // Render all elements with the newly set state
-                renderGameElements();
+                // Render cookies immediately
+                renderCookies(cookiePositions);
               }
               
               // Handle gameState updates with the new expected format
-              if (data.type === 'gamestate') {
+              if (data.type === 'gameState') {
                 setGameLive(true);
                 setCountdown(null);
                 
                 // Set the snakes data from the message
                 setSnakes(data.snakes || {});
                 
+                // Update snake positions immediately without waiting for state update
+                renderPlayerSnakes(data.snakes || {});
+                
                 // Set cookies data
                 setCookiesLocations(data.cookies || []);
+                
+                // Render cookies immediately
+                renderCookies(data.cookies || []);
                 
                 // Update timestamp if available
                 if (data.timestamp !== undefined) {
@@ -110,18 +126,17 @@ const GamePage: React.FC = () => {
                 // Check if the current player is alive
                 const currentUsername = localStorage.getItem("username");
                 if (currentUsername && data.snakes) {
-                  // If the player's position array is empty or doesn't exist, they're dead
+                  // Player is dead only if they exist in the snakes object but their positions array is empty
                   const playerSnake = data.snakes[currentUsername];
-                  const playerIsAlive = playerSnake && playerSnake.length > 0;
+                  // If username exists in snakes object and positions array is empty (length === 0), they're dead
+                  // Otherwise they're alive (including if username doesn't exist in snakes object yet)
+                  const playerIsAlive = !(playerSnake !== undefined && playerSnake.length === 0);
                   setIsAlive(playerIsAlive);
                   
                   if (!playerIsAlive && isAlive) {
                     console.log("Player has died!");
                   }
                 }
-                
-                // Render all elements with updated positions
-                renderGameElements();
               }
               
             } catch (error) {
@@ -188,7 +203,7 @@ const GamePage: React.FC = () => {
       // Send movement direction to the server
       if (direction && gameLive && isAlive) {
         send({
-          type: 'player_move',
+          type: 'playerMove',
           direction: direction
         });
         console.log(`Sent direction: ${direction}`);
@@ -370,6 +385,29 @@ const GamePage: React.FC = () => {
     return null;
   };
 
+  // Function to render all player snakes immediately without waiting for state update
+  const renderPlayerSnakes = (snakesData: SnakeData) => {
+    // Clear all cells first to avoid overlapping renders
+    clearAllCells();
+    
+    // Get sorted list of player usernames to ensure consistent color assignment
+    const playerUsernames = Object.keys(snakesData);
+    
+    // Render each player's snake with colors assigned by position in the list
+    playerUsernames.forEach((username, playerIndex) => {
+      renderPlayerSnake(username, snakesData[username], playerIndex);
+    });
+  };
+
+  // Function to handle leaving the lobby
+  const handleLeaveLobby = () => {
+    // Disconnect from the socket
+    disconnect();
+    
+    // Navigate back to the main page
+    router.push('/home');
+  };
+
   return (
     <div className={styles.mainPage}>
       
@@ -437,12 +475,27 @@ const GamePage: React.FC = () => {
         </div>
       </div>
       
+      {/* Final Countdown Overlay - only show when 5 seconds or less remain and game is live */}
+      {gameLive && timestamp <= 5 && (
+        <div className={styles.finalCountdownOverlay}>
+          <span>{timestamp}</span>
+        </div>
+      )}
+      
       {/* Big countdown circle positioned outside the blurred container */}
       {countdown !== null && !gameLive && (
         <div className={styles.countdownCircle}>
           <span>{countdown}</span>
         </div>
       )}
+      
+      {/* Leave lobby button */}
+      <button 
+        className={styles.leaveLobbyButtonGame} 
+        onClick={handleLeaveLobby}
+      >
+        Leave Lobby
+      </button>
     </div>
   );
 };

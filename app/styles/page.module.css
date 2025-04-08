@@ -939,3 +939,60 @@ a.secondary {
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+/* Styling for the leave lobby button in the game page */
+.leaveLobbyButtonGame {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  background-color: #e74c3c; /* Red color for exit/leave actions */
+  border: 2px solid #ffffff; /* White border */
+  color: #ffffff; /* White text color */
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 10; /* Ensure it's above other elements */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for better visibility */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.leaveLobbyButtonGame:hover {
+  background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Final countdown overlay styling - covers the entire game grid */
+.finalCountdownOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: 5; /* Above the game grid but below other UI elements */
+}
+
+.finalCountdownOverlay span {
+  font-size: 20vw; /* Extra large font size that scales with viewport */
+  font-weight: 900; /* Extra bold */
+  color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+  text-shadow: 
+    0 0 20px rgba(255, 0, 0, 0.7), /* Red glow for urgency */
+    0 0 40px rgba(255, 0, 0, 0.5);
+  animation: pulse 1s infinite alternate; /* Pulsing animation for emphasis */
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
