@@ -35,8 +35,8 @@ const LobbyPage: React.FC = () => {
   const [includePowerUps, setIncludePowerUps] = useState(false);
   
   // Initialize WebSocket connection
-  const { isConnected, connect, send, disconnect, getSocket } = useLobbySocket();
-  const [connectionEstablished, setConnectionEstablished] = useState(false);
+  const { isConnected, connect, send, getSocket } = useLobbySocket();
+  
 
   
 
@@ -157,7 +157,7 @@ const LobbyPage: React.FC = () => {
     
     // Don't disconnect on unmount, as we want to keep the connection alive
     // when navigating between pages
-  }, [connect, lobbyCode, isConnected, send]);
+  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData]);
 
 
   const updateSettings = () => {
