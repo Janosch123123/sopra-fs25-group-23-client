@@ -96,9 +96,6 @@ const MainPage: React.FC = () => {
       lobbyId: lobbyCode
     });
     console.log("Sent startGame message");
-    
-    // You could add a visual feedback here
-    alert("Starting game...");
   };
 
   // Function to handle leave lobby
