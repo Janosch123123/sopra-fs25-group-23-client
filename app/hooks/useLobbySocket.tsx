@@ -1,5 +1,5 @@
 // src/hooks/useLobbySocket.ts
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { WebSocketService } from '@/api/websocketService';
 
 let globalIsConnected = false;
@@ -54,7 +54,7 @@ export function useLobbySocket() {
       console.error('Connection error:', error);
       return Promise.reject(error);
     }
-  }, []);
+  }, [service]);
   
   
   // Update disconnect to be more explicit
@@ -62,12 +62,12 @@ export function useLobbySocket() {
     service.disconnect();
     globalIsConnected = false;
     setIsConnected(false);
-  }, []);
+  }, [service]);
   
   return {
     isConnected,
     connect,
-    send: (data: any) => service.send(data),
+    send: (data: unknown) => service.send(data),
     disconnect,
     // Add a getter for the socket
     getSocket: () => service.isConnected() ? (service as any).socket : null
