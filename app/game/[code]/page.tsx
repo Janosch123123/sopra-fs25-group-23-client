@@ -172,28 +172,28 @@ const GamePage: React.FC = () => {
       // Map arrow keys to directions
       switch (event.key) {
         case 'ArrowUp':
-            direction = 'up';
+            direction = 'UP';
           break;
         case 'ArrowDown':
-            direction = 'down';
+            direction = 'DOWN';
           break;
         case 'ArrowLeft':
-            direction = 'left';
+            direction = 'LEFT';
           break;
         case 'ArrowRight':
-            direction = 'right';
+            direction = 'RIGHT';
           break;
         case 'w':
             direction = 'up';
           break;
         case 's':
-            direction = 'down';
+            direction = 'DOWN';
             break;
         case 'a':
-            direction = 'left';
+            direction = 'LEFT';
             break;
         case 'd':
-            direction = 'right';
+            direction = 'RIGHT';
             break;
 
         default:
