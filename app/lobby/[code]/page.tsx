@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
 
+
 interface Player {
   username: string;
   level: number;
@@ -34,6 +35,184 @@ const LobbyPage: React.FC = () => {
 
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
+  
+  // Initialize WebSocket connection
+  const { isConnected, connect, send, disconnect } = useLobbySocket();
+  const [connectionEstablished, setConnectionEstablished] = useState(false);
+
+  // Establish WebSocket connection on component mount
+  useEffect(() => {
+    const establishConnection = async () => {
+      try {
+        console.log("Attempting to connect to WebSocket with lobby code:", lobbyCode);
+        const socket = await connect({ 
+          lobbyCode,
+          token: localStorage.getItem("token")?.replace(/"/g, '') || ''
+        });
+        
+        if (socket) {
+          console.log("WebSocket connection successful!");
+          
+          // Set up message handler
+          socket.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              console.log("Received WebSocket message:", data);
+              
+              // Handle different message types
+              if (data.type === "gameStarted") {
+                console.log("Game started! Redirecting to game page...");
+                // Redirect to the game page with the same lobby code
+                router.push(`/game/${lobbyCode}`);
+              }
+              
+              // Handle other message types...
+              
+            } catch (error) {
+              console.error("Error parsing WebSocket message:", error);
+            }
+          };
+          setConnectionEstablished(true);
+        }
+      } catch (error) {
+        console.error("Failed to connect to WebSocket:", error);
+      }
+    };
+
+    if (lobbyCode) {
+      establishConnection();
+    } else {
+      console.error("No lobby code available for WebSocket connection");
+    }
+
+    // Clean up on unmount
+    return () => {
+      console.log("Disconnecting WebSocket");
+      disconnect();
+    };
+  }, [connect, disconnect, lobbyCode, router]);
+
+  // Function to handle start game
+  const handleStartGame = () => {
+    console.log("handleStartGame function called");
+    // Send start game message
+    send({
+      type: "startGame",
+      lobbyId: lobbyCode
+    });
+    console.log("Sent startGame message");
+  };
+
+  // Function to handle leave lobby
+  const handleLeaveLobby = () => {
+    console.log("Leaving lobby");
+    router.push("/home");
+  };
+
+
+
+  // Initialize connection and set up message handlers
+  useEffect(() => {
+    
+    const setupWebSocket = async () => {
+      try {
+        // Connect if not already connected
+        if (!isConnected) {
+          const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+          const userId = localStorage.getItem("userId") || '';
+          const socket = await connect({ token, userId });
+          
+          // Set up message handler for the WebSocket
+          socket.onmessage = (event) => {
+            try {
+              console.log("Received WebSocket message:", event.data);
+              const data = JSON.parse(event.data);
+              
+              // Handle all possible lobby update message types
+              if (data.type === 'lobby_data' || data.type === 'lobby_update' || data.type === 'lobby_state') {
+                if (data.lobby) {
+                  setLobbyData(data.lobby);
+                  
+                  // Only update settings if they exist in the data
+                  if (data.lobby.settings) {
+                    setSpawnRate(data.lobby.settings.spawnRate);
+                    setIncludePowerUps(data.lobby.settings.includePowerUps);
+                  }
+                  
+                  setLoading(false);
+                  setConnectionError(false);
+                }
+              } 
+              else if (data.type === 'connection_success') {
+                console.log("WebSocket connection established successfully");
+                setConnectionError(false);
+                
+                // No need to request lobby data as server will push updates automatically
+              }
+              else if (data.type === 'error') {
+                console.error("WebSocket error:", data.message);
+                setConnectionError(true);
+              }
+              else if (data.type === 'lobby_joined') {
+                console.log("Successfully joined lobby:", data);
+                if (data.lobby) {
+                  setLobbyData(data.lobby);
+                  if (data.lobby.settings) {
+                    setSpawnRate(data.lobby.settings.spawnRate);
+                    setIncludePowerUps(data.lobby.settings.includePowerUps);
+                  }
+                  setLoading(false);
+                }
+              }
+              else if (data.type === 'game_started') {
+                // Redirect to the game page with the lobby code
+                router.push(`/game/${lobbyCode}`);
+              }
+            } catch (error) {
+              console.error('Error handling WebSocket message:', error);
+            }
+          };
+        } 
+        
+        // Create some placeholder data for the UI in case of connection error
+        if (!lobbyData) {
+        setLobbyData({
+          code: lobbyCode,
+          players: [
+            { username: localStorage.getItem("username") || "You", level: 1 }
+          ],
+          settings: {
+            spawnRate: "Medium",
+            includePowerUps: false
+          }
+        });
+        setLoading(false);
+      }
+      }catch (error) {
+        console.error('WebSocket setup error:', error);
+        setConnectionError(true);
+        setLoading(false);
+      }
+    };
+    
+    setupWebSocket();
+    
+    // Don't disconnect on unmount, as we want to keep the connection alive
+    // when navigating between pages
+  }, [connect, lobbyCode, isConnected, send]);
+
+  const updateSettings = () => {
+    // Send updated settings to server
+    send({
+      type: 'update_lobby_settings',
+      lobbyCode: lobbyCode,
+      userId: localStorage.getItem("userId") || '',
+      settings: {
+        spawnRate: spawnRate,
+        includePowerUps: includePowerUps
+      }
+    });
+  };
 
 
 
@@ -268,8 +447,21 @@ const LobbyPage: React.FC = () => {
           />
           <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
         </div>
-        <button className={styles.startGameButton} onClick={handleStartGame}>Start Game</button>
-        <button className={styles.leaveLobbyButton} onClick={handleLeaveLobby}>Leave Lobby</button>
+        <button 
+          className={styles.startGameButton} 
+          onClick={() => {
+            console.log("Start Game button clicked");
+            handleStartGame();
+          }}
+        >
+          Start Game
+        </button>
+        <button 
+          className={styles.leaveLobbyButton} 
+          onClick={handleLeaveLobby}
+        >
+          Leave Lobby
+        </button>
       </div>
     </div>
   );
