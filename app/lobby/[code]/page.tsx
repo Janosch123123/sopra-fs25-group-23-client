@@ -35,7 +35,7 @@ const LobbyPage: React.FC = () => {
   const [includePowerUps, setIncludePowerUps] = useState(false);
   
   // Initialize WebSocket connection
-  const { isConnected, connect, send, disconnect } = useLobbySocket();
+  const { isConnected, connect, send, disconnect, getSocket } = useLobbySocket();
   const [connectionEstablished, setConnectionEstablished] = useState(false);
 
   
@@ -75,7 +75,7 @@ const LobbyPage: React.FC = () => {
         
         // Always set up the message handler regardless of connection status
         // This ensures we handle messages even after reconnection
-        const currentSocket = socket || useLobbySocket()?.getSocket();
+        const currentSocket = socket || (isConnected ? getSocket() : null);
         if (currentSocket) {
           currentSocket.onmessage = (event: MessageEvent) => {
             try {

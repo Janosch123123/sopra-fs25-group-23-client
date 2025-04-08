@@ -197,6 +197,12 @@ const MainPage: React.FC = () => {
           message.error('Server did not respond. Please try again.');
         }
       }, 5000);
+
+      
+    
+
+
+
     } catch (error) {
       console.error('Error validating lobby:', error);
       setValidatingLobby(false);
