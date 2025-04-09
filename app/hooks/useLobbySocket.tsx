@@ -69,7 +69,7 @@ export function useLobbySocket() {
     connect,
     send: (data: unknown) => service.send(data),
     disconnect,
-    // Add a getter for the socket
-    getSocket: () => service.isConnected() ? (service as any).socket : null
+    // We're now using the getSocket method we added to the WebSocketService class
+    getSocket: () => service.isConnected() ? service.getSocket() : null
   };
 }

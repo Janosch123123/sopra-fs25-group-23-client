@@ -1,18 +1,15 @@
 import { getWebSocketDomain } from "@/utils/domain";
 
-let instance: WebSocketService | null = null;
-
 export class WebSocketService {
+    private static instance: WebSocketService;
     private socket: WebSocket | null = null;
     private url: string = getWebSocketDomain();
 
-      
     constructor() {
-      // Ensure only one instance exists
-      if (instance) {
-        return instance;
+      // Prevent new instances if one already exists
+      if (WebSocketService.instance) {
+        throw new Error("Cannot instantiate more than one WebSocketService, use getInstance() instead");
       }
-      instance = this;
     }
     
     connect(params?: Record<string, string>): Promise<WebSocket> {
@@ -102,11 +99,17 @@ export class WebSocketService {
     isConnected() {
       return this.socket && this.socket.readyState === WebSocket.OPEN;
     }
-    // Add a static method to get the instance
-    static getInstance(): WebSocketService {
-      if (!instance) {
-        instance = new WebSocketService();
-      }
-      return instance;
+    
+    // Add a getter for the socket
+    public getSocket(): WebSocket | null {
+      return this.socket;
     }
-  }
+    
+    // Add a static method to get the instance with proper singleton implementation
+    static getInstance(): WebSocketService {
+      if (!WebSocketService.instance) {
+        WebSocketService.instance = new WebSocketService();
+      }
+      return WebSocketService.instance;
+    }
+}

@@ -1,5 +1,5 @@
 "use client"
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import styles from "@/styles/page.module.css";
 import { useParams, useRouter } from "next/navigation";
 import { useLobbySocket } from "@/hooks/useLobbySocket";
@@ -7,13 +7,6 @@ import { useLobbySocket } from "@/hooks/useLobbySocket";
 // Update the interface to match the expected message format
 interface SnakeData {
   [username: string]: [number, number][];
-}
-
-interface GameStateMessage {
-  type: string;
-  snakes: SnakeData;
-  cookies: [number, number][];
-  timestamp?: number;
 }
 
 const GamePage: React.FC = () => {
@@ -26,7 +19,9 @@ const GamePage: React.FC = () => {
   const [isAlive, setIsAlive] = useState(true);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
-  const [cookiesLocations, setCookiesLocations] = useState<[number, number][]>([]);
+  // Store cookies locations in state but don't directly reference them
+  // We'll use this state to track cookies, but we'll pass the data directly to renderCookies
+  const [, setCookiesLocations] = useState<[number, number][]>([]);
   const [timestamp, setTimestamp] = useState<number>(0);
   
   // Get lobby code from URL parameters
@@ -34,7 +29,7 @@ const GamePage: React.FC = () => {
   const lobbyCode = params.code as string;
   
   // Initialize WebSocket connection
-  const { isConnected, connect, send, disconnect } = useLobbySocket();
+  const { connect, send, disconnect } = useLobbySocket();
   
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
@@ -42,13 +37,139 @@ const GamePage: React.FC = () => {
   // Add router for navigation
   const router = useRouter();
   
+  // Utility function to convert [col, row] to linear index
+  const colRowToIndex = useCallback((col: number, row: number): number => {
+    return row * COLS + col;
+  }, [COLS]);
+  
+  // Utility function to convert linear index to [col, row]
+  const indexToColRow = useCallback((index: number): [number, number] => {
+    return [index % COLS, Math.floor(index / COLS)];
+  }, [COLS]);
+  
+  // Function to access a cell by index
+  const getCell = useCallback((index: number): HTMLDivElement | null => {
+    if (index >= 0 && index < ROWS * COLS) {
+      return gridCellsRef.current[index] || null;
+    }
+    return null;
+  }, [ROWS, COLS]);
+  
+  // Function to clear all cell styles
+  const clearAllCells = useCallback(() => {
+    gridCellsRef.current.forEach(cell => {
+      if (cell) {
+        cell.classList.remove(
+          styles.circle, 
+          styles.firstSquare, 
+          styles.playerCell, 
+          styles.cookieCell
+        );
+        // Remove any inline styles for player colors
+        cell.style.setProperty('--player-color', '');
+      }
+    });
+  }, []);
+  
+  // Helper function to generate a color from a string
+  const stringToColor = useCallback((str: string): string => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xFF;
+      color += ('00' + value.toString(16)).substr(-2);
+    }
+    
+    return color;
+  }, []);
+  
+  // Updated function to render a player's snake using [col, row] coordinates
+  const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
+    if (!positions || positions.length === 0) return;
+    
+    // Assign colors based on player order rather than specific usernames
+    const playerColors = [
+      '#FF0000', // Red (1st player)
+      '#0000FF', // Blue (2nd player)
+      '#FFFF00', // Yellow (3rd player)
+      '#8A2BE2'  // Violet (4th player)
+    ];
+    
+    // Get color from player index, fallback to hash color if more than 4 players
+    let playerColor: string;
+    if (playerIndex < playerColors.length) {
+      playerColor = playerColors[playerIndex];
+    } else {
+      playerColor = stringToColor(username); // Fallback for extra players
+    }
+    
+    // Get current username
+    const currentUsername = localStorage.getItem("username");
+    
+    positions.forEach((position, i) => {
+      // Convert [col, row] to grid cell index
+      const index = colRowToIndex(position[0], position[1]);
+      const cell = getCell(index);
+      
+      if (cell) {
+        cell.classList.add(styles.playerCell);
+        
+        // Set custom color for this player
+        cell.style.setProperty('--player-color', playerColor);
+        
+        // Highlight the snake head
+        if (i === 0) {
+          cell.classList.add(styles.firstSquare);
+        }
+        
+        // Add indicator if this is the current player's snake
+        if (username === currentUsername) {
+          cell.classList.add(styles.currentPlayerCell);
+        }
+      }
+    });
+  }, [colRowToIndex, getCell, stringToColor]);
+  
+  // Updated function to render cookies using [col, row] coordinates
+  const renderCookies = useCallback((positions: [number, number][]) => {
+    if (!positions || positions.length === 0) return;
+    
+    positions.forEach(position => {
+      // Convert [col, row] to grid cell index
+      const index = colRowToIndex(position[0], position[1]);
+      const cell = getCell(index);
+      
+      if (cell) {
+        cell.classList.add(styles.cookieCell);
+      }
+    });
+  }, [colRowToIndex, getCell]);
+  
+  // Function to render all player snakes immediately without waiting for state update
+  const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
+    // Clear all cells first to avoid overlapping renders
+    clearAllCells();
+    
+    // Get sorted list of player usernames to ensure consistent color assignment
+    const playerUsernames = Object.keys(snakesData);
+    
+    // Render each player's snake with colors assigned by position in the list
+    playerUsernames.forEach((username, playerIndex) => {
+      renderPlayerSnake(username, snakesData[username], playerIndex);
+    });
+  }, [clearAllCells, renderPlayerSnake]);
+
   // Log the current username from localStorage
   useEffect(() => {
     const currentUsername = localStorage.getItem("username");
     console.log("Current user playing the game:", currentUsername);
   }, []);
   
-  // Establish WebSocket connection on component mount
+  // Establish WebSocket connection on component mount - now this comes after all the functions are defined
   useEffect(() => {
     const establishConnection = async () => {
       try {
@@ -155,7 +276,7 @@ const GamePage: React.FC = () => {
     return () => {
       disconnect();
     };
-  }, [connect, disconnect, lobbyCode, isAlive]);
+  }, [connect, disconnect, lobbyCode, isAlive, renderPlayerSnakes, renderCookies, indexToColRow]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
@@ -219,23 +340,6 @@ const GamePage: React.FC = () => {
     };
   }, [gameLive, isAlive, send]);
 
-  // Function to render all game elements (snakes and cookies)
-  const renderGameElements = () => {
-    // Clear all cells first
-    clearAllCells();
-    
-    // Get sorted list of player usernames to ensure consistent color assignment
-    const playerUsernames = Object.keys(snakes);
-    
-    // Render each player's snake with colors assigned by position in the list
-    playerUsernames.forEach((username, playerIndex) => {
-      renderPlayerSnake(username, snakes[username], playerIndex);
-    });
-    
-    // Render cookies
-    renderCookies(cookiesLocations);
-  };
-  
   // Function to get sorted players for the leaderboard
   const getSortedPlayers = (): { username: string; length: number; index: number }[] => {
     // Map players to include username, length and index
@@ -249,110 +353,6 @@ const GamePage: React.FC = () => {
     return playerArray.sort((a, b) => b.length - a.length);
   };
   
-  // Function to clear all cell styles
-  const clearAllCells = () => {
-    gridCellsRef.current.forEach(cell => {
-      if (cell) {
-        cell.classList.remove(
-          styles.circle, 
-          styles.firstSquare, 
-          styles.playerCell, 
-          styles.cookieCell
-        );
-        // Remove any inline styles for player colors
-        cell.style.setProperty('--player-color', '');
-      }
-    });
-  };
-  
-  // Updated function to render a player's snake using [col, row] coordinates
-  const renderPlayerSnake = (username: string, positions: [number, number][], playerIndex: number) => {
-    if (!positions || positions.length === 0) return;
-    
-    // Assign colors based on player order rather than specific usernames
-    const playerColors = [
-      '#FF0000', // Red (1st player)
-      '#0000FF', // Blue (2nd player)
-      '#FFFF00', // Yellow (3rd player)
-      '#8A2BE2'  // Violet (4th player)
-    ];
-    
-    // Get color from player index, fallback to hash color if more than 4 players
-    let playerColor: string;
-    if (playerIndex < playerColors.length) {
-      playerColor = playerColors[playerIndex];
-    } else {
-      playerColor = stringToColor(username); // Fallback for extra players
-    }
-    
-    // Get current username
-    const currentUsername = localStorage.getItem("username");
-    
-    positions.forEach((position, i) => {
-      // Convert [col, row] to grid cell index
-      const index = colRowToIndex(position[0], position[1]);
-      const cell = getCell(index);
-      
-      if (cell) {
-        cell.classList.add(styles.playerCell);
-        
-        // Set custom color for this player
-        cell.style.setProperty('--player-color', playerColor);
-        
-        // Highlight the snake head
-        if (i === 0) {
-          cell.classList.add(styles.firstSquare);
-        }
-        
-        // Add indicator if this is the current player's snake
-        if (username === currentUsername) {
-          cell.classList.add(styles.currentPlayerCell);
-        }
-      }
-    });
-  };
-  
-  // Updated function to render cookies using [col, row] coordinates
-  const renderCookies = (positions: [number, number][]) => {
-    if (!positions || positions.length === 0) return;
-    
-    positions.forEach(position => {
-      // Convert [col, row] to grid cell index
-      const index = colRowToIndex(position[0], position[1]);
-      const cell = getCell(index);
-      
-      if (cell) {
-        cell.classList.add(styles.cookieCell);
-      }
-    });
-  };
-  
-  // Utility function to convert [col, row] to linear index
-  const colRowToIndex = (col: number, row: number): number => {
-    return row * COLS + col;
-  };
-  
-  // Utility function to convert linear index to [col, row]
-  const indexToColRow = (index: number): [number, number] => {
-    return [index % COLS, Math.floor(index / COLS)];
-  };
-
-  // Helper function to generate a color from a string
-  const stringToColor = (str: string): string => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
-    let color = '#';
-    for (let i = 0; i < 3; i++) {
-      const value = (hash >> (i * 8)) & 0xFF;
-      color += ('00' + value.toString(16)).substr(-2);
-    }
-    
-    return color;
-  };
-
   // Create a 30x25 grid
   const renderGrid = () => {
     const grid = [];
@@ -375,28 +375,6 @@ const GamePage: React.FC = () => {
       }
     }
     return grid;
-  };
-
-  // Function to access a cell by index
-  const getCell = (index: number): HTMLDivElement | null => {
-    if (index >= 0 && index < ROWS * COLS) {
-      return gridCellsRef.current[index] || null;
-    }
-    return null;
-  };
-
-  // Function to render all player snakes immediately without waiting for state update
-  const renderPlayerSnakes = (snakesData: SnakeData) => {
-    // Clear all cells first to avoid overlapping renders
-    clearAllCells();
-    
-    // Get sorted list of player usernames to ensure consistent color assignment
-    const playerUsernames = Object.keys(snakesData);
-    
-    // Render each player's snake with colors assigned by position in the list
-    playerUsernames.forEach((username, playerIndex) => {
-      renderPlayerSnake(username, snakesData[username], playerIndex);
-    });
   };
 
   // Function to handle leaving the lobby
