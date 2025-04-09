@@ -46,12 +46,13 @@ reason).
 |                    | [02.04.]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/7e1a11d6238171aef1c02621dff5362f3c28199d] | [Fixed Linting Errors from S1 and S2] | [Making the client deployable for online purposes] |
 ---
 
-## Contributions Week 2 - [Begin Date] to [End Date]
+## Contributions Week 2 - [3.4.] to [9.4.]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@Janosch123123/@JanoschBeck]** | [4.4]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/728a8174c9129911a1325b1e77facefc2aa3b1e2] | [backend validates the lobby code sent via websocket and stores the user with lobby code if valid. + send appropriate response] | [users can join the lobby] |
+|                    | [7.4.]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/f2934f4d03965ad5ae4c953010b4d08874e25023] | [websocket broadcasting to all users in a lobby without them sending a request] | [with this we can make use of webnsockets and update the lobby state or game state] |
+|                    | [8.4.]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/383993fdaa56a5aca689edcec132cf47f313fc04] | [generally I implemented a move methode for the snake to move in the direction the users sends] | [players can moce their snake and play a first version of the game!] |
 | **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
