@@ -184,7 +184,7 @@ const GamePage: React.FC = () => {
             direction = 'RIGHT';
           break;
         case 'w':
-            direction = 'up';
+            direction = 'UP';
           break;
         case 's':
             direction = 'DOWN';
