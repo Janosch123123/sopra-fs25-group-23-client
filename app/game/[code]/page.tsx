@@ -16,7 +16,6 @@ const GamePage: React.FC = () => {
   
   // Game state - update to match expected message format
   const [gameLive, setGameLive] = useState(false);
-  const [isAlive, setIsAlive] = useState(true);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
   // Store cookies locations in state but don't directly reference them
@@ -243,21 +242,6 @@ const GamePage: React.FC = () => {
                 if (data.timestamp !== undefined) {
                   setTimestamp(data.timestamp);
                 }
-
-                // Check if the current player is alive
-                const currentUsername = localStorage.getItem("username");
-                if (currentUsername && data.snakes) {
-                  // Player is dead only if they exist in the snakes object but their positions array is empty
-                  const playerSnake = data.snakes[currentUsername];
-                  // If username exists in snakes object and positions array is empty (length === 0), they're dead
-                  // Otherwise they're alive (including if username doesn't exist in snakes object yet)
-                  const playerIsAlive = !(playerSnake !== undefined && playerSnake.length === 0);
-                  setIsAlive(playerIsAlive);
-                  
-                  if (!playerIsAlive && isAlive) {
-                    console.log("Player has died!");
-                  }
-                }
               }
               
             } catch (error) {
@@ -276,7 +260,7 @@ const GamePage: React.FC = () => {
     return () => {
       disconnect();
     };
-  }, [connect, disconnect, lobbyCode, isAlive, renderPlayerSnakes, renderCookies, indexToColRow]);
+  }, [connect, disconnect, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
@@ -321,13 +305,21 @@ const GamePage: React.FC = () => {
           return; // Ignore other keys
       }
       
-      // Send movement direction to the server
+      // Get the current username and remove quotes
+      const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+      
+      // Check if the current player's snake exists and has length > 0
+      const isAlive = snakes[currentUsername] && snakes[currentUsername].length > 0;
+      
+      // Send movement direction to the server if game is live and player is alive
       if (direction && gameLive && isAlive) {
+        const allPlayerUsernames = Object.keys(snakes).join(", ");
+        console.log(`Player '${currentUsername}' sending direction: ${direction}. All players: ${allPlayerUsernames}. Player alive: ${isAlive}`);
+        
         send({
           type: 'playerMove',
           direction: direction
         });
-        console.log(`Sent direction: ${direction}`);
       }
     };
     
@@ -338,7 +330,7 @@ const GamePage: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [gameLive, isAlive, send]);
+  }, [gameLive, send, snakes]);
 
   // Function to get sorted players for the leaderboard
   const getSortedPlayers = (): { username: string; length: number; index: number }[] => {
