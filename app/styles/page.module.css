@@ -341,6 +341,63 @@ a.secondary {
   border-radius: 400px; /* Add rounded corners */
 }
 
+.joinButton {
+  composes: lobbyButtons;
+  font-size: 3rem !important; /* Smaller font size */
+  padding: 20px 50px; /* Reduced padding */
+  min-width: 150px; /* Smaller width */
+  min-height: 80px; /* Smaller height */
+  border: 5px solid #ffffff; /* Thinner border */
+  border-radius: 200px; /* Smaller border radius */
+  background-color: #fa541c !important; /* Volcano color */
+  color: #ffffff !important; /* Ensure text color is applied */
+}
+
+.stretchedInput {
+  border: 4px solid #ffffff !important;
+  border-radius: 20px !important;
+  padding: 18px 0px !important;
+  font-size: 35px !important;
+  height: 70px !important;
+  flex: 1;
+  line-height: 1.5 !important;
+  font-weight: bold !important;
+  letter-spacing: -1px !important;
+  font-stretch: ultra-condensed !important;
+  text-transform: uppercase !important;
+  background-color: white !important; /* Ensure background is white */
+  color: #333 !important; /* Ensure text color is visible */
+}
+
+.joinButtonContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+  align-items: flex-start; /* Changed from center to flex-start to accommodate error message */
+  background-color: transparent; /* Ensure container has no background */
+  padding: 30px;
+  border-radius: 20px;
+  background-color: #66bb6a;
+  border: 5px solid #43a047;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.inputContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.errorMessage {
+  color: #ff4d4f;
+  font-size: 1.6rem;
+  font-weight: 900;
+  padding: 5px 10px;
+  margin-top: 5px;
+  border-color: white;
+}
+
 .timer {
   position: absolute;
   top: 10px;
@@ -351,7 +408,7 @@ a.secondary {
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 1.2rem;
-  z-index: 1;
+  z-index: 2; /* Increased z-index to display above the overlay */
 }
 
 .dashboard {
@@ -413,6 +470,7 @@ a.secondary {
   border: 4px solid #8a8a8a; /* Increase border size */
   border-radius: 8px;
 }
+
 
 .lobbyContainer {
   display: flex;
@@ -548,5 +606,393 @@ a.secondary {
 
 .optionTitle {
   font-weight: bold;
+}
+
+.gameContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  position: relative; /* Added to position the countdown circle */
+}
+
+.gameGrid {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  grid-template-rows: repeat(25, 1fr);
+  gap: 0; /* Remove gap between cells */
+  width: 100vmin;
+  height: 88vmin;
+  background-color: #004d00;
+  border: 4px solid #004d00;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.gridCell {
+  width: 100%;
+  height: 100%;
+  border-radius: 0; /* Remove rounded corners */
+  position: relative;
+}
+
+/* Create a chessboard pattern using odd/even alternating colors */
+.gridCell:nth-child(odd) {
+  background-color: #47c64d; /* Lighter green */
+}
+
+.gridCell:nth-child(even) {
+  background-color: #3db442; /* Darker green */
+}
+
+/* Fix the chessboard pattern by adjusting for grid width (30 columns) */
+.gridCell:nth-child(60n+1):nth-child(odd),
+.gridCell:nth-child(60n+3):nth-child(odd),
+.gridCell:nth-child(60n+5):nth-child(odd),
+.gridCell:nth-child(60n+7):nth-child(odd),
+.gridCell:nth-child(60n+9):nth-child(odd),
+.gridCell:nth-child(60n+11):nth-child(odd),
+.gridCell:nth-child(60n+13):nth-child(odd),
+.gridCell:nth-child(60n+15):nth-child(odd),
+.gridCell:nth-child(60n+17):nth-child(odd),
+.gridCell:nth-child(60n+19):nth-child(odd),
+.gridCell:nth-child(60n+21):nth-child(odd),
+.gridCell:nth-child(60n+23):nth-child(odd),
+.gridCell:nth-child(60n+25):nth-child(odd),
+.gridCell:nth-child(60n+27):nth-child(odd),
+.gridCell:nth-child(60n+29):nth-child(odd),
+.gridCell:nth-child(60n+30):nth-child(odd),
+.gridCell:nth-child(60n+32):nth-child(odd),
+.gridCell:nth-child(60n+34):nth-child(odd),
+.gridCell:nth-child(60n+36):nth-child(odd),
+.gridCell:nth-child(60n+38):nth-child(odd),
+.gridCell:nth-child(60n+40):nth-child(odd),
+.gridCell:nth-child(60n+42):nth-child(odd),
+.gridCell:nth-child(60n+44):nth-child(odd),
+.gridCell:nth-child(60n+46):nth-child(odd),
+.gridCell:nth-child(60n+48):nth-child(odd),
+.gridCell:nth-child(60n+50):nth-child(odd),
+.gridCell:nth-child(60n+52):nth-child(odd),
+.gridCell:nth-child(60n+54):nth-child(odd),
+.gridCell:nth-child(60n+56):nth-child(odd),
+.gridCell:nth-child(60n+58):nth-child(odd) {
+  background-color: #3db442; /* Darker green */
+}
+
+.gridCell:nth-child(60n+2):nth-child(even),
+.gridCell:nth-child(60n+4):nth-child(even),
+.gridCell:nth-child(60n+6):nth-child(even),
+.gridCell:nth-child(60n+8):nth-child(even),
+.gridCell:nth-child(60n+10):nth-child(even),
+.gridCell:nth-child(60n+12):nth-child(even),
+.gridCell:nth-child(60n+14):nth-child(even),
+.gridCell:nth-child(60n+16):nth-child(even),
+.gridCell:nth-child(60n+18):nth-child(even),
+.gridCell:nth-child(60n+20):nth-child(even),
+.gridCell:nth-child(60n+22):nth-child(even),
+.gridCell:nth-child(60n+24):nth-child(even),
+.gridCell:nth-child(60n+26):nth-child(even),
+.gridCell:nth-child(60n+28):nth-child(even),
+.gridCell:nth-child(60n+30):nth-child(even),
+.gridCell:nth-child(60n+31):nth-child(even),
+.gridCell:nth-child(60n+33):nth-child(even),
+.gridCell:nth-child(60n+35):nth-child(even),
+.gridCell:nth-child(60n+37):nth-child(even),
+.gridCell:nth-child(60n+39):nth-child(even),
+.gridCell:nth-child(60n+41):nth-child(even),
+.gridCell:nth-child(60n+43):nth-child(even),
+.gridCell:nth-child(60n+45):nth-child(even),
+.gridCell:nth-child(60n+47):nth-child(even),
+.gridCell:nth-child(60n+49):nth-child(even),
+.gridCell:nth-child(60n+51):nth-child(even),
+.gridCell:nth-child(60n+53):nth-child(even),
+.gridCell:nth-child(60n+55):nth-child(even),
+.gridCell:nth-child(60n+57):nth-child(even),
+.gridCell:nth-child(60n+59):nth-child(even) {
+  background-color: #47c64d; /* Lighter green */
+}
+
+/* Player cell styling - remove border radius */
+.playerCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 95%;
+  height: 95%;
+  background-color: var(--player-color, rgba(255, 0, 0, 0.7));
+  border-radius: 0; /* Remove rounded corners */
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+/* First square (snake head) styling - keep border for visibility */
+.firstSquare::after {
+  background-color: var(--player-color, rgba(139, 0, 0, 0.8));
+  border: 2px solid white;
+}
+
+/* Cookie cell styling */
+.cookieCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  height: 70%;
+  background-color: rgb(255, 215, 0, 0.9); /* Gold color for cookies */
+  border-radius: 50%; /* Make it circular */
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  box-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
+}
+
+/* Current player's cell styling for easier visibility */
+.currentPlayerCell::after {
+  border: 3px solid white;  /* Add a white border for the current player's cells */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);  /* Add a glowing effect */
+}
+
+/* Leaderboard styling */
+.leaderboard {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #004d00; /* Solid dark green background (no transparency) */
+  color: white;
+  padding: 20px; /* Increased padding */
+  border-radius: 8px;
+  border: 2px solid #ffffff; /* Added white border for better visibility */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); /* Enhanced shadow */
+  z-index: 2;
+  min-width: 260px; /* Increased minimum width */
+  max-width: 300px; /* Increased maximum width */
+}
+
+.leaderboard h3 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px; /* Increased margin */
+  font-size: 1.8rem; /* Increased font size */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Thicker border */
+  padding-bottom: 10px;
+}
+
+.leaderboardTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboardTable th,
+.leaderboardTable td {
+  padding: 10px; /* Increased padding */
+  text-align: center;
+  font-size: 1.2rem; /* Increased font size */
+}
+
+.leaderboardTable th {
+  font-weight: bold;
+  font-size: 1.1rem; /* Increased font size */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.leaderboardTable tr:not(:last-child) td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Highlight the current player in the leaderboard */
+.currentPlayerRow {
+  background-color: rgba(255, 255, 255, 0.3); /* Slightly more visible highlight */
+  font-weight: bold;
+}
+
+/* Use player color for rank indicator */
+.leaderboardTable tr td:first-child {
+  color: var(--player-row-color);
+  font-weight: bold;
+  font-size: 1.4rem; /* Increased font size for rank */
+}
+
+/* Make sure the leaderboard remains visible in different screen sizes */
+@media (max-width: 1200px) {
+  .leaderboard {
+    left: 15px;
+    padding: 15px;
+    min-width: 220px;
+  }
+  
+  .leaderboardTable th,
+  .leaderboardTable td {
+    padding: 8px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .leaderboard {
+    top: 15px;
+    transform: none;
+    min-width: 200px;
+  }
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.controls button {
+  padding: 10px 15px;
+  background-color: #004d00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  min-width: 150px;
+}
+
+.controls button:hover {
+  background-color: #003300;
+}
+
+.controls button:disabled {
+  background-color: #7a7a7a;
+  cursor: not-allowed;
+}
+
+.connectionStatus {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.controls button {
+  padding: 10px 15px;
+  background-color: #004d00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background-color: #003300;
+}
+
+.gameOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(129, 129, 129, 0.2);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.blurred {
+  filter: blur(2px);
+  transition: filter 0.3s ease;
+}
+
+/* Big countdown circle styling */
+.countdownCircle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 150px;
+  background-color: rgba(0, 77, 0, 0.9); /* Dark green with higher opacity */
+  border: 6px solid white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10; /* Significantly higher z-index to ensure it's on top */
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); /* Stronger glowing effect */
+  filter: none !important; /* Ensure no filter is applied */
+  pointer-events: none; /* Prevents interaction with the circle */
+}
+
+.countdownCircle span {
+  color: white;
+  font-size: 5rem; /* Larger text */
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Styling for the leave lobby button in the game page */
+.leaveLobbyButtonGame {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  background-color: #e74c3c; /* Red color for exit/leave actions */
+  border: 2px solid #ffffff; /* White border */
+  color: #ffffff; /* White text color */
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 10; /* Ensure it's above other elements */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for better visibility */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.leaveLobbyButtonGame:hover {
+  background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Final countdown overlay styling - covers the entire game grid */
+.finalCountdownOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: 5; /* Above the game grid but below other UI elements */
+}
+
+.finalCountdownOverlay span {
+  font-size: 20vw; /* Extra large font size that scales with viewport */
+  font-weight: 900; /* Extra bold */
+  color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+  text-shadow: 
+    0 0 20px rgba(255, 0, 0, 0.7), /* Red glow for urgency */
+    0 0 40px rgba(255, 0, 0, 0.5);
+  animation: pulse 1s infinite alternate; /* Pulsing animation for emphasis */
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
 }
 

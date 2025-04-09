@@ -1,100 +1,75 @@
 // src/hooks/useLobbySocket.ts
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { WebSocketService } from '@/api/websocketService';
 
-// // Define an interface for Player type
-// interface Player {
-//   id: string;
-//   username: string;
-//   // Add other properties as needed
-// }
+let globalIsConnected = false;
 
 export function useLobbySocket() {
-  const [isConnected, setIsConnected] = useState(false);
-  const serviceRef = useRef<WebSocketService | null>(null);
+  const [isConnected, setIsConnected] = useState(globalIsConnected);
+  const service = WebSocketService.getInstance();
   
+
   // Initialize WebSocketService once
   useEffect(() => {
-    if (!serviceRef.current) {
-      serviceRef.current = new WebSocketService();
-    }
-    
+    setIsConnected(globalIsConnected);
+
     // Clean up on unmount
     return () => {
-      if (serviceRef.current) {
-        serviceRef.current.disconnect();
-      }
     };
   }, []);
   
   // Connect with auth token
   const connect = useCallback((params?: Record<string, string>) => {
-    if (!serviceRef.current) return null;
-    
     // Format token if not provided in params
     const connectionParams = { ...params };
     if (!connectionParams.token && localStorage.getItem("token")) {
       connectionParams.token = localStorage.getItem("token")?.replace(/"/g, '') || '';
     }
     
-    const socket = serviceRef.current.connect(connectionParams);
-    
-    // Update React state based on connection events
-    socket.onopen = () => {
-      console.log('WebSocket connected');
-      setIsConnected(true);
-    };
-    
-    socket.onclose = () => {
-      console.log('WebSocket disconnected');
-      setIsConnected(false);
-    };
-    
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setIsConnected(false);
-    };
-    
-    return socket;
-  }, []);
-  
-  // Wrapper for sending messages
-  const send = useCallback((data: { type: string; payload: unknown }) => {
-    if (!serviceRef.current) {
-      console.error('Cannot send message: WebSocket service not initialized');
-      return false;
-    }
-    
     try {
-      serviceRef.current.send(data);
-      return true;
+      const socketPromise = service.connect(connectionParams);
+      
+      socketPromise.then(socket => {
+        // Update both local and global connection state
+        globalIsConnected = true;
+        setIsConnected(true);
+        
+        // Set up event handlers if not already set
+        if (!socket.onclose || !socket.onerror) {
+          socket.onclose = () => {
+            globalIsConnected = false;
+            setIsConnected(false);
+          };
+          
+          socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            globalIsConnected = false;
+            setIsConnected(false);
+          };
+        }
+      });
+      
+      return socketPromise;
     } catch (error) {
-      console.error('Failed to send message:', error);
-      return false;
+      console.error('Connection error:', error);
+      return Promise.reject(error);
     }
-  }, []);
+  }, [service]);
   
-  // Wrapper for disconnecting
+  
+  // Update disconnect to be more explicit
   const disconnect = useCallback(() => {
-    if (serviceRef.current) {
-      serviceRef.current.disconnect();
-      setIsConnected(false);
-    }
-  }, []);
+    service.disconnect();
+    globalIsConnected = false;
+    setIsConnected(false);
+  }, [service]);
   
-  useEffect(() => {
-    // This effect can be used to set up event handlers in the future
-    // For now we're keeping it empty but ready for future implementation
-    
-    return () => {
-      // Clean up event handlers if necessary
-    };
-  }, []);
-
   return {
     isConnected,
     connect,
-    send,
-    disconnect
+    send: (data: unknown) => service.send(data),
+    disconnect,
+    // We're now using the getSocket method we added to the WebSocketService class
+    getSocket: () => service.isConnected() ? service.getSocket() : null
   };
 }
