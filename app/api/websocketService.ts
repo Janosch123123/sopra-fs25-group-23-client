@@ -84,7 +84,7 @@ export class WebSocketService {
       });
     }
     
-    send(data: any) {
+    send(data: unknown) {
       if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
         throw new Error('WebSocket is not connected');
       }
