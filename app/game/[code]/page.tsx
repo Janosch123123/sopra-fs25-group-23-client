@@ -22,6 +22,7 @@ const GamePage: React.FC = () => {
   // We'll use this state to track cookies, but we'll pass the data directly to renderCookies
   const [, setCookiesLocations] = useState<[number, number][]>([]);
   const [timestamp, setTimestamp] = useState<number>(0);
+  const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   
   // Get lobby code from URL parameters
   const params = useParams();
@@ -219,6 +220,9 @@ const GamePage: React.FC = () => {
                 
                 // Render cookies immediately
                 renderCookies(cookiePositions);
+
+                // Reset player death state when game is restarting
+                setPlayerIsDead(false);
               }
               
               // Handle gameState updates with the new expected format
@@ -242,6 +246,14 @@ const GamePage: React.FC = () => {
                 if (data.timestamp !== undefined) {
                   setTimestamp(data.timestamp);
                 }
+
+                // Check if current player is dead
+                const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+                const isAlive = data.snakes && 
+                               data.snakes[currentUsername] && 
+                               data.snakes[currentUsername].length > 0;
+                
+                setPlayerIsDead(gameLive && !isAlive);
               }
               
             } catch (error) {
@@ -260,7 +272,7 @@ const GamePage: React.FC = () => {
     return () => {
       disconnect();
     };
-  }, [connect, disconnect, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow]);
+  }, [connect, disconnect, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
@@ -456,6 +468,16 @@ const GamePage: React.FC = () => {
       {countdown !== null && !gameLive && (
         <div className={styles.countdownCircle}>
           <span>{countdown}</span>
+        </div>
+      )}
+
+      {/* Death screen overlay - only show when player is dead */}
+      {playerIsDead && (
+        <div className={styles.deathOverlay}>
+          <div className={styles.deathMessage}>
+            <h2>You Died!</h2>
+            <p>Continue watching the game</p>
+          </div>
         </div>
       )}
       
