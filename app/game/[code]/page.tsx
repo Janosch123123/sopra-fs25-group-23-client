@@ -31,6 +31,8 @@ const GamePage: React.FC = () => {
   // Initialize WebSocket connection
   const { isConnected, getSocket, connect, send, disconnect } = useLobbySocket();
   
+  const intentionalDisconnect = useRef(false);
+
   const [connectionError, setConnectionError] = useState(false);
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
@@ -164,6 +166,32 @@ const GamePage: React.FC = () => {
     });
   }, [clearAllCells, renderPlayerSnake]);
 
+  useEffect(() => {
+    // Handle browser close or refresh
+    const handleBeforeUnload = () => {
+      console.log("Browser closing, disconnecting WebSocket");
+      intentionalDisconnect.current = true;
+      disconnect();
+    };
+    
+    // Handle browser back button
+    const handlePopState = () => {
+      console.log("Browser back button pressed, disconnecting WebSocket");
+      intentionalDisconnect.current = true;
+      disconnect();
+    };
+    
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+    
+    // Clean up event listeners
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [disconnect]);
+
   // Log the current username from localStorage
   useEffect(() => {
     const currentUsername = localStorage.getItem("username");
@@ -288,7 +316,13 @@ const GamePage: React.FC = () => {
     setupWebSocket();
 
     // Clean up on unmount
-    return () => {    
+    return () => {
+      if (intentionalDisconnect.current) {
+        console.log("Disconnecting WebSocket on unmount");
+        disconnect();
+      }else {
+        console.log("Not disconnecting WebSocket on unmount");
+      }
     };
   }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive]);
 
@@ -401,6 +435,7 @@ const GamePage: React.FC = () => {
 
   // Function to handle leaving the lobby
   const handleLeaveLobby = () => {
+    intentionalDisconnect.current = true;
     // Disconnect from the socket
     disconnect();
     
