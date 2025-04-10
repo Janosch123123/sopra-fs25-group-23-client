@@ -29,8 +29,9 @@ const GamePage: React.FC = () => {
   const lobbyCode = params.code as string;
   
   // Initialize WebSocket connection
-  const { connect, send, disconnect } = useLobbySocket();
+  const { isConnected, getSocket, connect, send, disconnect } = useLobbySocket();
   
+  const [connectionError, setConnectionError] = useState(false);
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
   
@@ -171,17 +172,24 @@ const GamePage: React.FC = () => {
   
   // Establish WebSocket connection on component mount - now this comes after all the functions are defined
   useEffect(() => {
-    const establishConnection = async () => {
+    const setupWebSocket = async () => {
       try {
+
+        let socket
+        if (!isConnected) {
         // Get the authentication token
-        const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+          const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
         
         // Connect with both token and lobbyCode
-        const socket = await connect({ token, lobbyCode });
+          socket = await connect({ token, lobbyCode });
+          console.log("WebSocket connection established for game page");
+        }
+
+        const currentSocket = socket || (isConnected ? getSocket() : null);
         
-        if (socket) {
+        if (currentSocket) {
           // Set up message handler
-          socket.onmessage = (event: MessageEvent) => {
+          currentSocket.onmessage = (event: MessageEvent) => {
             try {
               const data = JSON.parse(event.data);
               console.log("Received message:", data);
@@ -223,10 +231,11 @@ const GamePage: React.FC = () => {
 
                 // Reset player death state when game is restarting
                 setPlayerIsDead(false);
+                setConnectionError(false);
               }
               
               // Handle gameState updates with the new expected format
-              if (data.type === 'gameState') {
+              else if (data.type === 'gameState') {
                 setGameLive(true);
                 setCountdown(null);
                 
@@ -254,25 +263,34 @@ const GamePage: React.FC = () => {
                                data.snakes[currentUsername].length > 0;
                 
                 setPlayerIsDead(gameLive && !isAlive);
-              }
               
-            } catch (error) {
-              console.error("Error parsing message:", error);
+              setConnectionError(false);
+            }
+            else if (data.type === "connection_success") {
+              console.log("WebSocket connection established successfully");
+              setConnectionError(false);
+            }
+            else if (data.type === 'error') {
+              console.error("WebSocket error:", data.message);
+              setConnectionError(true);
+            } 
+            }catch (error) {
+              console.error("Error parsing WebSocket message:", error);
+              setConnectionError(true);
             }
           };
         }
-      } catch (error) {
-        console.error("Failed to connect to WebSocket:", error);
+      } catch (error) { 
+        console.error("Failed to connect to Websocket:", error);
+        setConnectionError(true); 
       }
     };
-
-    establishConnection();
+    setupWebSocket();
 
     // Clean up on unmount
-    return () => {
-      disconnect();
+    return () => {    
     };
-  }, [connect, disconnect, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive]);
+  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
