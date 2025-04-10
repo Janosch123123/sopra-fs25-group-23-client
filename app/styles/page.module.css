@@ -736,17 +736,14 @@ a.secondary {
 
 /* Cookie cell styling */
 .cookieCell::after {
-  content: '';
+  content: '🍪'; /* Cookie emoji instead of a circle */
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 70%;
-  height: 70%;
-  background-color: rgb(255, 215, 0, 0.9); /* Gold color for cookies */
-  border-radius: 50%; /* Make it circular */
+  font-size: 1.2rem; /* Control the size of the emoji */
   transform: translate(-50%, -50%);
   z-index: 1;
-  box-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
 }
 
 /* Current player's cell styling for easier visibility */
@@ -993,6 +990,65 @@ a.secondary {
   100% {
     opacity: 0.5;
     transform: scale(0.9);
+  }
+}
+
+/* Death screen overlay styling */
+.deathOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20; /* Higher than other overlays */
+  pointer-events: none; /* Allow clicks through the overlay */
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.deathMessage {
+  background-color: rgba(139, 0, 0, 0.9); /* Dark red background */
+  border: 3px solid #ff0000;
+  border-radius: 10px;
+  padding: 30px 60px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); /* Red glow */
+  transform: scale(0.9);
+  animation: pulseDeath 2s infinite alternate;
+}
+
+.deathMessage h2 {
+  color: white;
+  font-size: 3rem;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+.deathMessage p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.5rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulseDeath {
+  from {
+    transform: scale(0.95);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+  }
+  to {
+    transform: scale(1);
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
   }
 }
 

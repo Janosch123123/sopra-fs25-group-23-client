@@ -16,21 +16,24 @@ const GamePage: React.FC = () => {
   
   // Game state - update to match expected message format
   const [gameLive, setGameLive] = useState(false);
-  const [isAlive, setIsAlive] = useState(true);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
   // Store cookies locations in state but don't directly reference them
   // We'll use this state to track cookies, but we'll pass the data directly to renderCookies
   const [, setCookiesLocations] = useState<[number, number][]>([]);
   const [timestamp, setTimestamp] = useState<number>(0);
+  const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   
   // Get lobby code from URL parameters
   const params = useParams();
   const lobbyCode = params.code as string;
   
   // Initialize WebSocket connection
-  const { connect, send, disconnect } = useLobbySocket();
+  const { isConnected, getSocket, connect, send, disconnect } = useLobbySocket();
   
+  const intentionalDisconnect = useRef(false);
+
+  const [connectionError, setConnectionError] = useState(false);
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
   
@@ -163,6 +166,32 @@ const GamePage: React.FC = () => {
     });
   }, [clearAllCells, renderPlayerSnake]);
 
+  useEffect(() => {
+    // Handle browser close or refresh
+    const handleBeforeUnload = () => {
+      console.log("Browser closing, disconnecting WebSocket");
+      intentionalDisconnect.current = true;
+      disconnect();
+    };
+    
+    // Handle browser back button
+    const handlePopState = () => {
+      console.log("Browser back button pressed, disconnecting WebSocket");
+      intentionalDisconnect.current = true;
+      disconnect();
+    };
+    
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+    
+    // Clean up event listeners
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [disconnect]);
+
   // Log the current username from localStorage
   useEffect(() => {
     const currentUsername = localStorage.getItem("username");
@@ -171,17 +200,24 @@ const GamePage: React.FC = () => {
   
   // Establish WebSocket connection on component mount - now this comes after all the functions are defined
   useEffect(() => {
-    const establishConnection = async () => {
+    const setupWebSocket = async () => {
       try {
+
+        let socket
+        if (!isConnected) {
         // Get the authentication token
-        const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+          const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
         
         // Connect with both token and lobbyCode
-        const socket = await connect({ token, lobbyCode });
+          socket = await connect({ token, lobbyCode });
+          console.log("WebSocket connection established for game page");
+        }
+
+        const currentSocket = socket || (isConnected ? getSocket() : null);
         
-        if (socket) {
+        if (currentSocket) {
           // Set up message handler
-          socket.onmessage = (event: MessageEvent) => {
+          currentSocket.onmessage = (event: MessageEvent) => {
             try {
               const data = JSON.parse(event.data);
               console.log("Received message:", data);
@@ -220,10 +256,14 @@ const GamePage: React.FC = () => {
                 
                 // Render cookies immediately
                 renderCookies(cookiePositions);
+
+                // Reset player death state when game is restarting
+                setPlayerIsDead(false);
+                setConnectionError(false);
               }
               
               // Handle gameState updates with the new expected format
-              if (data.type === 'gameState') {
+              else if (data.type === 'gameState') {
                 setGameLive(true);
                 setCountdown(null);
                 
@@ -244,39 +284,47 @@ const GamePage: React.FC = () => {
                   setTimestamp(data.timestamp);
                 }
 
-                // Check if the current player is alive
-                const currentUsername = localStorage.getItem("username");
-                if (currentUsername && data.snakes) {
-                  // Player is dead only if they exist in the snakes object but their positions array is empty
-                  const playerSnake = data.snakes[currentUsername];
-                  // If username exists in snakes object and positions array is empty (length === 0), they're dead
-                  // Otherwise they're alive (including if username doesn't exist in snakes object yet)
-                  const playerIsAlive = !(playerSnake !== undefined && playerSnake.length === 0);
-                  setIsAlive(playerIsAlive);
-                  
-                  if (!playerIsAlive && isAlive) {
-                    console.log("Player has died!");
-                  }
-                }
-              }
+                // Check if current player is dead
+                const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+                const isAlive = data.snakes && 
+                               data.snakes[currentUsername] && 
+                               data.snakes[currentUsername].length > 0;
+                
+                setPlayerIsDead(gameLive && !isAlive);
               
-            } catch (error) {
-              console.error("Error parsing message:", error);
+              setConnectionError(false);
+            }
+            else if (data.type === "connection_success") {
+              console.log("WebSocket connection established successfully");
+              setConnectionError(false);
+            }
+            else if (data.type === 'error') {
+              console.error("WebSocket error:", data.message);
+              setConnectionError(true);
+            } 
+            }catch (error) {
+              console.error("Error parsing WebSocket message:", error);
+              setConnectionError(true);
             }
           };
         }
-      } catch (error) {
-        console.error("Failed to connect to WebSocket:", error);
+      } catch (error) { 
+        console.error("Failed to connect to Websocket:", error);
+        setConnectionError(true); 
       }
     };
-
-    establishConnection();
+    setupWebSocket();
 
     // Clean up on unmount
     return () => {
-      disconnect();
+      if (intentionalDisconnect.current) {
+        console.log("Disconnecting WebSocket on unmount");
+        disconnect();
+      }else {
+        console.log("Not disconnecting WebSocket on unmount");
+      }
     };
-  }, [connect, disconnect, lobbyCode, isAlive, renderPlayerSnakes, renderCookies, indexToColRow]);
+  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
@@ -321,13 +369,21 @@ const GamePage: React.FC = () => {
           return; // Ignore other keys
       }
       
-      // Send movement direction to the server
+      // Get the current username and remove quotes
+      const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+      
+      // Check if the current player's snake exists and has length > 0
+      const isAlive = snakes[currentUsername] && snakes[currentUsername].length > 0;
+      
+      // Send movement direction to the server if game is live and player is alive
       if (direction && gameLive && isAlive) {
+        const allPlayerUsernames = Object.keys(snakes).join(", ");
+        console.log(`Player '${currentUsername}' sending direction: ${direction}. All players: ${allPlayerUsernames}. Player alive: ${isAlive}`);
+        
         send({
           type: 'playerMove',
           direction: direction
         });
-        console.log(`Sent direction: ${direction}`);
       }
     };
     
@@ -338,7 +394,7 @@ const GamePage: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [gameLive, isAlive, send]);
+  }, [gameLive, send, snakes]);
 
   // Function to get sorted players for the leaderboard
   const getSortedPlayers = (): { username: string; length: number; index: number }[] => {
@@ -379,6 +435,7 @@ const GamePage: React.FC = () => {
 
   // Function to handle leaving the lobby
   const handleLeaveLobby = () => {
+    intentionalDisconnect.current = true;
     // Disconnect from the socket
     disconnect();
     
@@ -464,6 +521,16 @@ const GamePage: React.FC = () => {
       {countdown !== null && !gameLive && (
         <div className={styles.countdownCircle}>
           <span>{countdown}</span>
+        </div>
+      )}
+
+      {/* Death screen overlay - only show when player is dead */}
+      {playerIsDead && (
+        <div className={styles.deathOverlay}>
+          <div className={styles.deathMessage}>
+            <h2>You Died!</h2>
+            <p>Continue watching the game</p>
+          </div>
         </div>
       )}
       
