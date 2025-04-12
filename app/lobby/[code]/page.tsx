@@ -59,6 +59,9 @@ const LobbyPage: React.FC = () => {
     router.push("/home");
   };
 
+
+  
+
   // Check localStorage for debugging
   useEffect(() => {
     try {
@@ -286,6 +289,15 @@ const LobbyPage: React.FC = () => {
     // Don't disconnect on unmount, as we want to keep the connection alive
     // when navigating between pages
   }, [connect, lobbyCode, isConnected, send, getSocket, router]);
+
+  // Request lobby state when component mounts
+  // This is to ensure we have the latest data when the component loads
+  useEffect(() => {
+    send({
+      type: "lobbystate",
+    });
+  }
+  , []);
 
 
   const updateSettings = () => {
