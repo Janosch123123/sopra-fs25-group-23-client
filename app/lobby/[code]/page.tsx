@@ -33,6 +33,7 @@ const LobbyPage: React.FC = () => {
   const [connectionError, setConnectionError] = useState(false);
 
   const [isAdmin, setIsAdmin] = useState(false); // Track if current user is admin
+  const [adminUsername, setAdminUsername] = useState(""); // Track admin's username
 
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
@@ -122,6 +123,23 @@ const LobbyPage: React.FC = () => {
       
       // Set as admin if any check passes
       setIsAdmin(isAdminById || isAdminByUsername);
+      
+      // Find the admin username from the players list
+      if (lobbyData.players && lobbyData.players.length > 0) {
+        // Try to find the admin by matching adminId with username
+        const adminPlayer = lobbyData.players.find(player => 
+          player.username.replace(/"/g, '') === adminIdStr
+        );
+        
+        if (adminPlayer) {
+          setAdminUsername(adminPlayer.username);
+        } else {
+          // If we can't find by direct match, use the current user's username if they're admin
+          if (isAdminById || isAdminByUsername) {
+            setAdminUsername(cleanUsername);
+          }
+        }
+      }
     } else {
       console.log("No adminId in lobbyData, cannot determine admin status");
     }
@@ -371,11 +389,6 @@ const LobbyPage: React.FC = () => {
   if (loading) {
     return <div>Loading lobby data... {connectionError ? "(WebSocket connection issue)" : ""}</div>;
   }
-  
-  // Ensure topPlayer always has a value by providing a default empty object if players array is empty
-  const topPlayer = lobbyData?.players.length ? 
-    lobbyData.players.reduce((prev, current) => (prev.level > current.level ? prev : current), lobbyData.players[0]) 
-    : { username: "", level: 0 };
 
   return (
     <div className={styles.mainPage}>
@@ -396,7 +409,7 @@ const LobbyPage: React.FC = () => {
             {lobbyData?.players.map((player, index) => (
               <tr key={index}>
                 <td>
-                  {player.username} {player.username === topPlayer?.username && "👑"}
+                  {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
                 </td>
                 <td>{player.level}</td>
               </tr>
