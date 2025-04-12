@@ -18,6 +18,7 @@ interface LobbyData {
     spawnRate: "Slow" | "Medium" | "Fast";
     includePowerUps: boolean;
   };
+  adminId?: number | string;
 }
 
 const LobbyPage: React.FC = () => {
@@ -31,19 +32,18 @@ const LobbyPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [connectionError, setConnectionError] = useState(false);
 
+  const [isAdmin, setIsAdmin] = useState(false); // Track if current user is admin
+
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
   
   // Initialize WebSocket connection
   const { isConnected, connect, send, getSocket } = useLobbySocket();
   
-
-  
-
-    
-
   // Function to handle start game
   const handleStartGame = () => {
+    if (!isAdmin) return; // Only admin can start the game
+    
     console.log("handleStartGame function called");
     // Send start game message
     send({
@@ -59,7 +59,70 @@ const LobbyPage: React.FC = () => {
     router.push("/home");
   };
 
+  // Check localStorage for debugging
+  useEffect(() => {
+    try {
+      console.log("Checking localStorage contents:");
+      Object.keys(localStorage).forEach(key => {
+        console.log(`${key}: ${localStorage.getItem(key)}`);
+      });
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+    }
+  }, []);
 
+  // Admin check effect - runs when lobbyData changes
+  useEffect(() => {
+    if (!lobbyData) {
+      console.log("No lobby data available yet");
+      return;
+    }
+    
+    console.log("Checking admin status with lobbyData:", JSON.stringify(lobbyData, null, 2));
+    
+    // Extract all possible user identifiers
+    const userId = localStorage.getItem("userId");
+    const username = localStorage.getItem("username");
+    
+    // Try to match with adminId
+    if (lobbyData.adminId !== undefined) {
+      // Clean all values aggressively
+      const cleanUserId = userId ? userId.replace(/"/g, '') : '';
+      const cleanUsername = username ? username.replace(/"/g, '') : '';
+      const adminIdStr = String(lobbyData.adminId);
+      
+      console.log("Admin ID comparison:", {
+        userId, 
+        username,
+        cleanUserId,
+        cleanUsername, 
+        adminId: lobbyData.adminId,
+        adminIdStr
+      });
+      
+      // Also try to match with the user's ID in the participants array
+      const isUserInParticipants = lobbyData.players.some(player => {
+        const playerName = player.username.replace(/"/g, '');
+        console.log(`Comparing player: ${playerName} with username: ${cleanUsername}`);
+        return playerName === cleanUsername;
+      });
+      
+      // Try multiple approaches to determine admin status
+      const isAdminById = cleanUserId === adminIdStr;
+      const isAdminByUsername = cleanUsername === adminIdStr;
+      
+      console.log("Admin check results:", {
+        isAdminById,
+        isAdminByUsername,
+        isUserInParticipants
+      });
+      
+      // Set as admin if any check passes
+      setIsAdmin(isAdminById || isAdminByUsername);
+    } else {
+      console.log("No adminId in lobbyData, cannot determine admin status");
+    }
+  }, [lobbyData]);
 
   // Initialize connection and set up message handlers
   useEffect(() => {
@@ -82,19 +145,52 @@ const LobbyPage: React.FC = () => {
               console.log("Received WebSocket message:", event.data);
               const data = JSON.parse(event.data);
               
+              // Log the entire data structure
+              console.log("FULL DATA STRUCTURE:", JSON.stringify(data, null, 2));
+              
               // Handle all possible lobby update message types
               if (data.type === 'lobby_data' || data.type === 'lobby_update' || data.type === 'lobby_state') {
                 if (data.lobby) {
-                  setLobbyData(data.lobby);
+                  // Try to get adminId from multiple places
+                  const adminId = data.adminId || (data.lobby && data.lobby.adminId);
+                  console.log("Extracted adminId:", adminId);
+                  
+                  const completeData = {
+                    ...data.lobby,
+                    adminId: adminId // Set the adminId explicitly
+                  };
+                  
+                  console.log("Final lobbyData object:", completeData);
+                  setLobbyData(completeData);
                   
                   // Only update settings if they exist in the data
                   if (data.lobby.settings) {
                     setSpawnRate(data.lobby.settings.spawnRate);
                     setIncludePowerUps(data.lobby.settings.includePowerUps);
                   }
-                  
+
                   setLoading(false);
                   setConnectionError(false);
+                } else if (data.adminId) {
+                  // If there's no lobby property but there is an adminId,
+                  // create a simplified structure with the available data
+                  console.log("No lobby property but found adminId:", data.adminId);
+                  
+                  // If participants exist at the top level
+                  const players = data.participants || [];
+                  
+                  const completeData = {
+                    code: data.lobbyId || lobbyCode,
+                    players: players,
+                    settings: {
+                      spawnRate: spawnRate,
+                      includePowerUps: includePowerUps
+                    },
+                    adminId: data.adminId
+                  };
+                  
+                  console.log("Constructed lobbyData from top-level data:", completeData);
+                  setLobbyData(completeData);
                 }
               } 
 
@@ -117,12 +213,44 @@ const LobbyPage: React.FC = () => {
               else if (data.type === 'lobby_joined') {
                 console.log("Successfully joined lobby:", data);
                 if (data.lobby) {
-                  setLobbyData(data.lobby);
+                  // Try to get adminId from multiple places
+                  const adminId = data.adminId || (data.lobby && data.lobby.adminId);
+                  console.log("Extracted adminId (lobby_joined):", adminId);
+                  
+                  const completeData = {
+                    ...data.lobby,
+                    adminId: adminId // Set the adminId explicitly
+                  };
+                  
+                  console.log("Final lobbyData object (lobby_joined):", completeData);
+                  setLobbyData(completeData);
+                  
                   if (data.lobby.settings) {
                     setSpawnRate(data.lobby.settings.spawnRate);
                     setIncludePowerUps(data.lobby.settings.includePowerUps);
                   }
+                  
                   setLoading(false);
+                } else if (data.adminId) {
+                  // If there's no lobby property but there is an adminId,
+                  // create a simplified structure with the available data
+                  console.log("No lobby property in lobby_joined but found adminId:", data.adminId);
+                  
+                  // If participants exist at the top level
+                  const players = data.participants || [];
+                  
+                  const completeData = {
+                    code: data.lobbyId || lobbyCode,
+                    players: players,
+                    settings: {
+                      spawnRate: spawnRate,
+                      includePowerUps: includePowerUps
+                    },
+                    adminId: data.adminId
+                  };
+                  
+                  console.log("Constructed lobbyData from top-level data (lobby_joined):", completeData);
+                  setLobbyData(completeData);
                 }
               }
               
@@ -157,10 +285,12 @@ const LobbyPage: React.FC = () => {
     
     // Don't disconnect on unmount, as we want to keep the connection alive
     // when navigating between pages
-  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData]);
+  }, [connect, lobbyCode, isConnected, send, getSocket, router]);
 
 
   const updateSettings = () => {
+    if (!isAdmin) return; // Only allow admin to update settings
+    
     // Send updated settings to server
     send({
       type: 'update_lobby_settings',
@@ -206,6 +336,8 @@ const LobbyPage: React.FC = () => {
   }, [apiService, router]);
 
   const handleSpawnRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAdmin) return; // Only allow admin to change spawn rate
+
     const value = event.target.value;
     const newSpawnRate = value === "0" ? "Slow" : value === "1" ? "Medium" : "Fast";
     setSpawnRate(newSpawnRate);
@@ -215,6 +347,8 @@ const LobbyPage: React.FC = () => {
   };
 
   const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAdmin) return; // Only allow admin to change includePowerUps
+
     setIncludePowerUps(event.target.checked);
     
     // Update the setting via WebSocket after a short delay
@@ -236,6 +370,7 @@ const LobbyPage: React.FC = () => {
       <div className={styles.lobbyContainer}>
         <h1>Lobby</h1>
         <h3>({lobbyData?.code})</h3>
+        {isAdmin && <div className={styles.adminBadge}>Admin</div>}
         {connectionError && <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may not work.</div>}
         <br></br>
         <table className={styles.lobbyTable}>
@@ -256,41 +391,52 @@ const LobbyPage: React.FC = () => {
             ))}
           </tbody>
         </table>
-        <div className={styles.sliderContainer}>
-          <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
-          <input
-            type="range"
-            id="spawnRateSlider"
-            min="0"
-            max="2"
-            step="1"
-            value={spawnRate === "Slow" ? "0" : spawnRate === "Medium" ? "1" : "2"}
-            onChange={handleSpawnRateChange}
-            className={styles.spawnRateSlider}
-          />
-          <div className={styles.sliderLabels}>
-            <span>Slow</span>
-            <span>Medium</span>
-            <span>Fast</span>
+        
+        <div className={styles.settingsContainer}>
+          <h3>Game Settings {!isAdmin && <span className={styles.adminOnlyText}>(Admin Only)</span>}</h3>
+          
+          <div className={styles.sliderContainer}>
+            <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
+            <input
+              type="range"
+              id="spawnRateSlider"
+              min="0"
+              max="2"
+              step="1"
+              value={spawnRate === "Slow" ? "0" : spawnRate === "Medium" ? "1" : "2"}
+              onChange={handleSpawnRateChange}
+              className={`${styles.spawnRateSlider} ${!isAdmin ? styles.disabledControl : ''}`}
+              disabled={!isAdmin} // Disable the slider for non-admin users
+            />
+            <div className={styles.sliderLabels}>
+              <span>Slow</span>
+              <span>Medium</span>
+              <span>Fast</span>
+            </div>
+          </div>
+          
+          <div className={styles.checkboxContainer}>
+            <input
+              type="checkbox"
+              id="includePowerUps"
+              checked={includePowerUps}
+              onChange={handleIncludePowerUpsChange}
+              disabled={!isAdmin} // Disable the checkbox for non-admin users
+              className={!isAdmin ? styles.disabledControl : ''}
+            />
+            <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
           </div>
         </div>
-        <div className={styles.checkboxContainer}>
-          <input
-            type="checkbox"
-            id="includePowerUps"
-            checked={includePowerUps}
-            onChange={handleIncludePowerUpsChange}
-          />
-          <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
-        </div>
+        
         <button 
-          className={styles.startGameButton} 
+          className={`${styles.startGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
           onClick={() => {
             console.log("Start Game button clicked");
             handleStartGame();
           }}
+          disabled={!isAdmin} // Disable button if not admin
         >
-          Start Game
+          {isAdmin ? "Start Game" : "Only Admin Can Start Game"}
         </button>
         <button 
           className={styles.leaveLobbyButton} 
