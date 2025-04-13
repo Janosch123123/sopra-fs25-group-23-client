@@ -528,7 +528,7 @@ const GamePage: React.FC = () => {
       {playerIsDead && (
         <div className={styles.deathOverlay}>
           <div className={styles.deathMessage}>
-            <h2>You Died!</h2>
+            <h2>Eliminated</h2>
             <p>Continue watching the game</p>
           </div>
         </div>

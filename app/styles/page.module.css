@@ -201,8 +201,66 @@ a.secondary {
 
 .login-button {
   width: 100%;
-  background-color: #0e6812; /* Same color as the background */
-  border-color: #388e3c; /* Darker green border */
+  background-color: #1e88e5 !important; /* Blue background with !important to override any other styles */
+  border-color: #1255a3 !important; /* Darker blue border with !important */
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  color: white !important; /* Ensure text is white */
+}
+
+/* Gradient hover effect for login button */
+.login-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #1976d2, #42a5f5, #1976d2, transparent); /* Blue gradient */
+  transition: left 0.5s ease;
+  z-index: -1;
+}
+
+.login-button:hover {
+  background-color: #1976d2 !important; /* Slightly darker blue on hover */
+}
+
+.login-button:hover::before {
+  left: 100%;
+}
+
+/* Register button styles */
+.register-button {
+  width: 100%;
+  background-color: #1e88e5 !important; /* Blue background with !important */
+  border-color: #1565c0 !important; /* Border color with !important */
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  color: white !important; /* Ensure text is white */
+}
+
+.register-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #1976d2, #42a5f5, #1976d2, transparent); /* Blue gradient */
+  transition: left 0.5s ease;
+  z-index: -1;
+}
+
+.register-button:hover {
+  background-color: #1976d2 !important; /* Slightly darker blue on hover */
+}
+
+.register-button:hover::before {
+  left: 100%;
 }
 
 .blueContainer {
@@ -740,7 +798,7 @@ a.secondary {
   position: absolute;
   top: 50%;
   left: 50%;
-  font-size: 1.2rem; /* Control the size of the emoji */
+  font-size: 1.8rem; /* Increased size from 1.2rem to 1.8rem */
   transform: translate(-50%, -50%);
   z-index: 1;
   text-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
@@ -1000,55 +1058,70 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 20; /* Higher than other overlays */
   pointer-events: none; /* Allow clicks through the overlay */
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeToBlack 2s forwards;
 }
 
 .deathMessage {
-  background-color: rgba(139, 0, 0, 0.9); /* Dark red background */
-  border: 3px solid #ff0000;
-  border-radius: 10px;
-  padding: 30px 60px;
+  background-color: transparent;
   text-align: center;
-  box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); /* Red glow */
-  transform: scale(0.9);
-  animation: pulseDeath 2s infinite alternate;
+  animation: messageAppear 3s forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+  transform: scale(0.8);
+  filter: blur(5px);
 }
 
 .deathMessage h2 {
-  color: white;
-  font-size: 3rem;
+  color: #ff0000;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 6rem;
   margin-bottom: 10px;
-  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow: 
+    -3px -3px 0 #000, 
+    3px -3px 0 #000, 
+    -3px 3px 0 #000, 
+    3px 3px 0 #000,
+    0 0 15px rgba(255, 0, 0, 0.8);
 }
 
 .deathMessage p {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.5rem;
+  display: none; /* Hide the paragraph text */
 }
 
-@keyframes fadeIn {
-  from {
+@keyframes fadeToBlack {
+  0% {
+    background-color: rgba(0, 0, 0, 0);
+  }
+  50% {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@keyframes messageAppear {
+  0% {
     opacity: 0;
+    transform: scale(0.8) rotate(-3deg);
+    filter: blur(5px);
   }
-  to {
+  20% {
+    opacity: 0.7;
+    filter: blur(3px);
+  }
+  100% {
     opacity: 1;
-  }
-}
-
-@keyframes pulseDeath {
-  from {
-    transform: scale(0.95);
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-  }
-  to {
-    transform: scale(1);
-    box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
+    transform: scale(1) rotate(-3deg);
+    filter: blur(0);
   }
 }
 
