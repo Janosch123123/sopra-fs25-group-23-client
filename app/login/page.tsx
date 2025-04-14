@@ -94,7 +94,7 @@ const Login: React.FC = () => {
               <Button
                   type="primary"
                   variant="solid"
-                  className={styles["register-button"]}
+                  className={styles["login-button"]}
                   onClick={() => router.push("/register")}
                 >
                   Register a new User
