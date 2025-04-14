@@ -23,6 +23,8 @@ const GamePage: React.FC = () => {
   const [, setCookiesLocations] = useState<[number, number][]>([]);
   const [timestamp, setTimestamp] = useState<number>(0);
   const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
+  const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
+  const [showSpectatorOverlay, setShowSpectatorOverlay] = useState(false); // Add state for spectator overlay
   
   // Get lobby code from URL parameters
   const params = useParams();
@@ -443,6 +445,36 @@ const GamePage: React.FC = () => {
     router.push('/home');
   };
 
+  // Effect to handle showing and hiding the death screen
+  useEffect(() => {
+    if (playerIsDead) {
+      // Show only death screen first
+      setShowDeathScreen(true);
+      setShowSpectatorOverlay(false); // Initially hide spectator overlay
+      
+      // Hide only the death message after 2 seconds with fade-out animation
+      const deathTimeout = setTimeout(() => {
+        // Get the death overlay element and add the fade-out class
+        const deathOverlay = document.querySelector(`.${styles.deathOverlay}`);
+        if (deathOverlay) {
+          deathOverlay.classList.add(styles.fadeOut);
+          
+          // Wait for the animation to complete before hiding the element
+          setTimeout(() => {
+            setShowDeathScreen(false);
+            // Only show the spectator overlay after the death screen is gone
+            setShowSpectatorOverlay(true);
+          }, 800); // Match the 0.8s animation duration
+        } else {
+          setShowDeathScreen(false);
+          setShowSpectatorOverlay(true); // Fallback if overlay element not found
+        }
+      }, 2000);
+      
+      return () => clearTimeout(deathTimeout);
+    }
+  }, [playerIsDead, styles.deathOverlay, styles.fadeOut]);
+
   return (
     <div className={styles.mainPage}>
       
@@ -525,11 +557,19 @@ const GamePage: React.FC = () => {
       )}
 
       {/* Death screen overlay - only show when player is dead */}
-      {playerIsDead && (
+      {showDeathScreen && (
         <div className={styles.deathOverlay}>
           <div className={styles.deathMessage}>
             <h2>Eliminated</h2>
-            <p>Continue watching the game</p>
+          </div>
+        </div>
+      )}
+
+      {/* Spectator overlay - only show when player is dead and death screen is hidden */}
+      {showSpectatorOverlay && (
+        <div className={styles.spectatorOverlay}>
+          <div className={styles.spectatorMessage}>
+            <h2>Spectating...</h2>
           </div>
         </div>
       )}

@@ -285,17 +285,81 @@ a.secondary {
 }
 
 .mainPage {
+  background-color: #2e7d32; /* Base forest green background */
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 20px;
-  background-color: #0c6610; /* Dark forest green background */
-  background-image: radial-gradient(circle, #145218 20%, transparent 20%), 
-                    radial-gradient(circle, #0d4912 20%, transparent 20%);
-  background-size: 120px 80px; /* Adjust size of the circles */
-  background-position: 10px 10px, 20px 20px; /* Adjust position of the circles */
+  overflow: hidden;
+}
+
+.mainPage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 30% 20%, rgba(76, 175, 80, 0.6) 0%, rgba(46, 125, 50, 0) 30%),
+    radial-gradient(circle at 70% 60%, rgba(56, 142, 60, 0.5) 0%, rgba(46, 125, 50, 0) 40%),
+    radial-gradient(circle at 50% 50%, rgba(27, 94, 32, 0.4) 0%, rgba(46, 125, 50, 0) 60%);
+  animation: backgroundPulse 15s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
+.mainPage::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(76, 175, 80, 0.1)' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.5;
+  animation: patternMove 60s linear infinite alternate;
+  z-index: 0;
+}
+
+/* Subtle moving geometric patterns */
+@keyframes backgroundPulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+@keyframes patternMove {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 40% 10%;
+  }
+  50% {
+    background-position: 10% 40%;
+  }
+  75% {
+    background-position: 50% 30%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Make sure content inside mainPage is positioned above the background */
+.mainPage > * {
+  position: relative;
+  z-index: 1;
 }
 
 .chessboardContainer {
@@ -693,7 +757,7 @@ a.secondary {
   height: 88vmin;
   background-color: #004d00;
   border: 4px solid #004d00;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); */
 }
 
 .gridCell {
@@ -824,12 +888,11 @@ a.secondary {
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: #004d00; /* Solid dark green background (no transparency) */
+  background-color: #0a800a; /* Solid dark green background (no transparency) */
   color: white;
   padding: 20px; /* Increased padding */
   border-radius: 8px;
-  border: 2px solid #ffffff; /* Added white border for better visibility */
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); /* Enhanced shadow */
+  border: 2px solid #043904; /* Added white border for better visibility */
   z-index: 2;
   min-width: 260px; /* Increased minimum width */
   max-width: 300px; /* Increased maximum width */
@@ -983,14 +1046,13 @@ a.secondary {
   transform: translate(-50%, -50%);
   width: 150px;
   height: 150px;
-  background-color: rgba(0, 77, 0, 0.9); /* Dark green with higher opacity */
-  border: 6px solid white;
+  background-color: #004d00e6; /* Dark green with higher opacity */
+  border: 6px solid #21a321e6;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10; /* Significantly higher z-index to ensure it's on top */
-  box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); /* Stronger glowing effect */
   filter: none !important; /* Ensure no filter is applied */
   pointer-events: none; /* Prevents interaction with the circle */
 }
@@ -999,7 +1061,6 @@ a.secondary {
   color: white;
   font-size: 5rem; /* Larger text */
   font-weight: bold;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Styling for the leave lobby button in the game page */
@@ -1016,7 +1077,6 @@ a.secondary {
   border-radius: 8px;
   cursor: pointer;
   z-index: 10; /* Ensure it's above other elements */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for better visibility */
   transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
@@ -1066,71 +1126,103 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 20; /* Higher than other overlays */
-  pointer-events: none; /* Allow clicks through the overlay */
-  animation: fadeToBlack 2s forwards;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 10;
+  animation: fadeToBlack 0.8s forwards;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Animation for death overlay fade in */
+@keyframes fadeToBlack {
+  0% { background-color: rgba(0, 0, 0, 0); }
+  100% { background-color: rgba(0, 0, 0, 0.2); }
+}
+
+/* Animation for death overlay fade out */
+.fadeOut {
+  animation: fadeFromBlack 0.8s forwards !important;
+}
+
+@keyframes fadeFromBlack {
+  0% { background-color: rgba(0, 0, 0, 0.2); }
+  100% { background-color: rgba(0, 0, 0, 0); }
 }
 
 .deathMessage {
-  background-color: transparent;
+  background-color: #b70808;
+  border-radius: 12px;
+  padding: 30px 50px;
   text-align: center;
-  animation: messageAppear 3s forwards;
-  animation-delay: 0.5s;
-  opacity: 0;
-  transform: scale(0.8);
-  filter: blur(5px);
+  animation: messageAppear 0.5 forwards; /* Changed to 1s as requested */
+  border: 2px solid #920707;
+  opacity: 0; /* Start fully transparent */
 }
 
-.deathMessage h2 {
-  color: #ff0000;
-  font-family: 'Impact', 'Arial Black', sans-serif;
-  font-size: 6rem;
-  margin-bottom: 10px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  text-shadow: 
-    -3px -3px 0 #000, 
-    3px -3px 0 #000, 
-    -3px 3px 0 #000, 
-    3px 3px 0 #000,
-    0 0 15px rgba(255, 0, 0, 0.8);
-}
-
-.deathMessage p {
-  display: none; /* Hide the paragraph text */
-}
-
-@keyframes fadeToBlack {
-  0% {
-    background-color: rgba(0, 0, 0, 0);
-  }
-  50% {
-    background-color: rgba(0, 0, 0, 0.2);
-  }
-  100% {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-}
-
+/* Animation for death message fade in */
 @keyframes messageAppear {
-  0% {
-    opacity: 0;
-    transform: scale(0.8) rotate(-3deg);
-    filter: blur(5px);
-  }
-  20% {
-    opacity: 0.7;
-    filter: blur(3px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(-3deg);
-    filter: blur(0);
-  }
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Animation for death message fade out - matches the fade-in animation */
+.fadeOut .deathMessage {
+  animation: messageDisappear 0.5 forwards !important;
+}
+
+@keyframes messageDisappear {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+/* Spectator mode overlay for eliminated players */
+.spectatorOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 3; /* Lower z-index than deathOverlay (10) */
+  pointer-events: none;
+  filter: grayscale(70%);
+  opacity: 1; /* Start visible immediately */
+  display: flex; /* Enable flexbox to center the message */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+/* Spectator message styling */
+.spectatorMessage {
+  background-color: transparent;
+  border-radius: 12px;
+  padding: 30px 50px;
+  text-align: center;
+  opacity: 0.6; /* 50% opacity as requested */
+  z-index: 4; /* Above the overlay but below other UI elements */
+}
+
+.spectatorMessage h2 {
+  font-size: 4rem; /* Make text twice as large */
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Spectator mode overlay for eliminated players */
+.spectatorOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  z-index: 3; /* Lower z-index than deathOverlay (10) */
+  pointer-events: none;
+  filter: grayscale(70%);
+  opacity: 1; /* Start visible immediately */
 }
 
 /* Admin badge styling */
