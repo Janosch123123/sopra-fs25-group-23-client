@@ -1,12 +1,11 @@
 "use client";
 
-import React, {useEffect, useState, useRef} from "react";
-import { Button} from "antd";
+import React, {useEffect, useState} from "react";
+import { Button, Input, message } from "antd";
 import styles from "@/styles/page.module.css";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
-import { WebSocketService } from '@/api/websocketService';
 
 interface UserStats {
   username: string;
@@ -18,21 +17,15 @@ interface UserStats {
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const {disconnect} = useLobbySocket();
+  const { connect, send } = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const serviceRef = useRef<WebSocketService | null>(null);
-
- 
-
-  
+  const [validatingLobby, setValidatingLobby] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
+  const [lobbyCode, setLobbyCode] = useState('');
+  const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize WebSocketService
-    if (!serviceRef.current) {
-      serviceRef.current = new WebSocketService();
-    }
-    
     const userId = localStorage.getItem("userId");
 
     const fetchUserStats = async () => {
@@ -53,7 +46,6 @@ const MainPage: React.FC = () => {
         setLoading(false);
       }
     };
-
 
     const checkToken = async () => {
       // Check if token exists in localStorage
@@ -88,58 +80,141 @@ const MainPage: React.FC = () => {
 
     checkToken();
     
-    // Add cleanup for WebSocket
+    // Disconnect WebSocket when component unmounts
     return () => {
-      disconnect();
     };
-  }, [apiService, router, disconnect]);
+  }, [apiService, router]);
 
   const handleCreateLobby = async () => {
     try {
-      // Get token from localStorage
+      // Get token from localStorage for authentication
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
-      // Establish WebSocket connection with the token
-      if (!serviceRef.current) {
-        serviceRef.current = new WebSocketService();
-      }
-      
-      const socket = serviceRef.current.connect({ token });
-      
-      // Set the message handler immediately before connection happens
-      socket.onmessage = (event) => {
-        try {
-          console.log("Raw message:", event.data);
-          
-          // Try to parse as JSON
+      // Connect to WebSocket server if not already connected
+      // if (!isConnected) {
+        const socket = await connect({ token });
+        
+        // Set up message handler for WebSocket events
+        socket.onmessage = (event) => {
           try {
+            console.log("Raw message:", event.data);
+            
+            // Parse the message data
             const data = JSON.parse(event.data);
             console.log('Parsed JSON message:', data);
             
-            if (data.type === 'lobby_created' && data.code) {
-              router.push(`/lobby/${data.code}`);
+            // Handle lobby creation response
+            if (data.type === 'lobby_created' && data.lobbyId) {
+              router.push(`/lobby/${data.lobbyId}`);
             }
-          } catch{
-            // Not JSON, handle as plain text
-            console.log('Received text message:', event.data);
-            // Process text message if needed
+          } catch (error) {
+            console.error('Error handling message:', error);
           }
-        } catch (error) {
-          console.error('Error handling message:', error);
-        }
-      };
+        };
+      // }
       
-      // Send a message to create a lobby (instead of API call)
-      serviceRef.current.send({
-        action: 'create_lobby',
-        settings: {
-          spawnRate: "Medium",
-          includePowerUps: false
-        }
+      // Send the create lobby request
+      send({
+        type: 'create_lobby'
       });
       
     } catch (error) {
-      console.error('Error connecting to WebSocket:', error);
+      console.error('Error creating lobby:', error);
+      // Show error to user
+    }
+  };
+
+
+
+  const handleJoinLobbyClick = () => {
+    setShowButtons(false);
+  };
+
+  const handleJoinWithCode = async () => {
+    if (!lobbyCode.trim()) {
+      message.error('Please enter a lobby code');
+      return;
+    }
+
+    // Validate that the input is a valid integer
+    if (!/^\d+$/.test(lobbyCode)) {
+      message.error('Lobby code must be a valid integer number');
+      return;
+    }
+
+    setValidatingLobby(true);
+    setLobbyCodeError(null); // Reset error state
+    
+    try {
+      // Get token from localStorage for authentication
+      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+      
+      // Connect to WebSocket server if not already connected
+      
+        const socket = await connect({ token });
+      
+      // Set up a one-time message handler for lobby validation response
+      const messageHandler = (event: MessageEvent) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Received validation response:', data);
+          
+          if (data.type === 'validateLobbyResponse') {
+            // Clean up event listener
+            socket.removeEventListener('message', messageHandler);
+            
+            if (data.valid === true) {
+              // Keep validating state active until navigation completes
+              // and navigate to the lobby if it exists
+              router.push(`/lobby/${lobbyCode}`);
+            } else {
+              // Only set validatingLobby to false if lobby doesn't exist
+              setValidatingLobby(false);
+              // Show error if lobby doesn't exist
+              setLobbyCodeError('The lobby does not exist');
+            }
+          }
+        } catch (error) {
+          console.error('Error handling message:', error);
+          setValidatingLobby(false);
+        }
+      };
+    
+      // Add the message event listener
+      socket.addEventListener('message', messageHandler);
+      
+      // Send the validate lobby request
+      send({
+        type: 'validateLobby',
+        lobbyCode: lobbyCode
+      });
+      
+      // Set a timeout to prevent infinite waiting
+      setTimeout(() => {
+        if (validatingLobby) {
+          socket.removeEventListener('message', messageHandler);
+          setValidatingLobby(false);
+          message.error('Server did not respond. Please try again.');
+        }
+      }, 5000);
+
+      
+    
+
+
+
+    } catch (error) {
+      console.error('Error validating lobby:', error);
+      setValidatingLobby(false);
+      message.error('Failed to validate lobby code');
+    }
+  };
+
+  const handleLobbyCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow digits (integers)
+    const value = e.target.value;
+    if (value === '' || /^\d+$/.test(value)) {
+      setLobbyCode(value);
     }
   };
 
@@ -176,25 +251,68 @@ const MainPage: React.FC = () => {
       </div>
       <div className={styles.playButtonContainer} style={{ fontSize: '10px', fontWeight: 'bold', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', alignItems: 'flex-start' }}>
-          <Button
-              type="primary"
-              variant="solid"
-              color="volcano"
-              className={styles.lobbyButtons}
-              style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
-              onClick={handleCreateLobby}
+          {showButtons ? (
+            <>
+              <Button
+                type="primary"
+                variant="solid"
+                color="volcano"
+                className={styles.lobbyButtons}
+                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleCreateLobby}
               >
-              Create Lobby
-          </Button>
-          <Button
-              type="primary"
-              variant="solid"
-              color="volcano"
-              className={styles.lobbyButtons}
-              style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                Create Lobby
+              </Button>
+              <Button
+                type="primary"
+                variant="solid"
+                color="volcano"
+                className={styles.lobbyButtons}
+                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleJoinLobbyClick}
               >
-              Join Lobby
-          </Button>
+                Join Lobby
+              </Button>
+            </>
+          ) : (
+            <div className={styles.joinButtonContainer}>
+              <div className={styles.inputContainer}>
+                <Input
+                  placeholder="Enter Lobby Code"
+                  value={lobbyCode}
+                  onChange={handleLobbyCodeChange}
+                  className={styles.stretchedInput}
+                  style={{ 
+                    flex: '1',
+                    borderColor: lobbyCodeError ? '#ff4d4f' : '#ffffff'
+                  }}
+                  disabled={validatingLobby}
+                  type="number" // Set input type to number
+                  min={0} // Only positive integers
+                  status={lobbyCodeError ? "error" : ""}
+                />
+                {lobbyCodeError && (
+                  <div className={styles.errorMessage}>{lobbyCodeError}</div>
+                )}
+              </div>
+              <Button
+                type="primary"
+                variant="solid"
+                color="volcano"
+                className={styles.joinButton}
+                style={{ 
+                  border: '4px solid #ffffff', 
+                  borderRadius: '20px',
+                  backgroundColor: '#fa541c', // Updated to volcano color
+                }}
+                onClick={handleJoinWithCode}
+                loading={validatingLobby}
+                disabled={validatingLobby}
+              >
+                {validatingLobby ? 'Validating...' : 'Join'}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
