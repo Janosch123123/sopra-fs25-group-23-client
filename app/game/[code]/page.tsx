@@ -60,15 +60,22 @@ const GamePage: React.FC = () => {
     return null;
   }, [ROWS, COLS]);
   
-  // Function to clear all cell styles
+  // Updated function to clear all cell styles, including new classes
   const clearAllCells = useCallback(() => {
     gridCellsRef.current.forEach(cell => {
       if (cell) {
         cell.classList.remove(
-          styles.circle, 
-          styles.firstSquare, 
-          styles.playerCell, 
-          styles.cookieCell
+          styles.circle,
+          styles.firstSquare,
+          styles.lastSquare,
+          styles.curveBody,
+          styles.playerCell,
+          styles.cookieCell,
+          styles.currentPlayerCell,
+          styles.playerRed,
+          styles.playerBlue,
+          styles.playerGreen,
+          styles.playerPurple
         );
         // Remove any inline styles for player colors
         cell.style.setProperty('--player-color', '');
@@ -92,28 +99,57 @@ const GamePage: React.FC = () => {
     return color;
   }, []);
   
-  // Updated function to render a player's snake using [col, row] coordinates
+  // Updated function to render a player's snake using [col, row] coordinates with PNG images
   const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
     
-    // Assign colors based on player order rather than specific usernames
-    const playerColors = [
-      '#FF0000', // Red (1st player)
-      '#0000FF', // Blue (2nd player)
-      '#FFFF00', // Yellow (3rd player)
-      '#8A2BE2'  // Violet (4th player)
+    // Define color classes based on player index
+    const playerColorClasses = [
+      styles.playerRed,     // Red (1st player)
+      styles.playerBlue,    // Blue (2nd player) 
+      styles.playerGreen,   // Green (3rd player)
+      styles.playerPurple   // Purple (4th player)
     ];
     
-    // Get color from player index, fallback to hash color if more than 4 players
-    let playerColor: string;
-    if (playerIndex < playerColors.length) {
-      playerColor = playerColors[playerIndex];
-    } else {
-      playerColor = stringToColor(username); // Fallback for extra players
+    // Get the appropriate color class for this player
+    let playerColorClass = '';
+    if (playerIndex < playerColorClasses.length) {
+      playerColorClass = playerColorClasses[playerIndex];
     }
     
-    // Get current username
-    const currentUsername = localStorage.getItem("username");
+    // Get current username for highlighting the current player's snake
+    const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+
+    // Calculate rotation angles for curved segments
+    const getRotationAngle = (prev: [number, number], current: [number, number], next: [number, number]): number | null => {
+      // If it's a straight line (horizontally or vertically), no rotation needed
+      if (
+        (prev[0] === current[0] && current[0] === next[0]) || // Vertical line
+        (prev[1] === current[1] && current[1] === next[1])    // Horizontal line
+      ) {
+        return null;
+      }
+
+      // Determine the rotation angle based on the direction change
+      // From left to up or from down to right
+      if ((prev[0] < current[0] && next[1] < current[1]) || (prev[1] > current[1] && next[0] > current[0])) {
+        return 0; // No rotation needed for this curve orientation
+      }
+      // From right to up or from down to left
+      else if ((prev[0] > current[0] && next[1] < current[1]) || (prev[1] > current[1] && next[0] < current[0])) {
+        return 90; // 90 degrees clockwise
+      }
+      // From left to down or from up to right
+      else if ((prev[0] < current[0] && next[1] > current[1]) || (prev[1] < current[1] && next[0] > current[0])) {
+        return 270; // 90 degrees counterclockwise (or 270 clockwise)
+      }
+      // From right to down or from up to left
+      else if ((prev[0] > current[0] && next[1] > current[1]) || (prev[1] < current[1] && next[0] < current[0])) {
+        return 180; // 180 degrees
+      }
+
+      return null;
+    };
     
     positions.forEach((position, i) => {
       // Convert [col, row] to grid cell index
@@ -123,12 +159,104 @@ const GamePage: React.FC = () => {
       if (cell) {
         cell.classList.add(styles.playerCell);
         
-        // Set custom color for this player
-        cell.style.setProperty('--player-color', playerColor);
+        // Add color class to apply the correct filter
+        if (playerColorClass) {
+          cell.classList.add(playerColorClass);
+        }
         
-        // Highlight the snake head
+        // Mark head (first element)
         if (i === 0) {
           cell.classList.add(styles.firstSquare);
+          
+          // Calculate head rotation based on the next segment (if it exists)
+          if (positions.length > 1) {
+            const head = positions[0];
+            const neck = positions[1];
+            
+            // Determine the direction the head is facing (adjusted by -90 degrees)
+            let rotationDeg = 0;
+            if (neck[0] < head[0]) rotationDeg = 90;    // Head facing right
+            else if (neck[0] > head[0]) rotationDeg = -90;  // Head facing left
+            else if (neck[1] < head[1]) rotationDeg = 180;   // Head facing down
+            else if (neck[1] > head[1]) rotationDeg = 0; // Head facing up
+            
+            // Apply rotation using inline style
+            cell.style.setProperty('--rotation', `${rotationDeg}deg`);
+          }
+        }
+        
+        // Mark tail (last element)
+        else if (i === positions.length - 1) {
+          cell.classList.add(styles.lastSquare);
+          
+          // Calculate tail rotation based on the previous segment
+          if (positions.length > 1) {
+            const tail = positions[positions.length - 1];
+            const beforeTail = positions[positions.length - 2];
+            
+            // Determine the direction the tail is facing (adjusted by -90 degrees)
+            let rotationDeg = 0;
+            if (beforeTail[0] > tail[0]) rotationDeg = 90;    // Tail facing left
+            else if (beforeTail[0] < tail[0]) rotationDeg = -90;   // Tail facing right
+            else if (beforeTail[1] > tail[1]) rotationDeg = 180;    // Tail facing up
+            else if (beforeTail[1] < tail[1]) rotationDeg = 0;  // Tail facing down
+            
+            // Apply rotation using inline style
+            cell.style.setProperty('--rotation', `${rotationDeg}deg`);
+          }
+        }
+        
+        // Handle body segments (check if curved)
+        else {
+          const prev = positions[i - 1];   // Previous segment
+          const current = position;        // Current segment
+          const next = positions[i + 1];   // Next segment
+          
+          // Check if this is a curve (direction changes)
+          const isCurve = 
+            (prev[0] !== next[0] && prev[1] !== next[1]); // Neither x nor y coordinates are the same
+          
+          if (isCurve) {
+            // This is a curved segment
+            cell.classList.add(styles.curveBody);
+            
+            // Define curve types based on movement direction
+            // For each case, we need to know where the snake is coming from (prev)
+            // and where it's going (next) relative to the current position
+            
+            // Bottom-Right curve (coming from down, going left OR coming from left, going down)
+            if ((prev[0] < current[0] && next[1] > current[1]) || 
+                (prev[1] > current[1] && next[0] < current[0])) {
+              cell.style.setProperty('--rotation', '90deg');
+            }
+            
+            // Bottom-Left curve (coming from right, going down OR coming from up, going left)
+            else if ((prev[0] < current[0] && next[1] < current[1]) || 
+                     (prev[1] < current[1] && next[0] < current[0])) {
+              cell.style.setProperty('--rotation', '180deg');
+            }
+            
+            // Top-Left curve (coming from right, going up OR coming from down, going left)
+            else if ((prev[0] > current[0] && next[1] < current[1]) || 
+                     (prev[1] < current[1] && next[0] > current[0])) {
+              cell.style.setProperty('--rotation', '270deg');
+            }
+            
+            // Top-Right curve (coming from left, going up OR coming from down, going right)
+            else if ((prev[0] > current[0] && next[1] > current[1]) || 
+                     (prev[1] > current[1] && next[0] > current[0])) {
+              cell.style.setProperty('--rotation', '0deg');
+            }
+          } else {
+            // This is a straight segment (adjusted by -90 degrees)
+            if (prev[0] === next[0]) {
+              // Vertical segment
+              cell.style.setProperty('--rotation', '0deg');  // Adjusted from 90 to 0
+            } else {
+              // Horizontal segment
+              cell.style.setProperty('--rotation', '-90deg'); // Adjusted from 0 to -90
+            }
+          }
         }
         
         // Add indicator if this is the current player's snake
@@ -137,7 +265,7 @@ const GamePage: React.FC = () => {
         }
       }
     });
-  }, [colRowToIndex, getCell, stringToColor]);
+  }, [colRowToIndex, getCell]);
   
   // Updated function to render cookies using [col, row] coordinates
   const renderCookies = useCallback((positions: [number, number][]) => {
