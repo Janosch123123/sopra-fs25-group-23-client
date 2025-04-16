@@ -204,7 +204,7 @@ const LobbyPage: React.FC = () => {
                     code: data.lobbyId || lobbyCode,
                     players: players,
                     settings: {
-                      spawnRate: spawnRate,
+                      spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
                       includePowerUps: includePowerUps
                     },
                     adminId: data.adminId
@@ -264,7 +264,7 @@ const LobbyPage: React.FC = () => {
                     code: data.lobbyId || lobbyCode,
                     players: players,
                     settings: {
-                      spawnRate: spawnRate,
+                      spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
                       includePowerUps: includePowerUps
                     },
                     adminId: data.adminId
@@ -306,7 +306,7 @@ const LobbyPage: React.FC = () => {
     
     // Don't disconnect on unmount, as we want to keep the connection alive
     // when navigating between pages
-  }, [connect, lobbyCode, isConnected, send, getSocket, router]);
+  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate]); // Added missing dependencies
 
   // Request lobby state when component mounts
   // This is to ensure we have the latest data when the component loads
@@ -315,7 +315,7 @@ const LobbyPage: React.FC = () => {
       type: "lobbystate",
     });
   }
-  , []);
+  , [send]); // Added missing dependency
 
 
   const updateSettings = () => {

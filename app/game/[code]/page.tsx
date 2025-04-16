@@ -128,36 +128,7 @@ const GamePage: React.FC = () => {
     // Get current username for highlighting the current player's snake
     const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
 
-    // Calculate rotation angles for curved segments
-    const getRotationAngle = (prev: [number, number], current: [number, number], next: [number, number]): number | null => {
-      // If it's a straight line (horizontally or vertically), no rotation needed
-      if (
-        (prev[0] === current[0] && current[0] === next[0]) || // Vertical line
-        (prev[1] === current[1] && current[1] === next[1])    // Horizontal line
-      ) {
-        return null;
-      }
-
-      // Determine the rotation angle based on the direction change
-      // From left to up or from down to right
-      if ((prev[0] < current[0] && next[1] < current[1]) || (prev[1] > current[1] && next[0] > current[0])) {
-        return 0; // No rotation needed for this curve orientation
-      }
-      // From right to up or from down to left
-      else if ((prev[0] > current[0] && next[1] < current[1]) || (prev[1] > current[1] && next[0] < current[0])) {
-        return 90; // 90 degrees clockwise
-      }
-      // From left to down or from up to right
-      else if ((prev[0] < current[0] && next[1] > current[1]) || (prev[1] < current[1] && next[0] > current[0])) {
-        return 270; // 90 degrees counterclockwise (or 270 clockwise)
-      }
-      // From right to down or from up to left
-      else if ((prev[0] > current[0] && next[1] > current[1]) || (prev[1] < current[1] && next[0] < current[0])) {
-        return 180; // 180 degrees
-      }
-
-      return null;
-    };
+    // Calculate rotation angles for curved segments - REMOVED UNUSED FUNCTION
     
     positions.forEach((position, i) => {
       // Convert [col, row] to grid cell index
@@ -606,7 +577,7 @@ const GamePage: React.FC = () => {
       
       return () => clearTimeout(deathTimeout);
     }
-  }, [playerIsDead, styles.deathOverlay, styles.fadeOut]);
+  }, [playerIsDead]); // Removed unnecessary style dependencies
 
   return (
     <div className={styles.mainPage}>
@@ -679,6 +650,7 @@ const GamePage: React.FC = () => {
         <div className={styles.gameGrid}>
           {renderGrid()}
         </div>
+        {connectionError && <div className={styles.connectionError}>Connection error. Reconnecting...</div>}
       </div>
       
       {/* Final Countdown Overlay - only show when 5 seconds or less remain and game is live */}
