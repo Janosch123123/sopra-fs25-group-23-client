@@ -85,9 +85,8 @@ const Login: React.FC = () => {
                 <Button 
                   type="primary"
                   variant="solid"
-                  color="blue"
                   htmlType="submit"
-                  className="login-button">
+                  className={styles["login-button"]}>
                   Register
                 </Button>
               </Form.Item>
@@ -100,8 +99,7 @@ const Login: React.FC = () => {
             <Button
                 type="primary"
                 variant="solid"
-                color="blue"
-                className="login-button"
+                className= {styles["login-button"]}
                 onClick={() => router.push("/login")}
               >
                 Login with an existing User

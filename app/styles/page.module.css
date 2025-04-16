@@ -11,12 +11,13 @@
   justify-content: center;
   min-height: 100vh;
   padding: 80px;
-  font-family: var(--font-geist-sans);
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
   background-color: #2e7d32; /* Dark forest green background */
 }
 
 .title {
-  font-family: 'Arial Black', Gadget, sans-serif; /* Another cool font */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-weight: 700; /* Heavy weight for title */
   font-size: 3rem;
   color: #004d00; /* Very dark shade of green */
   text-align: center;
@@ -199,12 +200,6 @@ a.secondary {
   width: 100%;
 }
 
-.login-button {
-  width: 100%;
-  background-color: #0e6812; /* Same color as the background */
-  border-color: #388e3c; /* Darker green border */
-}
-
 .blueContainer {
   background-color: blue;
   padding: 20px;
@@ -219,17 +214,56 @@ a.secondary {
 }
 
 .mainPage {
+  background-color: #0e4b10; /* Base forest green background */
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 20px;
-  background-color: #0c6610; /* Dark forest green background */
-  background-image: radial-gradient(circle, #145218 20%, transparent 20%), 
-                    radial-gradient(circle, #0d4912 20%, transparent 20%);
-  background-size: 120px 80px; /* Adjust size of the circles */
-  background-position: 10px 10px, 20px 20px; /* Adjust position of the circles */
+  overflow: hidden;
+}
+
+.mainPage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 30% 20%, #0c6610 0%, rgba(46, 125, 50, 0) 90%),
+    radial-gradient(circle at 70% 60%, #0c6610 0%, rgba(46, 125, 50, 0) 40%),
+    radial-gradient(circle at 50% 50%, #055416 0%, rgba(23, 0, 171, 0) 60%);
+  z-index: 0;
+}
+
+.mainPage::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(76, 175, 80, 0.1)' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 1;
+  animation: patternMoveLeftToRight 120s linear infinite;
+  z-index: 0;
+}
+
+
+@keyframes patternMoveLeftToRight {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 100%;
+  }
+}
+
+/* Make sure content inside mainPage is positioned above the background */
+.mainPage > * {
+  position: relative;
+  z-index: 1;
 }
 
 .chessboardContainer {
@@ -281,43 +315,51 @@ a.secondary {
 
 .dashboardContainer {
   flex: 0.8; /* Make the container smaller */
-  background-color: #66bb6a; /* Darker medium green background */
-  padding: 20px;
-  border-radius: 8px;
-  border: 2px solid #43a047; /* Darker dark green border */
+  background-color: #427fa7; /* Darker medium green background */
+  padding: 30px;
+  border-radius: 20px;
+  border: 4px solid #345a97; /* Darker dark green border */
   margin-right: 20px;
+  margin-left: 200px; /* Added margin-left to move it to the right */
 }
 
 .statisticsTable {
-  width: 100%;
-  font-size: 1.5rem; /* Increase font size */
+  min-width: 300px;
+  font-size: 1.7rem; /* Keep existing font size */
+  font-weight: 500; /* Medium weight from Oswald */
   border-collapse: collapse;
-  border-radius: 40px; /* Add rounded corners */
-
+  border-radius: 40px; /* Keep rounded corners */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  /* letter-spacing: -0.02em; Slight letter-spacing adjustment for better readability */
+  color: white; /* Ensure text is always white */
 }
 
 .statisticsTable td {
-  padding: 8px;
-  border-bottom: 1px solid #43a047; /* Darker dark green border */
+  padding: 10px;
+  border-bottom: 1px solid #345a97; /* Darker dark green border */
   border-radius: 30px; /* Add rounded corners */
+  color: white; /* Ensure text is always white */
 }
 
 .statisticsList {
-  font-size: 1.5rem; /* Increase font size */
+  font-size: 1.5rem; /* Keep existing font size */
+  font-weight: 500; /* Medium weight from Oswald */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  letter-spacing: -0.02em; /* Slight letter-spacing adjustment */
 }
 
 .playButtonContainer {
   flex: 25; /* Make the container even bigger */
   display: flex;
-  justify-content: flex-start; /* Move to the left */
+  justify-content: center; /* Changed from flex-start to center */
   align-items: center;
   height: 100vh; /* Ensure it takes full height */
-  padding-left: 20%; /* Move more to the left */
+  padding-left: 0; /* Removed left padding */
 }
 
 .playButton {
   font-size: 7rem !important; /* Ensure the font size is applied */
-  font-weight: bold; /* Make font bold */
+  font-weight: 600 !important; /* Bold weight from Oswald */
   padding: 50px 100px; /* Increase padding */
   min-width: 450px; /* Ensure width grows */
   min-height: 200px; /* Ensure height increases */
@@ -325,33 +367,96 @@ a.secondary {
   border: 10px solid #ffffff; /* White border */
   color: #ffffff; /* White text color */
   margin-left: 25px; /* Add margin to the left */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
 }
 
 .lobbyButtons {
-  font-size: 4.5rem !important; /* Ensure the font size is applied */
-  font-weight: bold; /* Make font more bold */
+  --color: #fb7042; /* Changed to a blue color */
+  background-color: #fa541c !important; /* Volcano color */
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  font-size: 3.5rem !important; /* Ensure the font size is applied */
+  font-weight: 600 !important; /* Bold weight from Oswald */
   padding: 50px 100px; /* Increase padding */
-  min-width: 350px; /* Ensure width grows */
+  min-width: 400px; /* Ensure width grows */
   min-height: 150px; /* Ensure height increases */
-  background-color: #004d00; /* Dark green */
   border: 10px solid #ffffff; /* White border */
   color: #ffffff; /* White text color */
-  margin-left: 0; /* Remove margin to the left */
-  font-stretch: ultra-condensed; /* Stretch the font */
+  margin-left: 160px; /* Remove margin to the left */
   border-radius: 400px; /* Add rounded corners */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  letter-spacing: -0.10rem;
+  cursor: pointer; /* Add cursor pointer for all lobbyButtons */
+}
+
+/* Volcano button hover effect - separating the before/after pseudo-elements from the text */
+.lobbyButtons::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background-color: rgba(255, 255, 255, 0.8); /* Use semi-transparent white for shining effect */
+  transform: skewX(-25deg); /* Tilted square effect */
+  transition: left 0.7s ease;
+  z-index: -1;
+}
+
+.lobbyButtons:hover {
+  transform: scale(1.01) translateY(-2px);
+}
+
+.lobbyButtons:hover::before {
+  left: 150%; /* Move further right to ensure full animation */
+}
+
+.lobbyButtons::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color);
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  z-index: -2;
+  pointer-events: none; /* Ensure hover effects don't affect text interaction */
 }
 
 .joinButton {
   composes: lobbyButtons;
-  font-size: 3rem !important; /* Smaller font size */
-  padding: 20px 50px; /* Reduced padding */
-  min-width: 150px; /* Smaller width */
-  min-height: 80px; /* Smaller height */
-  border: 5px solid #ffffff; /* Thinner border */
-  border-radius: 200px; /* Smaller border radius */
-  background-color: #fa541c !important; /* Volcano color */
+  --color:#026000;
+  font-size: 2.5rem !important; /* Smaller font size */
+  padding: 0 20px !important; /* Reduced horizontal padding */
+  min-width: 100px !important; /* Smaller width */
+  min-height: 85px !important; /* Match input field height */
+  border: 4px solid #ffffff !important; /* Thinner border */
+  border-radius: 20px !important; /* Smaller border radius */
+  background-color: #028b00 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
+  margin-left: 20px !important; /* Remove margin for closer positioning */
 }
+
+.backButton {
+  composes: lobbyButtons;
+  --color: #952300;
+  font-size: 1.5rem !important; /* Even smaller font size */
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  min-width: 120px !important; /* Slightly wider than join button */
+  min-height: 60px !important; /* Shorter height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  background-color: #d33100!important; /* Same volcano color */
+  color: #ffffff !important; /* Same text color */
+  margin-left: 0 !important; /* No left margin */
+  margin-top: 15px !important; /* Add some space from the input above */
+  align-self: center !important; /* Center the button */
+}
+
 
 .stretchedInput {
   border: 4px solid #ffffff !important;
@@ -363,19 +468,20 @@ a.secondary {
   line-height: 1.5 !important;
   font-weight: bold !important;
   letter-spacing: -1px !important;
-  font-stretch: ultra-condensed !important;
   text-transform: uppercase !important;
   background-color: white !important; /* Ensure background is white */
   color: #333 !important; /* Ensure text color is visible */
 }
 
+
+
 .joinButtonContainer {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: 0; /* Remove gap between input and button */
   width: 100%;
-  align-items: flex-start; /* Changed from center to flex-start to accommodate error message */
-  background-color: transparent; /* Ensure container has no background */
+  align-items: flex-start;
+  background-color: transparent;
   padding: 30px;
   border-radius: 20px;
   background-color: #66bb6a;
@@ -400,15 +506,18 @@ a.secondary {
 
 .timer {
   position: absolute;
+  margin-left: 50px;
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(255, 5, 5, 0.561);
   color: white;
   padding: 5px 10px;
   border-radius: 5px;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   z-index: 2; /* Increased z-index to display above the overlay */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-weight: bolder;
 }
 
 .dashboard {
@@ -477,10 +586,11 @@ a.secondary {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #fa541c; /* Volcano background color */
+  background-color: #427fa7; /* Volcano background color */
+  border-color: #345a97;
   padding: 20px;
   border-radius: 8px;
-  border: 2px solid #ffffff; /* White border */
+  border: 4px solid #345a97; /* White border */
 }
 
 .lobbyContainer h1 {
@@ -488,32 +598,104 @@ a.secondary {
 }
 
 .lobbyTable {
-  width: 100%;
-  font-size: 1.5rem; /* Increase font size */
+  width: 300px;
+  font-size: 1.5rem; /* Maintain existing font size */
   border-collapse: collapse;
   margin-bottom: 20px;
+  border-radius: 40px; /* Match statisticsTable */
+  font-family: "Oswald", sans-serif; /* Match statisticsTable */
+  color: white; /* Ensure text is always white */
 }
 
 .lobbyTable th, .lobbyTable td {
-  padding: 8px;
-  border: 1px solid #ffffff; /* White border */
+  padding: 10px;
+  border: none; /* Remove existing border */
+  border-bottom: 1px solid #345a97; /* Match statisticsTable td */
   text-align: center;
+  border-radius: 30px; /* Match statisticsTable td */
+  color: white; /* Ensure text is always white */
+}
+
+.lobbyTable th {
+  font-weight: bold;
 }
 
 .startGameButton {
-  font-size: 1.5rem;
-  font-weight: bold;
-  min-width: 190px;
-  padding: 10px 20px;
-  background-color: #004d00; /* Dark green */
-  border: 2px solid #ffffff; /* White border */
-  color: #ffffff; /* White text color */
-  border-radius: 8px;
-  cursor: pointer;
+  composes: lobbyButtons;
+  --color: #187a00;
+  background-color: #209e00!important; /* Same volcano color */
+  margin-top: 10px;
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  font-size: 1.8rem !important; /* Keep original size */
+  min-width: 200px !important; /* Keep original width */
+  min-height: 70px !important; /* Keep original height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  max-height: 20px !important; /* Keep original height */
+  align-self: center !important; /* Center the button */
+  margin-left: 0 !important; /* No left margin */
+}
+.leaveLobbyButton {
+  composes: lobbyButtons;
+  --color: #9c1f00;
+  background-color: #c72800!important; /* Same volcano color */
+  margin-top: 10px;
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  font-size: 1.8rem !important; /* Keep original size */
+  min-width: 200px !important; /* Keep original width */
+  min-height: 70px !important; /* Keep original height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  max-height: 20px !important; /* Keep original height */
+  align-self: center !important; /* Center the button */
+  margin-left: 0 !important; /* No left margin */
 }
 
-.startGameButton:hover {
-  background-color: #003300; /* Darker green on hover */
+
+.loginContent {
+  background-color: #66bb6a; /* Darker medium green background */
+  padding: 40px;
+  border-radius: 8px;
+  border: 2px solid #66bb6a; /* Darker dark green border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  font-family: "Oswald", sans-serif; /* Added Oswald font */
+}
+
+/* Form title styling */
+.loginTitle, .registerTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Form label styling */
+.loginContent :global(.ant-form-item-label) > label,
+.loginContent :global(.ant-form-item-label) > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
+  font-family: "Oswald", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: white;
+}
+
+/* Form input styling */
+.loginContent :global(.ant-input),
+.loginContent :global(.ant-input-password) {
+  font-family: "Oswald", sans-serif;
+  font-size: 1rem;
+}
+
+/* Login/Register Or text */
+.loginContent h3 {
+  font-family: "Oswald", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: white;
+  text-align: center;
 }
 
 .loginContent {
@@ -558,22 +740,6 @@ a.secondary {
   background-color: #9c9c9c; /* Darker volcano color on hover */
 }
 
-.leaveLobbyButton {
-  font-size: 1.5rem;
-  font-weight: bold;
-  padding: 10px 20px;
-  background-color: #e3ad19; /* Dark green */
-  border: 2px solid #ffffff; /* White border */
-  color: #ffffff; /* White text color */
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 10px; /* Add margin to the top */
-}
-
-.leaveLobbyButton:hover {
-  background-color: #003300; /* Darker green on hover */
-}
-
 .sliderContainer {
   display: flex;
   flex-direction: column;
@@ -612,6 +778,7 @@ a.secondary {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-left: 100;
   width: 100%;
   height: 100%;
   padding: 20px;
@@ -624,10 +791,10 @@ a.secondary {
   grid-template-rows: repeat(25, 1fr);
   gap: 0; /* Remove gap between cells */
   width: 100vmin;
-  height: 88vmin;
+  height: 83.33vmin;
   background-color: #004d00;
   border: 4px solid #004d00;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); */
 }
 
 .gridCell {
@@ -713,40 +880,60 @@ a.secondary {
   background-color: #47c64d; /* Lighter green */
 }
 
-/* Player cell styling - remove border radius */
+/* Player cell styling - updating for correct PNG display */
+.playerCell {
+  position: relative;
+  z-index: 2; /* Ensure player cells are above other elements */
+}
+
 .playerCell::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 95%;
-  height: 95%;
-  background-color: var(--player-color, rgba(255, 0, 0, 0.7));
-  border-radius: 0; /* Remove rounded corners */
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  width: 105%; /* Reverted from 105% to 100% */
+  height: 105%; /* Reverted from 105% to 100% */
+  transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)); /* Centered with transform and applied rotation */
+  background-color: transparent;
+  background-image: url('../styles/bodys/yellow/body_yellow.png'); /* Updated path */
+  background-size: cover; /* Cover the entire area */
+  background-position: center;
+  z-index: 5; /* Higher z-index to ensure it's displayed on top */
+  border: none !important; /* Remove any borders */
+  box-shadow: none !important; /* Remove any shadows */
 }
 
-/* First square (snake head) styling - keep border for visibility */
+/* First square (snake head) styling */
 .firstSquare::after {
-  background-color: var(--player-color, rgba(139, 0, 0, 0.8));
-  border: 2px solid white;
+  background-image: url('../styles/bodys/yellow/head_yellow.png');
+  background-size: 105% 105%; /* Reverted from 105% to 100% */
+  background-position: center;
+}
+
+/* Last square (snake tail) styling */
+.lastSquare::after {
+  background-image: url('../styles/bodys/yellow/tail_yellow.png');
+  background-size: 100% 100%; /* Reverted from 105% to 100% */
+  background-position: center;
+}
+
+/* Curved body segment styling */
+.curveBody::after {
+  background-image: url('../styles/bodys/yellow/curve_body_yellow.png');
+  background-size: 100% 100%; /* Reverted from 105% to 100% */
+  background-position: center;
 }
 
 /* Cookie cell styling */
 .cookieCell::after {
-  content: '';
+  content: '🍪'; /* Cookie emoji instead of a circle */
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 70%;
-  height: 70%;
-  background-color: rgb(255, 215, 0, 0.9); /* Gold color for cookies */
-  border-radius: 50%; /* Make it circular */
+  font-size: 1.8rem; /* Increased size from 1.2rem to 1.8rem */
   transform: translate(-50%, -50%);
   z-index: 1;
-  box-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
 }
 
 /* Current player's cell styling for easier visibility */
@@ -761,12 +948,11 @@ a.secondary {
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: #004d00; /* Solid dark green background (no transparency) */
+  background-color: #427fa7; /* Match dashboardContainer color */
   color: white;
-  padding: 20px; /* Increased padding */
-  border-radius: 8px;
-  border: 2px solid #ffffff; /* Added white border for better visibility */
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); /* Enhanced shadow */
+  padding: 30px; /* Match dashboardContainer padding */
+  border-radius: 20px; /* Match dashboardContainer border-radius */
+  border: 4px solid #345a97; /* Match dashboardContainer border */
   z-index: 2;
   min-width: 260px; /* Increased minimum width */
   max-width: 300px; /* Increased maximum width */
@@ -775,37 +961,39 @@ a.secondary {
 .leaderboard h3 {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 20px; /* Increased margin */
-  font-size: 1.8rem; /* Increased font size */
-  border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Thicker border */
+  margin-bottom: 20px;
+  font-size: 2.5rem; /* Match dashboardContainer h2 */
+  text-decoration: underline; /* Match dashboardContainer h2 */
+  font-weight: 600; /* Match dashboardContainer h2 */
+  font-family: "Oswald", sans-serif;
   padding-bottom: 10px;
 }
 
 .leaderboardTable {
-  width: 100%;
+  width: 270px;
+  font-size: 1.3rem; /* Match statisticsTable */
+  font-weight: 500; /* Match statisticsTable */
   border-collapse: collapse;
+  border-radius: 40px; /* Match statisticsTable */
+  font-family: "Oswald", sans-serif;
 }
 
 .leaderboardTable th,
 .leaderboardTable td {
-  padding: 10px; /* Increased padding */
+  padding: 10px; /* Match statisticsTable td */
   text-align: center;
-  font-size: 1.2rem; /* Increased font size */
+  border-bottom: 1px solid #345a97; /* Match statisticsTable td */
+  border-radius: 30px; /* Match statisticsTable td */
 }
 
 .leaderboardTable th {
   font-weight: bold;
-  font-size: 1.1rem; /* Increased font size */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.leaderboardTable tr:not(:last-child) td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1rem; /* Match rest of table */
 }
 
 /* Highlight the current player in the leaderboard */
 .currentPlayerRow {
-  background-color: rgba(255, 255, 255, 0.3); /* Slightly more visible highlight */
+  background-color: rgba(255, 255, 255, 0.2); /* Slightly lighter background */
   font-weight: bold;
 }
 
@@ -813,21 +1001,25 @@ a.secondary {
 .leaderboardTable tr td:first-child {
   color: var(--player-row-color);
   font-weight: bold;
-  font-size: 1.4rem; /* Increased font size for rank */
+  font-size: 1.6rem; /* Slightly larger font size for rank */
 }
 
 /* Make sure the leaderboard remains visible in different screen sizes */
 @media (max-width: 1200px) {
   .leaderboard {
     left: 15px;
-    padding: 15px;
-    min-width: 220px;
+    padding: 20px;
+    min-width: 280px;
   }
   
   .leaderboardTable th,
   .leaderboardTable td {
     padding: 8px;
-    font-size: 1.1rem;
+    font-size: 1rem;
+  }
+  
+  .leaderboard h3 {
+    font-size: 1.5rem;
   }
 }
 
@@ -835,7 +1027,7 @@ a.secondary {
   .leaderboard {
     top: 15px;
     transform: none;
-    min-width: 200px;
+    min-width: 260px;
   }
 }
 
@@ -917,48 +1109,59 @@ a.secondary {
   position: absolute;
   top: 50%;
   left: 50%;
+  margin-left: 60px;
   transform: translate(-50%, -50%);
   width: 150px;
   height: 150px;
-  background-color: rgba(0, 77, 0, 0.9); /* Dark green with higher opacity */
-  border: 6px solid white;
+  background-color: #ffaa00e4; /* Dark green with higher opacity */
+  border: 6px solid #c63800e6;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10; /* Significantly higher z-index to ensure it's on top */
-  box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); /* Stronger glowing effect */
   filter: none !important; /* Ensure no filter is applied */
   pointer-events: none; /* Prevents interaction with the circle */
 }
 
 .countdownCircle span {
   color: white;
-  font-size: 5rem; /* Larger text */
-  font-weight: bold;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  font-size: 6rem; /* Larger text */
+  font-weight: bolder;
+  font-family: 'oswald', sans-serif; /* Updated to Oswald font */
 }
 
 /* Styling for the leave lobby button in the game page */
 .leaveLobbyButtonGame {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 10px 20px;
-  background-color: #e74c3c; /* Red color for exit/leave actions */
-  border: 2px solid #ffffff; /* White border */
-  color: #ffffff; /* White text color */
-  border-radius: 8px;
-  cursor: pointer;
-  z-index: 10; /* Ensure it's above other elements */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for better visibility */
-  transition: background-color 0.3s ease; /* Smooth hover effect */
+  composes: lobbyButtons;
+  --color: #c70000;
+  background-color: rgb(236, 2, 2)!important; /* Same volcano color */
+  margin-top: 10px;
+  margin-left: 0px;
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  font-size: 1.8rem !important; /* Keep original size */
+  min-width: 230px !important; /* Keep original width */
+  min-height: 70px !important; /* Keep original height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  max-height: 20px !important; /* Keep original height */
+  align-self: center !important; /* Center the button */
+  margin-left: 0 !important; /* No left margin */
+  cursor: pointer; /* Add cursor pointer specifically for this button */
 }
 
-.leaveLobbyButtonGame:hover {
-  background-color: #c0392b; /* Darker red on hover */
+.login-button {
+  composes: lobbyButtons;
+  --color:#1c4d96;
+  font-size: 1.3rem !important; /* Smaller font size */
+  padding: 0 20px !important; /* Reduced horizontal padding */
+  min-width: 370px !important; /* Ensure button fills full container width */
+  min-height: 50px !important; /* Match input field height */
+  border: 2px solid #ffffff !important; /* Thinner border */
+  border-radius: 20px !important; /* Smaller border radius */
+  background-color: #1858b8 !important; /* Volcano color */
+  color: #ffffff !important; /* Ensure text color is applied */
+  margin-left: 0;
 }
 
 /* Final countdown overlay styling - covers the entire game grid */
@@ -966,6 +1169,7 @@ a.secondary {
   position: absolute;
   top: 0;
   left: 0;
+  margin-left: 60px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -996,3 +1200,225 @@ a.secondary {
   }
 }
 
+/* Death screen overlay styling */
+.deathOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 10;
+  animation: fadeToBlack 0.8s forwards;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Animation for death overlay fade in */
+@keyframes fadeToBlack {
+  0% { background-color: rgba(0, 0, 0, 0); }
+  100% { background-color: rgba(0, 0, 0, 0.2); }
+}
+
+/* Animation for death overlay fade out */
+.fadeOut {
+  animation: fadeFromBlack 0.8s forwards !important;
+}
+
+@keyframes fadeFromBlack {
+  0% { background-color: rgba(0, 0, 0, 0.2); }
+  100% { background-color: rgba(0, 0, 0, 0); }
+}
+
+.deathMessage {
+  background-color: #b70808;
+  border-radius: 12px;
+  padding: 30px 50px;
+  text-align: center;
+  animation: messageAppear 0.5 forwards; /* Changed to 1s as requested */
+  border: 2px solid #920707;
+  opacity: 0; /* Start fully transparent */
+}
+
+/* Animation for death message fade in */
+@keyframes messageAppear {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Animation for death message fade out - matches the fade-in animation */
+.fadeOut .deathMessage {
+  animation: messageDisappear 0.5 forwards !important;
+}
+
+@keyframes messageDisappear {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+/* Spectator mode overlay for eliminated players */
+.spectatorOverlay {
+  position: absolute;
+  margin-left: 60;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 3; /* Lower z-index than deathOverlay (10) */
+  pointer-events: none;
+  filter: grayscale(70%);
+  opacity: 1; /* Start visible immediately */
+  display: flex; /* Enable flexbox to center the message */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  font-family: 'Oswald', sans-serif; /* Updated to Oswald font */
+}
+
+/* Spectator message styling */
+.spectatorMessage {
+  background-color: transparent;
+  border-radius: 12px;
+  padding: 30px 50px;
+  text-align: center;
+  opacity: 0.8; /* 50% opacity as requested */
+  z-index: 4; /* Above the overlay but below other UI elements */
+}
+
+.spectatorMessage h2 {
+  font-size: 4rem; /* Make text twice as large */
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Spectator mode overlay for eliminated players */
+.spectatorOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  z-index: 3; /* Lower z-index than deathOverlay (10) */
+  pointer-events: none;
+  filter: grayscale(70%);
+  opacity: 1; /* Start visible immediately */
+}
+
+/* Admin badge styling */
+.adminBadge {
+  display: inline-block;
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* Admin-only text styling */
+.adminOnlyText {
+  font-size: 0.8rem;
+  color: #ffffff;
+  font-weight: normal;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+/* Disabled control styling */
+.disabledControl {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(30%);
+}
+
+/* Disabled button styling */
+.disabledButton {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #7a7a7a !important;
+}
+
+/* Settings container styling */
+.settingsContainer {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+/* Connection error styling */
+.connectionError {
+  background-color: rgba(255, 0, 0, 0.2);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  text-align: center;
+  border: 1px solid rgba(255, 0, 0, 0.4);
+}
+
+/* Player colors using hue-rotate filters */
+.playerRed::after {
+  filter: hue-rotate(330deg) saturate(150%) brightness(95%); /* Red hue */
+}
+
+.playerBlue::after {
+  filter: hue-rotate(220deg) saturate(120%) brightness(95%); /* Blue hue */
+}
+
+.playerGreen::after {
+  filter: hue-rotate(110deg) saturate(130%) brightness(95%); /* Green hue */
+}
+
+.playerPurple::after {
+  filter: hue-rotate(280deg) saturate(140%) brightness(85%); /* Purple hue */
+}
+
+/* Additional player colors */
+.playerOrange::after {
+  filter: hue-rotate(30deg) saturate(150%) brightness(95%); /* Orange hue */
+}
+
+.playerPink::after {
+  filter: hue-rotate(300deg) saturate(140%) brightness(95%); /* Pink hue */
+}
+
+.playerTeal::after {
+  filter: hue-rotate(160deg) saturate(130%) brightness(95%); /* Teal hue */
+}
+
+.playerBrown::after {
+  filter: hue-rotate(20deg) saturate(80%) brightness(80%); /* Brown hue */
+}
+
+.dashboardContainer h2 {
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+}
+
+.dashboardContainer h2,
+.dashboardContainer p,
+.lobbyContainer h1,
+.lobbyContainer h3,
+.settingsContainer h3,
+.settingsContainer label,
+.sliderLabels span,
+.checkboxContainer label {
+  color: white;
+}
