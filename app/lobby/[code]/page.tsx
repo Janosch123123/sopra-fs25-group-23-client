@@ -315,7 +315,7 @@ const LobbyPage: React.FC = () => {
       type: "lobbystate",
     });
   }
-  , [send]); // Added missing dependency
+  , []); 
 
 
   const updateSettings = () => {
