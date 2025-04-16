@@ -387,7 +387,7 @@ a.secondary {
 
 .dashboardContainer {
   flex: 0.8; /* Make the container smaller */
-  background-color: rgb(66, 127, 167); /* Darker medium green background */
+  background-color: #427fa7; /* Darker medium green background */
   padding: 30px;
   border-radius: 20px;
   border: 4px solid #345a97; /* Darker dark green border */
@@ -465,7 +465,7 @@ a.secondary {
   content: '';
   position: absolute;
   top: 0;
- left: -100%;
+ left: -50%;
   width: 25%;
   height: 100%;
   background-color: #fef0eb; /* Volcano color */
@@ -502,15 +502,34 @@ a.secondary {
 
 .joinButton {
   composes: lobbyButtons;
-  font-size: 3rem !important; /* Smaller font size */
-  padding: 20px 50px; /* Reduced padding */
-  min-width: 150px; /* Smaller width */
-  min-height: 80px; /* Smaller height */
-  border: 5px solid #ffffff; /* Thinner border */
-  border-radius: 200px; /* Smaller border radius */
-  background-color: #fa541c !important; /* Volcano color */
+  --color:#026000;
+  font-size: 2.5rem !important; /* Smaller font size */
+  padding: 0 20px !important; /* Reduced horizontal padding */
+  min-width: 100px !important; /* Smaller width */
+  min-height: 85px !important; /* Match input field height */
+  border: 4px solid #ffffff !important; /* Thinner border */
+  border-radius: 20px !important; /* Smaller border radius */
+  background-color: #028b00 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
+  margin-left: 20px !important; /* Remove margin for closer positioning */
 }
+
+.backButton {
+  composes: lobbyButtons;
+  --color: #952300;
+  font-size: 1.5rem !important; /* Even smaller font size */
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  min-width: 120px !important; /* Slightly wider than join button */
+  min-height: 60px !important; /* Shorter height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  background-color: #d33100!important; /* Same volcano color */
+  color: #ffffff !important; /* Same text color */
+  margin-left: 0 !important; /* No left margin */
+  margin-top: 15px !important; /* Add some space from the input above */
+  align-self: center !important; /* Center the button */
+}
+
 
 .stretchedInput {
   border: 4px solid #ffffff !important;
@@ -530,10 +549,10 @@ a.secondary {
 .joinButtonContainer {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: 0; /* Remove gap between input and button */
   width: 100%;
-  align-items: flex-start; /* Changed from center to flex-start to accommodate error message */
-  background-color: transparent; /* Ensure container has no background */
+  align-items: flex-start;
+  background-color: transparent;
   padding: 30px;
   border-radius: 20px;
   background-color: #66bb6a;
