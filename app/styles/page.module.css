@@ -530,6 +530,12 @@ a.secondary {
   align-self: center !important; /* Center the button */
 }
 
+.leaveLobbyButton {
+  composes: backButton;
+  font-size: 1.5rem !important; /* Keep original size */
+  min-width: 120px !important; /* Keep original width */
+  min-height: 60px !important; /* Keep original height */
+}
 
 .stretchedInput {
   border: 4px solid #ffffff !important;
@@ -739,16 +745,44 @@ a.secondary {
   font-size: 1.5rem;
   font-weight: bold;
   padding: 10px 20px;
-  background-color: #e3ad19; /* Dark green */
-  border: 2px solid #ffffff; /* White border */
+  background-color: #d33100!important; /* Same as backButton */
+  border: 4px solid #ffffff !important; /* Same as backButton */
   color: #ffffff; /* White text color */
-  border-radius: 8px;
+  border-radius: 20px !important; /* Same as backButton */
   cursor: pointer;
-  margin-top: 10px; /* Add margin to the top */
+  margin-top: 10px;
+  position: relative; /* Add position relative for pseudo-elements */
+  overflow: hidden; /* Hide overflow for animation effects */
+  z-index: 1; /* Add z-index for pseudo-element positioning */
+  transition: transform 0.3s ease, background-color 0.3s ease; /* Add transition for animations */
 }
 
 .leaveLobbyButton:hover {
-  background-color: #003300; /* Darker green on hover */
+  background-color: #952300 !important; /* Same hover color as backButton */
+  transform: scale(1.01) translateY(-2px); /* Same transform effect as lobbyButtons */
+  box-shadow: 0 10px 20px rgba(211, 49, 0, 0.4); /* Same shadow effect style with adjusted color */
+}
+
+.leaveLobbyButton {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  background-color: #d33100!important; /* Same as backButton */
+  border: 4px solid #ffffff !important; /* Same as backButton */
+  color: #ffffff; /* White text color */
+  border-radius: 20px !important; /* Same as backButton */
+  cursor: pointer;
+  margin-top: 10px;
+  position: relative; /* Add position relative for pseudo-elements */
+  overflow: hidden; /* Hide overflow for animation effects */
+  z-index: 1; /* Add z-index for pseudo-element positioning */
+  transition: transform 0.3s ease, background-color 0.3s ease; /* Add transition for animations */
+}
+
+.leaveLobbyButton:hover {
+  background-color: #952300 !important; /* Same hover color as backButton */
+  transform: scale(1.01) translateY(-2px); /* Same transform effect as lobbyButtons */
+  box-shadow: 0 10px 20px rgba(211, 49, 0, 0.4); /* Same shadow effect style with adjusted color */
 }
 
 .sliderContainer {
@@ -958,11 +992,11 @@ a.secondary {
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: #0a800a; /* Solid dark green background (no transparency) */
+  background-color: #427fa7; /* Match dashboardContainer color */
   color: white;
-  padding: 20px; /* Increased padding */
-  border-radius: 8px;
-  border: 2px solid #043904; /* Added white border for better visibility */
+  padding: 30px; /* Match dashboardContainer padding */
+  border-radius: 20px; /* Match dashboardContainer border-radius */
+  border: 4px solid #345a97; /* Match dashboardContainer border */
   z-index: 2;
   min-width: 260px; /* Increased minimum width */
   max-width: 300px; /* Increased maximum width */
@@ -971,37 +1005,39 @@ a.secondary {
 .leaderboard h3 {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 20px; /* Increased margin */
-  font-size: 1.8rem; /* Increased font size */
-  border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Thicker border */
+  margin-bottom: 20px;
+  font-size: 2.5rem; /* Match dashboardContainer h2 */
+  text-decoration: underline; /* Match dashboardContainer h2 */
+  font-weight: 600; /* Match dashboardContainer h2 */
+  font-family: "Oswald", sans-serif;
   padding-bottom: 10px;
 }
 
 .leaderboardTable {
-  width: 100%;
+  width: 270px;
+  font-size: 1.3rem; /* Match statisticsTable */
+  font-weight: 500; /* Match statisticsTable */
   border-collapse: collapse;
+  border-radius: 40px; /* Match statisticsTable */
+  font-family: "Oswald", sans-serif;
 }
 
 .leaderboardTable th,
 .leaderboardTable td {
-  padding: 10px; /* Increased padding */
+  padding: 10px; /* Match statisticsTable td */
   text-align: center;
-  font-size: 1.2rem; /* Increased font size */
+  border-bottom: 1px solid #345a97; /* Match statisticsTable td */
+  border-radius: 30px; /* Match statisticsTable td */
 }
 
 .leaderboardTable th {
   font-weight: bold;
-  font-size: 1.1rem; /* Increased font size */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.leaderboardTable tr:not(:last-child) td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1rem; /* Match rest of table */
 }
 
 /* Highlight the current player in the leaderboard */
 .currentPlayerRow {
-  background-color: rgba(255, 255, 255, 0.3); /* Slightly more visible highlight */
+  background-color: rgba(255, 255, 255, 0.2); /* Slightly lighter background */
   font-weight: bold;
 }
 
@@ -1009,21 +1045,25 @@ a.secondary {
 .leaderboardTable tr td:first-child {
   color: var(--player-row-color);
   font-weight: bold;
-  font-size: 1.4rem; /* Increased font size for rank */
+  font-size: 1.6rem; /* Slightly larger font size for rank */
 }
 
 /* Make sure the leaderboard remains visible in different screen sizes */
 @media (max-width: 1200px) {
   .leaderboard {
     left: 15px;
-    padding: 15px;
-    min-width: 220px;
+    padding: 20px;
+    min-width: 280px;
   }
   
   .leaderboardTable th,
   .leaderboardTable td {
     padding: 8px;
-    font-size: 1.1rem;
+    font-size: 1rem;
+  }
+  
+  .leaderboard h3 {
+    font-size: 1.5rem;
   }
 }
 
@@ -1031,7 +1071,7 @@ a.secondary {
   .leaderboard {
     top: 15px;
     transform: none;
-    min-width: 200px;
+    min-width: 260px;
   }
 }
 
