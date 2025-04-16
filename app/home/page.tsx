@@ -124,10 +124,14 @@ const MainPage: React.FC = () => {
     }
   };
 
-
-
   const handleJoinLobbyClick = () => {
     setShowButtons(false);
+  };
+
+  const handleBackClick = () => {
+    setShowButtons(true);
+    setLobbyCode('');
+    setLobbyCodeError(null);
   };
 
   const handleJoinWithCode = async () => {
@@ -198,11 +202,6 @@ const MainPage: React.FC = () => {
         }
       }, 5000);
 
-      
-    
-
-
-
     } catch (error) {
       console.error('Error validating lobby:', error);
       setValidatingLobby(false);
@@ -256,7 +255,6 @@ const MainPage: React.FC = () => {
               <Button
                 type="primary"
                 variant="solid"
-                color="volcano"
                 className={styles.lobbyButtons}
                 style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
                 onClick={handleCreateLobby}
@@ -266,7 +264,6 @@ const MainPage: React.FC = () => {
               <Button
                 type="primary"
                 variant="solid"
-                color="volcano"
                 className={styles.lobbyButtons}
                 style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
                 onClick={handleJoinLobbyClick}
@@ -275,44 +272,49 @@ const MainPage: React.FC = () => {
               </Button>
             </>
           ) : (
-            <div className={styles.joinButtonContainer}>
-              <div className={styles.inputContainer}>
-                <Input
-                  placeholder="Enter Lobby Code"
-                  value={lobbyCode}
-                  onChange={handleLobbyCodeChange}
-                  className={styles.stretchedInput}
-                  style={{ 
-                    flex: '1',
-                    borderColor: lobbyCodeError ? '#ff4d4f' : '#ffffff'
-                  }}
+            <div className={styles.joinButtonContainer} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+                <div className={styles.inputContainer}>
+                  <Input
+                    placeholder="Enter Lobby Code"
+                    value={lobbyCode}
+                    onChange={handleLobbyCodeChange}
+                    className={styles.stretchedInput}
+                    style={{ 
+                      flex: '1',
+                      borderColor: lobbyCodeError ? '#ff4d4f' : '#ffffff'
+                    }}
+                    disabled={validatingLobby}
+                    type="number" // Set input type to number
+                    min={0} // Only positive integers
+                    status={lobbyCodeError ? "error" : ""}
+                  />
+                  {lobbyCodeError && (
+                    <div className={styles.errorMessage}>{lobbyCodeError}</div>
+                  )}
+                </div>
+                <Button
+                  type="primary"
+                  variant="solid"
+                  className={styles.joinButton}
+                  onClick={handleJoinWithCode}
+                  loading={validatingLobby}
                   disabled={validatingLobby}
-                  type="number" // Set input type to number
-                  min={0} // Only positive integers
-                  status={lobbyCodeError ? "error" : ""}
-                />
-                {lobbyCodeError && (
-                  <div className={styles.errorMessage}>{lobbyCodeError}</div>
-                )}
+                >
+                  {validatingLobby ? 'Validating...' : 'Join'}
+                </Button>
               </div>
               <Button
                 type="primary"
                 variant="solid"
-                color="volcano"
-                className={styles.joinButton}
-                style={{ 
-                  border: '4px solid #ffffff', 
-                  borderRadius: '20px',
-                  backgroundColor: '#fa541c', // Updated to volcano color
-                }}
-                onClick={handleJoinWithCode}
-                loading={validatingLobby}
-                disabled={validatingLobby}
+                className={styles.backButton}
+                onClick={handleBackClick}
+                style={{ marginTop: '15px', justifyContent: 'center'}}
               >
-                {validatingLobby ? 'Validating...' : 'Join'}
+                Back
               </Button>
             </div>
-          )}
+            )}
         </div>
       </div>
     </div>
