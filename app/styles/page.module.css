@@ -531,10 +531,19 @@ a.secondary {
 }
 
 .leaveLobbyButton {
-  composes: backButton;
-  font-size: 1.5rem !important; /* Keep original size */
-  min-width: 120px !important; /* Keep original width */
-  min-height: 60px !important; /* Keep original height */
+  composes: lobbyButtons;
+  --color: #c70000;
+  background-color: rgb(236, 2, 2)!important; /* Same volcano color */
+  margin-top: 10px;
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  font-size: 1.8rem !important; /* Keep original size */
+  min-width: 200px !important; /* Keep original width */
+  min-height: 70px !important; /* Keep original height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  max-height: 20px !important; /* Keep original height */
+  align-self: center !important; /* Center the button */
+  margin-left: 0 !important; /* No left margin */
 }
 
 .stretchedInput {
@@ -583,15 +592,18 @@ a.secondary {
 
 .timer {
   position: absolute;
+  margin-left: 50px;
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(255, 5, 5, 0.561);
   color: white;
   padding: 5px 10px;
   border-radius: 5px;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   z-index: 2; /* Increased z-index to display above the overlay */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-weight: bolder;
 }
 
 .dashboard {
@@ -660,10 +672,11 @@ a.secondary {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #fa541c; /* Volcano background color */
+  background-color: #427fa7; /* Volcano background color */
+  border-color: #345a97;
   padding: 20px;
   border-radius: 8px;
-  border: 2px solid #ffffff; /* White border */
+  border: 4px solid #345a97; /* White border */
 }
 
 .lobbyContainer h1 {
@@ -672,32 +685,41 @@ a.secondary {
 
 .lobbyTable {
   width: 100%;
-  font-size: 1.5rem; /* Increase font size */
+  font-size: 1.5rem; /* Maintain existing font size */
   border-collapse: collapse;
   margin-bottom: 20px;
+  border-radius: 40px; /* Match statisticsTable */
+  font-family: "Oswald", sans-serif; /* Match statisticsTable */
 }
 
 .lobbyTable th, .lobbyTable td {
-  padding: 8px;
-  border: 1px solid #ffffff; /* White border */
+  padding: 10px;
+  border: none; /* Remove existing border */
+  border-bottom: 1px solid #345a97; /* Match statisticsTable td */
   text-align: center;
+  border-radius: 30px; /* Match statisticsTable td */
+}
+
+.lobbyTable th {
+  font-weight: bold;
 }
 
 .startGameButton {
-  font-size: 1.5rem;
-  font-weight: bold;
-  min-width: 190px;
-  padding: 10px 20px;
-  background-color: #004d00; /* Dark green */
-  border: 2px solid #ffffff; /* White border */
-  color: #ffffff; /* White text color */
-  border-radius: 8px;
-  cursor: pointer;
+  composes: lobbyButtons;
+  --color: #187a00;
+  background-color: #209e00!important; /* Same volcano color */
+  margin-top: 10px;
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  font-size: 1.8rem !important; /* Keep original size */
+  min-width: 200px !important; /* Keep original width */
+  min-height: 70px !important; /* Keep original height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  max-height: 20px !important; /* Keep original height */
+  align-self: center !important; /* Center the button */
+  margin-left: 0 !important; /* No left margin */
 }
 
-.startGameButton:hover {
-  background-color: #003300; /* Darker green on hover */
-}
 
 .loginContent {
   background-color: #66bb6a; /* Darker medium green background */
@@ -741,50 +763,6 @@ a.secondary {
   background-color: #9c9c9c; /* Darker volcano color on hover */
 }
 
-.leaveLobbyButton {
-  font-size: 1.5rem;
-  font-weight: bold;
-  padding: 10px 20px;
-  background-color: #d33100!important; /* Same as backButton */
-  border: 4px solid #ffffff !important; /* Same as backButton */
-  color: #ffffff; /* White text color */
-  border-radius: 20px !important; /* Same as backButton */
-  cursor: pointer;
-  margin-top: 10px;
-  position: relative; /* Add position relative for pseudo-elements */
-  overflow: hidden; /* Hide overflow for animation effects */
-  z-index: 1; /* Add z-index for pseudo-element positioning */
-  transition: transform 0.3s ease, background-color 0.3s ease; /* Add transition for animations */
-}
-
-.leaveLobbyButton:hover {
-  background-color: #952300 !important; /* Same hover color as backButton */
-  transform: scale(1.01) translateY(-2px); /* Same transform effect as lobbyButtons */
-  box-shadow: 0 10px 20px rgba(211, 49, 0, 0.4); /* Same shadow effect style with adjusted color */
-}
-
-.leaveLobbyButton {
-  font-size: 1.5rem;
-  font-weight: bold;
-  padding: 10px 20px;
-  background-color: #d33100!important; /* Same as backButton */
-  border: 4px solid #ffffff !important; /* Same as backButton */
-  color: #ffffff; /* White text color */
-  border-radius: 20px !important; /* Same as backButton */
-  cursor: pointer;
-  margin-top: 10px;
-  position: relative; /* Add position relative for pseudo-elements */
-  overflow: hidden; /* Hide overflow for animation effects */
-  z-index: 1; /* Add z-index for pseudo-element positioning */
-  transition: transform 0.3s ease, background-color 0.3s ease; /* Add transition for animations */
-}
-
-.leaveLobbyButton:hover {
-  background-color: #952300 !important; /* Same hover color as backButton */
-  transform: scale(1.01) translateY(-2px); /* Same transform effect as lobbyButtons */
-  box-shadow: 0 10px 20px rgba(211, 49, 0, 0.4); /* Same shadow effect style with adjusted color */
-}
-
 .sliderContainer {
   display: flex;
   flex-direction: column;
@@ -823,6 +801,7 @@ a.secondary {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-left: 100;
   width: 100%;
   height: 100%;
   padding: 20px;
@@ -1153,11 +1132,12 @@ a.secondary {
   position: absolute;
   top: 50%;
   left: 50%;
+  margin-left: 60px;
   transform: translate(-50%, -50%);
   width: 150px;
   height: 150px;
-  background-color: #004d00e6; /* Dark green with higher opacity */
-  border: 6px solid #21a321e6;
+  background-color: #ffaa00e4; /* Dark green with higher opacity */
+  border: 6px solid #c63800e6;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -1169,29 +1149,27 @@ a.secondary {
 
 .countdownCircle span {
   color: white;
-  font-size: 5rem; /* Larger text */
-  font-weight: bold;
+  font-size: 6rem; /* Larger text */
+  font-weight: bolder;
+  font-family: 'oswald', sans-serif; /* Updated to Oswald font */
 }
 
 /* Styling for the leave lobby button in the game page */
 .leaveLobbyButtonGame {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 10px 20px;
-  background-color: #e74c3c; /* Red color for exit/leave actions */
-  border: 2px solid #ffffff; /* White border */
-  color: #ffffff; /* White text color */
-  border-radius: 8px;
-  cursor: pointer;
-  z-index: 10; /* Ensure it's above other elements */
-  transition: background-color 0.3s ease; /* Smooth hover effect */
-}
-
-.leaveLobbyButtonGame:hover {
-  background-color: #c0392b; /* Darker red on hover */
+  composes: lobbyButtons;
+  --color: #c70000;
+  background-color: rgb(236, 2, 2)!important; /* Same volcano color */
+  margin-top: 10px;
+  margin-left: 0px;
+  padding: 0 20px !important; /* Same reduced horizontal padding */
+  font-size: 1.8rem !important; /* Keep original size */
+  min-width: 200px !important; /* Keep original width */
+  min-height: 70px !important; /* Keep original height */
+  border: 4px solid #ffffff !important; /* Same border thickness */
+  border-radius: 20px !important; /* Same border radius */
+  max-height: 20px !important; /* Keep original height */
+  align-self: center !important; /* Center the button */
+  margin-left: 0 !important; /* No left margin */
 }
 
 /* Final countdown overlay styling - covers the entire game grid */
@@ -1199,6 +1177,7 @@ a.secondary {
   position: absolute;
   top: 0;
   left: 0;
+  margin-left: 60px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -1290,6 +1269,7 @@ a.secondary {
 /* Spectator mode overlay for eliminated players */
 .spectatorOverlay {
   position: absolute;
+  margin-left: 60;
   top: 0;
   left: 0;
   width: 100%;
@@ -1305,6 +1285,7 @@ a.secondary {
   display: flex; /* Enable flexbox to center the message */
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
+  font-family: 'Oswald', sans-serif; /* Updated to Oswald font */
 }
 
 /* Spectator message styling */

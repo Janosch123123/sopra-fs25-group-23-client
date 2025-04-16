@@ -661,8 +661,14 @@ const GamePage: React.FC = () => {
             })}
           </tbody>
         </table>
+        {/* Leave lobby button */}
+       <button 
+        className={styles.leaveLobbyButtonGame} 
+        onClick={handleLeaveLobby}
+      >
+        Leave Lobby
+      </button>
       </div>
-      
       {/* Overlay for when game is not live */}
       {!gameLive && (
         <div className={styles.gameOverlay}></div>
@@ -707,13 +713,7 @@ const GamePage: React.FC = () => {
         </div>
       )}
       
-      {/* Leave lobby button */}
-      <button 
-        className={styles.leaveLobbyButtonGame} 
-        onClick={handleLeaveLobby}
-      >
-        Leave Lobby
-      </button>
+     
     </div>
   );
 };
