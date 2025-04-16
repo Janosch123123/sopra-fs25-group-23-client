@@ -99,22 +99,30 @@ const GamePage: React.FC = () => {
     return color;
   }, []);
   
-  // Updated function to render a player's snake using [col, row] coordinates with PNG images
+  // Updated function to render a player's snake using [col, row] coordinates with PNG images and different color classes
   const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
     
-    // Define color classes based on player index
+    // Define color classes based on player index - expanded with more color options
     const playerColorClasses = [
       styles.playerRed,     // Red (1st player)
       styles.playerBlue,    // Blue (2nd player) 
       styles.playerGreen,   // Green (3rd player)
-      styles.playerPurple   // Purple (4th player)
+      styles.playerPurple,  // Purple (4th player)
+      styles.playerOrange,  // Orange (5th player)
+      styles.playerPink,    // Pink (6th player)
+      styles.playerTeal,    // Teal (7th player)
+      styles.playerBrown    // Brown (8th player)
     ];
     
     // Get the appropriate color class for this player
     let playerColorClass = '';
     if (playerIndex < playerColorClasses.length) {
       playerColorClass = playerColorClasses[playerIndex];
+    } else {
+      // For any additional players beyond our predefined colors, use a color based on their username
+      // This is a fallback that shouldn't normally be needed with 8 color options
+      playerColorClass = styles.playerRed; // Default to red but apply custom filter
     }
     
     // Get current username for highlighting the current player's snake
@@ -159,7 +167,7 @@ const GamePage: React.FC = () => {
       if (cell) {
         cell.classList.add(styles.playerCell);
         
-        // Add color class to apply the correct filter
+        // Add color class to apply the correct hue-rotate filter
         if (playerColorClass) {
           cell.classList.add(playerColorClass);
         }
@@ -221,9 +229,6 @@ const GamePage: React.FC = () => {
             cell.classList.add(styles.curveBody);
             
             // Define curve types based on movement direction
-            // For each case, we need to know where the snake is coming from (prev)
-            // and where it's going (next) relative to the current position
-            
             // Bottom-Right curve (coming from down, going left OR coming from left, going down)
             if ((prev[0] < current[0] && next[1] > current[1]) || 
                 (prev[1] > current[1] && next[0] < current[0])) {

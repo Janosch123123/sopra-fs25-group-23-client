@@ -256,7 +256,6 @@ const MainPage: React.FC = () => {
               <Button
                 type="primary"
                 variant="solid"
-                color="volcano"
                 className={styles.lobbyButtons}
                 style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
                 onClick={handleCreateLobby}
@@ -266,7 +265,6 @@ const MainPage: React.FC = () => {
               <Button
                 type="primary"
                 variant="solid"
-                color="volcano"
                 className={styles.lobbyButtons}
                 style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
                 onClick={handleJoinLobbyClick}

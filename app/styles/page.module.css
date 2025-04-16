@@ -11,12 +11,13 @@
   justify-content: center;
   min-height: 100vh;
   padding: 80px;
-  font-family: var(--font-geist-sans);
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
   background-color: #2e7d32; /* Dark forest green background */
 }
 
 .title {
-  font-family: 'Arial Black', Gadget, sans-serif; /* Another cool font */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-weight: 700; /* Heavy weight for title */
   font-size: 3rem;
   color: #004d00; /* Very dark shade of green */
   text-align: center;
@@ -285,7 +286,7 @@ a.secondary {
 }
 
 .mainPage {
-  background-color: #2e7d32; /* Base forest green background */
+  background-color: #0e4b10; /* Base forest green background */
   position: relative;
   display: flex;
   align-items: center;
@@ -302,10 +303,9 @@ a.secondary {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 30% 20%, rgba(76, 175, 80, 0.6) 0%, rgba(46, 125, 50, 0) 30%),
-    radial-gradient(circle at 70% 60%, rgba(56, 142, 60, 0.5) 0%, rgba(46, 125, 50, 0) 40%),
-    radial-gradient(circle at 50% 50%, rgba(27, 94, 32, 0.4) 0%, rgba(46, 125, 50, 0) 60%);
-  animation: backgroundPulse 15s ease-in-out infinite alternate;
+    radial-gradient(circle at 30% 20%, #0c6610 0%, rgba(46, 125, 50, 0) 90%),
+    radial-gradient(circle at 70% 60%, #0c6610 0%, rgba(46, 125, 50, 0) 40%),
+    radial-gradient(circle at 50% 50%, #055416 0%, rgba(23, 0, 171, 0) 60%);
   z-index: 0;
 }
 
@@ -317,42 +317,18 @@ a.secondary {
   right: 0;
   bottom: 0;
   background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(76, 175, 80, 0.1)' fill-rule='evenodd'/%3E%3C/svg%3E");
-  opacity: 0.5;
-  animation: patternMove 60s linear infinite alternate;
+  opacity: 1;
+  animation: patternMoveLeftToRight 120s linear infinite;
   z-index: 0;
 }
 
-/* Subtle moving geometric patterns */
-@keyframes backgroundPulse {
-  0% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
-}
 
-@keyframes patternMove {
+@keyframes patternMoveLeftToRight {
   0% {
     background-position: 0% 0%;
   }
-  25% {
-    background-position: 40% 10%;
-  }
-  50% {
-    background-position: 10% 40%;
-  }
-  75% {
-    background-position: 50% 30%;
-  }
   100% {
-    background-position: 0% 0%;
+    background-position: 200% 100%;
   }
 }
 
@@ -411,43 +387,49 @@ a.secondary {
 
 .dashboardContainer {
   flex: 0.8; /* Make the container smaller */
-  background-color: #66bb6a; /* Darker medium green background */
-  padding: 20px;
-  border-radius: 8px;
-  border: 2px solid #43a047; /* Darker dark green border */
+  background-color: rgb(66, 127, 167); /* Darker medium green background */
+  padding: 30px;
+  border-radius: 20px;
+  border: 4px solid #345a97; /* Darker dark green border */
   margin-right: 20px;
+  margin-left: 200px; /* Added margin-left to move it to the right */
 }
 
 .statisticsTable {
-  width: 100%;
-  font-size: 1.5rem; /* Increase font size */
+  min-width: 300px;
+  font-size: 1.7rem; /* Keep existing font size */
+  font-weight: 500; /* Medium weight from Oswald */
   border-collapse: collapse;
-  border-radius: 40px; /* Add rounded corners */
-
+  border-radius: 40px; /* Keep rounded corners */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  /* letter-spacing: -0.02em; Slight letter-spacing adjustment for better readability */
 }
 
 .statisticsTable td {
-  padding: 8px;
-  border-bottom: 1px solid #43a047; /* Darker dark green border */
+  padding: 10px;
+  border-bottom: 1px solid #345a97; /* Darker dark green border */
   border-radius: 30px; /* Add rounded corners */
 }
 
 .statisticsList {
-  font-size: 1.5rem; /* Increase font size */
+  font-size: 1.5rem; /* Keep existing font size */
+  font-weight: 500; /* Medium weight from Oswald */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  letter-spacing: -0.02em; /* Slight letter-spacing adjustment */
 }
 
 .playButtonContainer {
   flex: 25; /* Make the container even bigger */
   display: flex;
-  justify-content: flex-start; /* Move to the left */
+  justify-content: center; /* Changed from flex-start to center */
   align-items: center;
   height: 100vh; /* Ensure it takes full height */
-  padding-left: 20%; /* Move more to the left */
+  padding-left: 0; /* Removed left padding */
 }
 
 .playButton {
   font-size: 7rem !important; /* Ensure the font size is applied */
-  font-weight: bold; /* Make font bold */
+  font-weight: 600 !important; /* Bold weight from Oswald */
   padding: 50px 100px; /* Increase padding */
   min-width: 450px; /* Ensure width grows */
   min-height: 200px; /* Ensure height increases */
@@ -455,20 +437,67 @@ a.secondary {
   border: 10px solid #ffffff; /* White border */
   color: #ffffff; /* White text color */
   margin-left: 25px; /* Add margin to the left */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
 }
 
 .lobbyButtons {
-  font-size: 4.5rem !important; /* Ensure the font size is applied */
-  font-weight: bold; /* Make font more bold */
+  --color: #fb7042; /* Changed to a blue color */
+  background-color: #fa541c !important; /* Volcano color */
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  font-size: 3.5rem !important; /* Ensure the font size is applied */
+  font-weight: 600 !important; /* Bold weight from Oswald */
   padding: 50px 100px; /* Increase padding */
-  min-width: 350px; /* Ensure width grows */
+  min-width: 400px; /* Ensure width grows */
   min-height: 150px; /* Ensure height increases */
-  background-color: #004d00; /* Dark green */
   border: 10px solid #ffffff; /* White border */
   color: #ffffff; /* White text color */
-  margin-left: 0; /* Remove margin to the left */
-  font-stretch: ultra-condensed; /* Stretch the font */
+  margin-left: 160px; /* Remove margin to the left */
   border-radius: 400px; /* Add rounded corners */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  letter-spacing: -0.10rem;
+}
+
+/* Volcano button hover effect - separating the before/after pseudo-elements from the text */
+.lobbyButtons::before {
+  content: '';
+  position: absolute;
+  top: 0;
+ left: -100%;
+  width: 25%;
+  height: 100%;
+  background-color: #fef0eb; /* Volcano color */
+  transition: left 0.7s ease;
+  z-index: -1;
+}
+
+.lobbyButtons:hover {
+  transform: scale(1.01) translateY(-2px);
+  box-shadow: 0 10px 20px rgba(250, 84, 28, 0.4);
+}
+
+.lobbyButtons:hover::before {
+  left: 100%;
+}
+
+.lobbyButtons::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color);
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  z-index: -2;
+  pointer-events: none; /* Ensure hover effects don't affect text interaction */
+}
+
+.lobbyButtons:hover::after {
+  opacity: 1;
 }
 
 .joinButton {
@@ -493,7 +522,6 @@ a.secondary {
   line-height: 1.5 !important;
   font-weight: bold !important;
   letter-spacing: -1px !important;
-  font-stretch: ultra-condensed !important;
   text-transform: uppercase !important;
   background-color: white !important; /* Ensure background is white */
   color: #333 !important; /* Ensure text color is visible */
@@ -1207,6 +1235,9 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: rgba(0, 0, 0, 0.4);
   z-index: 3; /* Lower z-index than deathOverlay (10) */
   pointer-events: none;
@@ -1305,4 +1336,46 @@ a.secondary {
   margin-bottom: 10px;
   text-align: center;
   border: 1px solid rgba(255, 0, 0, 0.4);
+}
+
+/* Player colors using hue-rotate filters */
+.playerRed::after {
+  filter: hue-rotate(330deg) saturate(150%) brightness(95%); /* Red hue */
+}
+
+.playerBlue::after {
+  filter: hue-rotate(220deg) saturate(120%) brightness(95%); /* Blue hue */
+}
+
+.playerGreen::after {
+  filter: hue-rotate(110deg) saturate(130%) brightness(95%); /* Green hue */
+}
+
+.playerPurple::after {
+  filter: hue-rotate(280deg) saturate(140%) brightness(85%); /* Purple hue */
+}
+
+/* Additional player colors */
+.playerOrange::after {
+  filter: hue-rotate(30deg) saturate(150%) brightness(95%); /* Orange hue */
+}
+
+.playerPink::after {
+  filter: hue-rotate(300deg) saturate(140%) brightness(95%); /* Pink hue */
+}
+
+.playerTeal::after {
+  filter: hue-rotate(160deg) saturate(130%) brightness(95%); /* Teal hue */
+}
+
+.playerBrown::after {
+  filter: hue-rotate(20deg) saturate(80%) brightness(80%); /* Brown hue */
+}
+
+.dashboardContainer h2 {
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
 }
