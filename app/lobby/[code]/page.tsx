@@ -317,7 +317,7 @@ const LobbyPage: React.FC = () => {
       }
     };
   
-  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate]); // Added missing dependencies
+  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate, disconnect]); // Added missing dependencies
 
   // Request lobby state when component mounts
   // This is to ensure we have the latest data when the component loads
@@ -326,6 +326,7 @@ const LobbyPage: React.FC = () => {
       type: "lobbystate",
     });
   }
+   // eslint-disable-next-line react-hooks/exhaustive-deps
   , []); 
 
 

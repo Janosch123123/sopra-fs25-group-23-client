@@ -4,7 +4,7 @@ export class WebSocketService {
     private static instance: WebSocketService;
     private socket: WebSocket | null = null;
     private url: string = getWebSocketDomain();
-    private connectionTimeout: number | null = null;
+    private connectionTimeout: ReturnType<typeof setTimeout> | null = null;
     private beforeUnloadListener: ((event: BeforeUnloadEvent) => void) | null = null;
 
     constructor() {
@@ -89,7 +89,7 @@ export class WebSocketService {
       this.removeTabCloseListener();
       
       // Create and add the listener
-      this.beforeUnloadListener = (event: BeforeUnloadEvent) => {
+      this.beforeUnloadListener = () => {
         console.log('Browser tab closing, disconnecting WebSocket');
         this.disconnect();
       };

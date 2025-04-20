@@ -17,7 +17,7 @@ interface UserStats {
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { connect, send, disconnect} = useLobbySocket();
+  const { connect, send} = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [validatingLobby, setValidatingLobby] = useState(false);
