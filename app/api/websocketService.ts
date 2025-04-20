@@ -5,6 +5,7 @@ export class WebSocketService {
     private socket: WebSocket | null = null;
     private url: string = getWebSocketDomain();
     private connectionTimeout: number | null = null;
+    private beforeUnloadListener: ((event: BeforeUnloadEvent) => void) | null = null;
 
     constructor() {
       // Prevent new instances if one already exists
@@ -62,6 +63,7 @@ export class WebSocketService {
         // Otherwise wait for it to open
         this.socket.onopen = () => {
           console.log('WebSocket connection established');
+          this.setupTabCloseListener();
           resolve(this.socket!);
         };
         
@@ -81,7 +83,30 @@ export class WebSocketService {
         }, 5000);
       });
     }
+
+    private setupTabCloseListener() {
+      // Remove any existing listener to avoid duplicates
+      this.removeTabCloseListener();
+      
+      // Create and add the listener
+      this.beforeUnloadListener = (event: BeforeUnloadEvent) => {
+        console.log('Browser tab closing, disconnecting WebSocket');
+        this.disconnect();
+      };
+      
+      window.addEventListener('beforeunload', this.beforeUnloadListener);
+      console.log('Tab close listener registered');
+    }
     
+    private removeTabCloseListener() {
+      if (this.beforeUnloadListener) {
+        window.removeEventListener('beforeunload', this.beforeUnloadListener);
+        this.beforeUnloadListener = null;
+        console.log('Tab close listener removed');
+      }
+    }
+
+
     send(data: unknown) {
       if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
         throw new Error('WebSocket is not connected');
@@ -91,6 +116,7 @@ export class WebSocketService {
     }
     
     disconnect() {
+      this.removeTabCloseListener();
       if (this.connectionTimeout) {
         clearTimeout(this.connectionTimeout);
         this.connectionTimeout = null;
