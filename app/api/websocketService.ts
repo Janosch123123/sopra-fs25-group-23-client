@@ -4,6 +4,7 @@ export class WebSocketService {
     private static instance: WebSocketService;
     private socket: WebSocket | null = null;
     private url: string = getWebSocketDomain();
+    private connectionTimeout: number | null = null;
 
     constructor() {
       // Prevent new instances if one already exists
@@ -71,7 +72,7 @@ export class WebSocketService {
         };
         
         // Set a timeout to reject if it takes too long
-        setTimeout(() => {
+        this.connectionTimeout = setTimeout(() => {
           if (this.socket?.readyState !== WebSocket.OPEN) {
             const error = new Error('WebSocket connection timeout after 5 seconds');
             console.error(error);
@@ -90,6 +91,10 @@ export class WebSocketService {
     }
     
     disconnect() {
+      if (this.connectionTimeout) {
+        clearTimeout(this.connectionTimeout);
+        this.connectionTimeout = null;
+      }
       if (this.socket) {
         this.socket.close();
         this.socket = null;
