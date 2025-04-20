@@ -39,7 +39,7 @@ const LobbyPage: React.FC = () => {
   const [includePowerUps, setIncludePowerUps] = useState(false);
   
   // Initialize WebSocket connection
-  const { isConnected, connect, send, getSocket } = useLobbySocket();
+  const { isConnected, connect, send, getSocket, disconnect } = useLobbySocket();
   
   // Function to handle start game
   const handleStartGame = () => {
@@ -56,6 +56,7 @@ const LobbyPage: React.FC = () => {
 
   // Function to handle leave lobby
   const handleLeaveLobby = () => {
+    disconnect();
     console.log("Leaving lobby");
     router.push("/home");
   };
