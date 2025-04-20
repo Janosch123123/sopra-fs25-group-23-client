@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
@@ -39,8 +39,9 @@ const LobbyPage: React.FC = () => {
   const [includePowerUps, setIncludePowerUps] = useState(false);
   
   // Initialize WebSocket connection
-  const { isConnected, connect, send, getSocket, disconnect } = useLobbySocket();
-  
+  const { isConnected, connect, send, getSocket, disconnect} = useLobbySocket();
+  const intentionalDisconnect = useRef(false);
+
   // Function to handle start game
   const handleStartGame = () => {
     if (!isAdmin) return; // Only admin can start the game
@@ -57,7 +58,8 @@ const LobbyPage: React.FC = () => {
   // Function to handle leave lobby
   const handleLeaveLobby = () => {
     disconnect();
-    console.log("Leaving lobby");
+    intentionalDisconnect.current = true; // Set flag to indicate intentional disconnect
+    console.log("Disconnected from WebSocket");
     router.push("/home");
   };
 
@@ -305,8 +307,16 @@ const LobbyPage: React.FC = () => {
     
     setupWebSocket();
     
-    // Don't disconnect on unmount, as we want to keep the connection alive
-    // when navigating between pages
+    // At the end of your setupWebSocket useEffect, add this return statement:
+    return () => {
+      if (intentionalDisconnect.current) {
+        console.log("Disconnecting WebSocket on unmount");
+        disconnect();
+      } else {
+        console.log("Not disconnecting WebSocket on unmount");
+      }
+    };
+  
   }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate]); // Added missing dependencies
 
   // Request lobby state when component mounts
