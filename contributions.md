@@ -81,18 +81,44 @@ reason).
 
 ---
 
-## Contributions Week 4 - [Begin Date] to [End Date]
+## Contributions Week 4 - 17.04.25 to 24.04.25
 
-_Continue with the same table format as above._
-
+| **Student**        | **Date** | **Link to Commit** | **Description**                                                                                                                                                                                                                                                                               | **Relevance**                             |
+|--------------------|----------| ------------------ |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
+| **MarcMahler**     | 21.04.25 | https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/a55a2fc26ffa5b1cfdd4fca57e41b07c11629e91 | In general a broadcast to let all players know, that the game ended and who won... . And I added a field in the game class which keeps track who won the game. (initial state: null, game ends: Username of winner). With that, the "gameEnd" function can send the winner username to the FE | To display the winner when the game ended |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
 ---
 
 ## Contributions Week 5 - [Begin Date] to [End Date]
 
-_Continue with the same table format as above._
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 
 ---
 
 ## Contributions Week 6 - [Begin Date] to [End Date]
 
-_Continue with the same table format as above._
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
