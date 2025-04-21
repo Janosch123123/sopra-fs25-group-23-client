@@ -40,6 +40,7 @@ const GamePage: React.FC = () => {
   const { isConnected, getSocket, connect, send, disconnect } = useLobbySocket();
   
   const intentionalDisconnect = useRef(false);
+  const [deathAnimationInProgress, setDeathAnimationInProgress] = useState(false);
 
   const [connectionError, setConnectionError] = useState(false);
   // Reference to store all grid cells for direct access
@@ -314,17 +315,21 @@ const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
   // If we're in collision state, also render any dead snakes from lastGameState
   // that aren't in the current state
   if (Object.keys(collidedSnakes).length > 0 && lastGameState) {
-    // For each collided snake
     Object.keys(collidedSnakes).forEach(username => {
-      // Only render if this snake isn't already in current data but was in last state
-      if ((!snakesData[username] || snakesData[username].length === 0) && 
-          lastGameState.snakes[username] && 
-          lastGameState.snakes[username].length > 0) {
+      // Check if this snake is missing or empty in the current state but exists in last state
+      const isEmptyOrMissingInCurrent = !snakesData[username] || 
+                                        (snakesData[username] && snakesData[username].length === 0);
+                                        
+      const existsInLastState = lastGameState.snakes[username] && 
+                              lastGameState.snakes[username].length > 0;
+                              
+      if (isEmptyOrMissingInCurrent && existsInLastState) {
+        console.log(`Adding collided snake ${username} from last state`);
         
-        // Find original index in last game state
+        // Find original player index
         const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
         
-        // Render the dead snake using its last known position
+        // Render the snake using last known positions
         renderPlayerSnake(username, lastGameState.snakes[username], originalIndex);
       }
     });
@@ -367,7 +372,7 @@ useEffect(() => {
     const isNowEmpty = snakes[username] && snakes[username].length === 0;
     
     if (wasAlive && (isNowMissing || isNowEmpty)) {
-      console.log(`Snake died: ${username}`);
+      console.log(`⚠️Snake died: ${username}`);
       deadSnakes.push({
         username,
         lastPosition: lastGameState.snakes[username][0] // The head position from last state
@@ -377,15 +382,19 @@ useEffect(() => {
   
   // If we found any dead snakes, trigger the collision animation
   if (deadSnakes.length > 0) {
-    console.log("Dead snakes detected:", deadSnakes);
+    console.log("⚠️ Dead snakes detected:", deadSnakes);
     
     // Handle only the first dead snake if multiple died in the same frame
     // (prioritize the current player if they died)
     let deadSnake = deadSnakes.find(snake => snake.username === currentUsername) || deadSnakes[0];
     
     if (deadSnake && deadSnake.lastPosition) {
-      console.log("Collision detected at:", deadSnake.lastPosition);
-      
+      console.log("⚠️Collision detected at:", deadSnake.lastPosition);
+      if (deadSnake.username === currentUsername) {
+        setDeathAnimationInProgress(true);
+        console.log(`⚠️ Death animation started for player ${currentUsername}`);
+      }
+      const lastStateSnakes = JSON.parse(JSON.stringify(lastGameState.snakes));
       // Set collision point for explosion effect
       setCollisionPoint(deadSnake.lastPosition);
       
@@ -396,9 +405,14 @@ useEffect(() => {
       // Apply the collision animation
       setCollidedSnakes(newCollidedSnakes);
       
+      const combinedState: SnakeData = {...snakes} || {};
+      if (lastStateSnakes[deadSnake.username] && lastStateSnakes[deadSnake.username].length > 0) {
+        combinedState[deadSnake.username] = lastStateSnakes[deadSnake.username];
+      }
+      console.log(`⚠️ Rendering combined state for animation:`, combinedState);
       // Force render the current state with the dead snake added back in
       // This is key: we render the current snakes plus the dead snake
-      renderPlayerSnakes(snakes);
+      renderPlayerSnakes(combinedState);
       
       // Use longer timeouts to match the enhanced animations
       setTimeout(() => {
@@ -407,9 +421,12 @@ useEffect(() => {
         
         // Wait for fadeaway animation to complete before clearing collision state
         setTimeout(() => {
+          console.log(`⚠️ Animation completed, cleaning up`);
           // Update to current state
-          renderPlayerSnakes(snakes);
+          
           setCollidedSnakes({}); // Clear collision state
+          renderPlayerSnakes(snakes);
+          setDeathAnimationInProgress(false); // Reset death animation state
         }, 2100); // Slightly longer than the fadeAway animation (2s)
       }, 1300); // Slightly longer than the explosion animation (1.2s)
     }
@@ -553,8 +570,9 @@ useEffect(() => {
                                data.snakes[currentUsername] && 
                                data.snakes[currentUsername].length > 0;
                 
-                setPlayerIsDead(gameLive && !isAlive);
-              
+                if (gameLive && !isAlive && !deathAnimationInProgress) {              
+                setPlayerIsDead(true);
+                }
                 setConnectionError(false);
               }
               
@@ -569,6 +587,8 @@ useEffect(() => {
                   
                   // If current player lost, animate their last position
                   if (currentUsername !== data.winner && lastHeadPositions[currentUsername]) {
+                    console.log(`⚠️ Current player ${currentUsername} died in gameEnd`);
+                    setDeathAnimationInProgress(true);
                     // Set collision point
                     setCollisionPoint(lastHeadPositions[currentUsername]);
                     
@@ -590,6 +610,8 @@ useEffect(() => {
                         combinedState[currentUsername] = lastGameState.snakes[currentUsername];
                       }
                       
+                      console.log(`⚠️ Rendering combined state for gameEnd animation:`, combinedState);
+
                       // Force render with this mixed state
                       renderPlayerSnakes(combinedState);
                       
@@ -598,8 +620,10 @@ useEffect(() => {
                         setCollisionPoint(null);
                         
                         setTimeout(() => {
+                          console.log(`⚠️ gameEnd animation completed, cleaning up`);
                           renderPlayerSnakes(data.snakes || {});
                           setCollidedSnakes({}); // Clear collision state
+                          setDeathAnimationInProgress(false); // Reset death animation state
                         }, 2100); // Slightly longer than the fadeAway animation (2s)
                       }, 1300); // Slightly longer than the explosion animation (1.2s)
                     }
@@ -758,7 +782,7 @@ useEffect(() => {
 
   // Effect to handle showing and hiding the death screen
   useEffect(() => {
-    if (playerIsDead) {
+    if (playerIsDead && !deathAnimationInProgress) {
       // Show only death screen first
       setShowDeathScreen(true);
       setShowSpectatorOverlay(false); // Initially hide spectator overlay
@@ -784,7 +808,7 @@ useEffect(() => {
       
       return () => clearTimeout(deathTimeout);
     }
-  }, [playerIsDead]); // Removed unnecessary style dependencies
+  }, [playerIsDead, deathAnimationInProgress]); // Removed unnecessary style dependencies
 
   return (
     <div className={styles.mainPage}>
