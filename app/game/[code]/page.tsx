@@ -386,7 +386,7 @@ useEffect(() => {
     
     // Handle only the first dead snake if multiple died in the same frame
     // (prioritize the current player if they died)
-    let deadSnake = deadSnakes.find(snake => snake.username === currentUsername) || deadSnakes[0];
+    const deadSnake = deadSnakes.find(snake => snake.username === currentUsername) || deadSnakes[0];
     
     if (deadSnake && deadSnake.lastPosition) {
       console.log("⚠️Collision detected at:", deadSnake.lastPosition);
@@ -405,7 +405,7 @@ useEffect(() => {
       // Apply the collision animation
       setCollidedSnakes(newCollidedSnakes);
       
-      const combinedState: SnakeData = {...snakes} || {};
+      const combinedState: SnakeData = {...(snakes || {})};
       if (lastStateSnakes[deadSnake.username] && lastStateSnakes[deadSnake.username].length > 0) {
         combinedState[deadSnake.username] = lastStateSnakes[deadSnake.username];
       }
@@ -602,7 +602,7 @@ useEffect(() => {
                     // Get the snakes that were present in the last state
                     if (lastGameState && lastGameState.snakes) {
                       // Create a mixed state with primarily current snakes
-                      const combinedState: SnakeData = {...data.snakes} || {};
+                      const combinedState: SnakeData = {...(data.snakes || {})};
                       
                       // Add the current player's snake from last state
                       if (lastGameState.snakes[currentUsername] && 
@@ -661,7 +661,7 @@ useEffect(() => {
         console.log("Not disconnecting WebSocket on unmount");
       }
     };
-  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive, lastHeadPositions]);
+  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive, lastHeadPositions, deathAnimationInProgress, lastGameState]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
