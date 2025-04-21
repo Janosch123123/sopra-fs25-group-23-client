@@ -26,6 +26,12 @@ const GamePage: React.FC = () => {
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
   const [showSpectatorOverlay, setShowSpectatorOverlay] = useState(false); // Add state for spectator overlay
   
+  // Add new state variables for collision animation
+  const [collisionPoint, setCollisionPoint] = useState<[number, number] | null>(null); // Store collision coordinates
+  const [collidedSnakes, setCollidedSnakes] = useState<Record<string, boolean>>({}); // Track which snakes have collided
+  const [lastGameState, setLastGameState] = useState<{snakes: SnakeData, timestamp: number} | null>(null); // Store previous game state for comparison
+  const [lastHeadPositions, setLastHeadPositions] = useState<Record<string, [number, number]>>({}); // Store last known head positions
+  
   // Get lobby code from URL parameters
   const params = useParams();
   const lobbyCode = params.code as string;
@@ -60,7 +66,7 @@ const GamePage: React.FC = () => {
     return null;
   }, [ROWS, COLS]);
   
-  // Updated function to clear all cell styles, including new classes
+  // Updated function to clear all cell styles, including new classes for collision animation
   const clearAllCells = useCallback(() => {
     gridCellsRef.current.forEach(cell => {
       if (cell) {
@@ -75,10 +81,19 @@ const GamePage: React.FC = () => {
           styles.playerRed,
           styles.playerBlue,
           styles.playerGreen,
-          styles.playerPurple
+          styles.playerPurple,
+          styles.playerOrange,
+          styles.playerPink,
+          styles.playerTeal,
+          styles.playerBrown,
+          // Add these new classes for collision animation
+          styles.collidedSnake,
+          styles.dyingSnake,
+          styles.collisionPoint
         );
         // Remove any inline styles for player colors
         cell.style.setProperty('--player-color', '');
+        cell.style.setProperty('--rotation', '0deg');
       }
     });
   }, []);
@@ -100,6 +115,7 @@ const GamePage: React.FC = () => {
   }, []);
   
   // Updated function to render a player's snake using [col, row] coordinates with PNG images and different color classes
+  // Now includes support for collision animation
   const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
     
@@ -141,6 +157,23 @@ const GamePage: React.FC = () => {
         // Add color class to apply the correct hue-rotate filter
         if (playerColorClass) {
           cell.classList.add(playerColorClass);
+        }
+        
+        // Add collision animation class if this snake has collided
+        if (collidedSnakes[username]) {
+          cell.classList.add(styles.collidedSnake);
+          
+          // Add dying effect to the current player's snake
+          if (username === currentUsername) {
+            cell.classList.add(styles.dyingSnake);
+          }
+        }
+        
+        // Add collision point effect to the exact collision location
+        if (collisionPoint && 
+            position[0] === collisionPoint[0] && 
+            position[1] === collisionPoint[1]) {
+          cell.classList.add(styles.collisionPoint);
         }
         
         // Mark head (first element)
@@ -241,7 +274,7 @@ const GamePage: React.FC = () => {
         }
       }
     });
-  }, [colRowToIndex, getCell]);
+  }, [colRowToIndex, getCell, collidedSnakes, collisionPoint]);
   
   // Updated function to render cookies using [col, row] coordinates
   const renderCookies = useCallback((positions: [number, number][]) => {
@@ -259,19 +292,139 @@ const GamePage: React.FC = () => {
   }, [colRowToIndex, getCell]);
   
   // Function to render all player snakes immediately without waiting for state update
-  const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
-    // Clear all cells first to avoid overlapping renders
-    clearAllCells();
-    
-    // Get sorted list of player usernames to ensure consistent color assignment
-    const playerUsernames = Object.keys(snakesData);
-    
-    // Render each player's snake with colors assigned by position in the list
-    playerUsernames.forEach((username, playerIndex) => {
+  // Updated to handle missing snakes during collision animation
+  // Function to render all player snakes immediately without waiting for state update
+// Updated to handle missing snakes during collision animation
+const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
+  // Always clear all cells first to ensure a clean state
+  clearAllCells();
+  
+  // Get list of player usernames
+  const playerUsernames = Object.keys(snakesData);
+  
+  // First, render ALL snakes from the current state
+  // This ensures all living snakes remain visible
+  playerUsernames.forEach((username, playerIndex) => {
+    // Only render if the snake exists and has segments
+    if (snakesData[username] && snakesData[username].length > 0) {
       renderPlayerSnake(username, snakesData[username], playerIndex);
+    }
+  });
+  
+  // If we're in collision state, also render any dead snakes from lastGameState
+  // that aren't in the current state
+  if (Object.keys(collidedSnakes).length > 0 && lastGameState) {
+    // For each collided snake
+    Object.keys(collidedSnakes).forEach(username => {
+      // Only render if this snake isn't already in current data but was in last state
+      if ((!snakesData[username] || snakesData[username].length === 0) && 
+          lastGameState.snakes[username] && 
+          lastGameState.snakes[username].length > 0) {
+        
+        // Find original index in last game state
+        const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
+        
+        // Render the dead snake using its last known position
+        renderPlayerSnake(username, lastGameState.snakes[username], originalIndex);
+      }
     });
-  }, [clearAllCells, renderPlayerSnake]);
+  }
+}, [clearAllCells, renderPlayerSnake, collidedSnakes, lastGameState]);
+  // Update lastHeadPositions whenever snakes change
+  useEffect(() => {
+    // Update the last known head positions for all snakes
+    const newPositions: Record<string, [number, number]> = {};
+    Object.keys(snakes).forEach(username => {
+      if (snakes[username] && snakes[username].length > 0) {
+        newPositions[username] = snakes[username][0];
+      }
+    });
+    setLastHeadPositions(prevPositions => ({
+      ...prevPositions,
+      ...newPositions
+    }));
+  }, [snakes]);
 
+  // Enhanced collision detection - detect when snakes disappear or become empty arrays
+useEffect(() => {
+  if (!lastGameState || !gameLive) return;
+  
+  // Get current username
+  const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+  
+  // Check for any snake that existed in the previous state but is either:
+  // 1. Missing completely in the current state, or
+  // 2. Has an empty array (zero length) in the current state
+  const deadSnakes: {username: string, lastPosition: [number, number]}[] = [];
+  
+  // Find snakes that died in this update
+  Object.keys(lastGameState.snakes).forEach(username => {
+    const wasAlive = lastGameState.snakes[username] && 
+                    lastGameState.snakes[username].length > 0;
+    
+    // Check if snake is now missing or empty
+    const isNowMissing = !snakes[username];
+    const isNowEmpty = snakes[username] && snakes[username].length === 0;
+    
+    if (wasAlive && (isNowMissing || isNowEmpty)) {
+      console.log(`Snake died: ${username}`);
+      deadSnakes.push({
+        username,
+        lastPosition: lastGameState.snakes[username][0] // The head position from last state
+      });
+    }
+  });
+  
+  // If we found any dead snakes, trigger the collision animation
+  if (deadSnakes.length > 0) {
+    console.log("Dead snakes detected:", deadSnakes);
+    
+    // Handle only the first dead snake if multiple died in the same frame
+    // (prioritize the current player if they died)
+    let deadSnake = deadSnakes.find(snake => snake.username === currentUsername) || deadSnakes[0];
+    
+    if (deadSnake && deadSnake.lastPosition) {
+      console.log("Collision detected at:", deadSnake.lastPosition);
+      
+      // Set collision point for explosion effect
+      setCollisionPoint(deadSnake.lastPosition);
+      
+      // IMPORTANT: Only mark the dead snake as collided - this is the key fix!
+      const newCollidedSnakes: Record<string, boolean> = {};
+      newCollidedSnakes[deadSnake.username] = true; // Only mark the dead snake
+      
+      // Apply the collision animation
+      setCollidedSnakes(newCollidedSnakes);
+      
+      // Force render the current state with the dead snake added back in
+      // This is key: we render the current snakes plus the dead snake
+      renderPlayerSnakes(snakes);
+      
+      // Use longer timeouts to match the enhanced animations
+      setTimeout(() => {
+        // Clear collision point after explosion animation finishes
+        setCollisionPoint(null);
+        
+        // Wait for fadeaway animation to complete before clearing collision state
+        setTimeout(() => {
+          // Update to current state
+          renderPlayerSnakes(snakes);
+          setCollidedSnakes({}); // Clear collision state
+        }, 2100); // Slightly longer than the fadeAway animation (2s)
+      }, 1300); // Slightly longer than the explosion animation (1.2s)
+    }
+  }
+}, [snakes, gameLive, lastGameState, renderPlayerSnakes]);
+  // Update lastGameState when game state changes
+  useEffect(() => {
+    if (gameLive && Object.keys(snakes).length > 0) {
+      setLastGameState({
+        snakes: JSON.parse(JSON.stringify(snakes)), // Deep clone to avoid reference issues
+        timestamp
+      });
+    }
+  }, [snakes, timestamp, gameLive]);
+  
   useEffect(() => {
     // Handle browser close or refresh
     const handleBeforeUnload = () => {
@@ -366,6 +519,10 @@ const GamePage: React.FC = () => {
                 // Reset player death state when game is restarting
                 setPlayerIsDead(false);
                 setConnectionError(false);
+                
+                // Reset collision state when game is restarting
+                setCollisionPoint(null);
+                setCollidedSnakes({});
               }
               
               // Handle gameState updates with the new expected format
@@ -398,17 +555,67 @@ const GamePage: React.FC = () => {
                 
                 setPlayerIsDead(gameLive && !isAlive);
               
-              setConnectionError(false);
-            }
-            else if (data.type === "connection_success") {
-              console.log("WebSocket connection established successfully");
-              setConnectionError(false);
-            }
-            else if (data.type === 'error') {
-              console.error("WebSocket error:", data.message);
-              setConnectionError(true);
-            } 
-            }catch (error) {
+                setConnectionError(false);
+              }
+              
+              // Handle game end message
+              else if (data.type === 'gameEnd') {
+                console.log("Game ended, winner:", data.winner);
+                
+                // If there's a collision reason, use that for collision animation
+                if (data.reason && (data.reason.includes('collision') || data.reason.includes('hit'))) {
+                  // Get the current username
+                  const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+                  
+                  // If current player lost, animate their last position
+                  if (currentUsername !== data.winner && lastHeadPositions[currentUsername]) {
+                    // Set collision point
+                    setCollisionPoint(lastHeadPositions[currentUsername]);
+                    
+                    // Only mark the dead snake as collided
+                    const newCollidedSnakes: Record<string, boolean> = {};
+                    newCollidedSnakes[currentUsername] = true; // Only the current player's snake
+                    
+                    // Apply the collision animation
+                    setCollidedSnakes(newCollidedSnakes);
+                    
+                    // Get the snakes that were present in the last state
+                    if (lastGameState && lastGameState.snakes) {
+                      // Create a mixed state with primarily current snakes
+                      const combinedState: SnakeData = {...data.snakes} || {};
+                      
+                      // Add the current player's snake from last state
+                      if (lastGameState.snakes[currentUsername] && 
+                          lastGameState.snakes[currentUsername].length > 0) {
+                        combinedState[currentUsername] = lastGameState.snakes[currentUsername];
+                      }
+                      
+                      // Force render with this mixed state
+                      renderPlayerSnakes(combinedState);
+                      
+                      // Use matching timeouts to what we changed above
+                      setTimeout(() => {
+                        setCollisionPoint(null);
+                        
+                        setTimeout(() => {
+                          renderPlayerSnakes(data.snakes || {});
+                          setCollidedSnakes({}); // Clear collision state
+                        }, 2100); // Slightly longer than the fadeAway animation (2s)
+                      }, 1300); // Slightly longer than the explosion animation (1.2s)
+                    }
+                  }
+                }
+              }
+
+              else if (data.type === "connection_success") {
+                console.log("WebSocket connection established successfully");
+                setConnectionError(false);
+              }
+              else if (data.type === 'error') {
+                console.error("WebSocket error:", data.message);
+                setConnectionError(true);
+              } 
+            } catch (error) {
               console.error("Error parsing WebSocket message:", error);
               setConnectionError(true);
             }
@@ -430,7 +637,7 @@ const GamePage: React.FC = () => {
         console.log("Not disconnecting WebSocket on unmount");
       }
     };
-  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive]);
+  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive, lastHeadPositions]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
