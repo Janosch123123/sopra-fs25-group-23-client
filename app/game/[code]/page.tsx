@@ -49,6 +49,14 @@ const GamePage: React.FC = () => {
   // Add router for navigation
   const router = useRouter();
   
+  const [animationStartTime, setAnimationStartTime] = useState<number | null>(null);
+  const [animatingCells, setAnimatingCells] = useState<{
+    index: number;
+    classes: string[];
+    style: {[key: string]: string};
+    timestamp: number;
+  }[]>([]);
+
   // Utility function to convert [col, row] to linear index
   const colRowToIndex = useCallback((col: number, row: number): number => {
     return row * COLS + col;
@@ -292,6 +300,43 @@ const GamePage: React.FC = () => {
     });
   }, [colRowToIndex, getCell]);
   
+  const preserveAnimationClasses = useCallback(() => {
+    if (!animationStartTime) return;
+    // Filter out any animations that have exceeded their duration (8 seconds)
+    const currentTime = Date.now();
+    const animationDuration = 2000; // 2 seconds for the animation
+    if (currentTime - animationStartTime > animationDuration) {
+      setAnimatingCells([]);
+      setAnimationStartTime(null);
+      return;
+    }
+    const activeAnimations = animatingCells.filter(cell => 
+      currentTime - cell.timestamp < 8000
+    );
+    
+    // Apply all active animations
+    activeAnimations.forEach(cell => {
+      const domCell = gridCellsRef.current[cell.index];
+      if (domCell) {
+        // Add all preserved classes
+        cell.classes.forEach(className => {
+          domCell.classList.add(className);
+        });
+        
+        // Apply all preserved styles
+        Object.entries(cell.style).forEach(([prop, value]) => {
+          domCell.style.setProperty(prop, value);
+        });
+      }
+    });
+    
+    // Update the state if we've removed any expired animations
+    if (activeAnimations.length !== animatingCells.length) {
+      setAnimatingCells(activeAnimations);
+    }
+  }, [animatingCells, animationStartTime]);
+
+
   // Function to render all player snakes immediately without waiting for state update
   // Updated to handle missing snakes during collision animation
   // Function to render all player snakes immediately without waiting for state update
@@ -334,7 +379,10 @@ const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
       }
     });
   }
-}, [clearAllCells, renderPlayerSnake, collidedSnakes, lastGameState]);
+  setTimeout(() => {
+    preserveAnimationClasses();
+  }, 0);
+}, [clearAllCells, renderPlayerSnake, collidedSnakes, lastGameState, preserveAnimationClasses]);
   // Update lastHeadPositions whenever snakes change
   useEffect(() => {
     // Update the last known head positions for all snakes
@@ -381,7 +429,7 @@ useEffect(() => {
   });
   
   // If we found any dead snakes, trigger the collision animation
-  if (deadSnakes.length > 0) {
+  if (deadSnakes.length > 0 && !deathAnimationInProgress) {
     console.log("⚠️ Dead snakes detected:", deadSnakes);
     
     // Handle only the first dead snake if multiple died in the same frame
@@ -389,6 +437,7 @@ useEffect(() => {
     const deadSnake = deadSnakes.find(snake => snake.username === currentUsername) || deadSnakes[0];
     
     if (deadSnake && deadSnake.lastPosition) {
+      setAnimationStartTime(Date.now());
       console.log("⚠️Collision detected at:", deadSnake.lastPosition);
       if (deadSnake.username === currentUsername) {
         setDeathAnimationInProgress(true);
@@ -414,6 +463,59 @@ useEffect(() => {
       // This is key: we render the current snakes plus the dead snake
       renderPlayerSnakes(combinedState);
       
+
+      const cellsToAnimate: {
+        index: number;
+        classes: string[];
+        style: {[key: string]: string};
+        timestamp: number;
+      }[] = [];
+      
+      // Save the collision point cell
+      const collisionPointIdx = colRowToIndex(deadSnake.lastPosition[0], deadSnake.lastPosition[1]);
+      const collisionCell = gridCellsRef.current[collisionPointIdx];
+      if (collisionCell) {
+        cellsToAnimate.push({
+          index: collisionPointIdx,
+          classes: [styles.collisionPoint],
+          style: {},
+          timestamp: Date.now()
+        });
+      }
+      
+      // Save all cells from the dead snake
+      if (lastStateSnakes[deadSnake.username]) {
+        lastStateSnakes[deadSnake.username].forEach((pos: [number, number]) => {
+          const idx = colRowToIndex(pos[0], pos[1]);
+          const cell = gridCellsRef.current[idx];
+          if (cell) {
+            const classes = [styles.playerCell, styles.collidedSnake];
+            
+            // Add special class for the current player's snake
+            if (deadSnake.username === currentUsername) {
+              classes.push(styles.dyingSnake);
+            }
+            
+            // Get the current styles
+            const cellStyles: {[key: string]: string} = {};
+            const computedStyle = window.getComputedStyle(cell);
+            ['--rotation'].forEach(prop => {
+              cellStyles[prop] = computedStyle.getPropertyValue(prop);
+            });
+            
+            cellsToAnimate.push({
+              index: idx,
+              classes,
+              style: cellStyles,
+              timestamp: Date.now()
+            });
+          }
+        });
+      }
+      
+      // Update the animating cells state
+      setAnimatingCells(cellsToAnimate);
+
       // Use longer timeouts to match the enhanced animations
       setTimeout(() => {
         // Clear collision point after explosion animation finishes
@@ -442,6 +544,11 @@ useEffect(() => {
     }
   }, [snakes, timestamp, gameLive]);
   
+
+  useEffect(() => {
+    preserveAnimationClasses();
+  }, [preserveAnimationClasses, snakes]);
+
   useEffect(() => {
     // Handle browser close or refresh
     const handleBeforeUnload = () => {
@@ -540,6 +647,8 @@ useEffect(() => {
                 // Reset collision state when game is restarting
                 setCollisionPoint(null);
                 setCollidedSnakes({});
+                setAnimatingCells([]);
+                setAnimationStartTime(null);
               }
               
               // Handle gameState updates with the new expected format
