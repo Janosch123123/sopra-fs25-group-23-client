@@ -533,7 +533,7 @@ useEffect(() => {
       }, 900); // Slightly longer than the explosion animation (1.2s)
     }
   }
-}, [snakes, gameLive, lastGameState, renderPlayerSnakes]);
+}, [snakes, gameLive, lastGameState, renderPlayerSnakes, colRowToIndex, deathAnimationInProgress]);
   // Update lastGameState when game state changes
   useEffect(() => {
     if (gameLive && Object.keys(snakes).length > 0) {
