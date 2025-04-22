@@ -304,7 +304,7 @@ const GamePage: React.FC = () => {
     if (!animationStartTime) return;
     // Filter out any animations that have exceeded their duration (8 seconds)
     const currentTime = Date.now();
-    const animationDuration = 2000; // 2 seconds for the animation
+    const animationDuration = 1300; // 2 seconds for the animation
     if (currentTime - animationStartTime > animationDuration) {
       setAnimatingCells([]);
       setAnimationStartTime(null);
@@ -529,8 +529,8 @@ useEffect(() => {
           setCollidedSnakes({}); // Clear collision state
           renderPlayerSnakes(snakes);
           setDeathAnimationInProgress(false); // Reset death animation state
-        }, 2100); // Slightly longer than the fadeAway animation (2s)
-      }, 1300); // Slightly longer than the explosion animation (1.2s)
+        }, 1300); // Slightly longer than the fadeAway animation (2s)
+      }, 900); // Slightly longer than the explosion animation (1.2s)
     }
   }
 }, [snakes, gameLive, lastGameState, renderPlayerSnakes]);
@@ -733,8 +733,8 @@ useEffect(() => {
                           renderPlayerSnakes(data.snakes || {});
                           setCollidedSnakes({}); // Clear collision state
                           setDeathAnimationInProgress(false); // Reset death animation state
-                        }, 2100); // Slightly longer than the fadeAway animation (2s)
-                      }, 1300); // Slightly longer than the explosion animation (1.2s)
+                        }, 1300); // Slightly longer than the fadeAway animation (2s)
+                      }, 900); // Slightly longer than the explosion animation (1.2s)
                     }
                   }
                 }
