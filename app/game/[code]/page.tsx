@@ -604,10 +604,10 @@ const GamePage: React.FC = () => {
             {getSortedPlayers().map((player, index) => {
               // Get the player color for the rank
               const playerColors = [
-                '#FF0000', // Red (1st player)
-                '#0000FF', // Blue (2nd player)
-                '#FFFF00', // Yellow (3rd player)
-                '#8A2BE2'  // Violet (4th player)
+                '#ff2a2aff', // Red (1st player)
+                '#0000ffff', // Blue (2nd player)
+                '#FFFF00',   // Yellow (3rd player)
+                '#ff00ffff'  // Purple (4th player)
               ];
               
               const playerColor = player.index < playerColors.length 
