@@ -131,7 +131,7 @@ const GamePage: React.FC = () => {
   }, []);
   
   // Updated function to render a player's snake using [col, row] coordinates with PNG images and different color classes
-  // Now includes support for collision animation
+  // Now includes support for collision animation and improved glow effect positioning
   const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
     
@@ -141,10 +141,6 @@ const GamePage: React.FC = () => {
       styles.playerBlue,    // Blue (2nd player) 
       styles.playerGreen,   // Green (3rd player)
       styles.playerPurple,  // Purple (4th player)
-      styles.playerOrange,  // Orange (5th player)
-      styles.playerPink,    // Pink (6th player)
-      styles.playerTeal,    // Teal (7th player)
-      styles.playerBrown    // Brown (8th player)
     ];
     
     // Get the appropriate color class for this player
@@ -160,8 +156,32 @@ const GamePage: React.FC = () => {
     // Get current username for highlighting the current player's snake
     const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
 
-    // Calculate rotation angles for curved segments - REMOVED UNUSED FUNCTION
+    // IMPROVED IMPLEMENTATION: Process positions in two passes
+    // First pass: Add all glow elements for the current player's snake
+    if (username === currentUsername) {
+      positions.forEach((position) => {
+        const index = colRowToIndex(position[0], position[1]);
+        const cell = getCell(index);
+        
+        if (cell) {
+          // Create and add the glow element as a separate DOM element
+          // This ensures it's rendered before any snake parts
+          const glowElement = document.createElement('div');
+          glowElement.className = styles.currentPlayerGlow;
+          
+          // Clear any existing glow to prevent duplicates
+          const existingGlow = cell.querySelector(`.${styles.currentPlayerGlow}`);
+          if (existingGlow) {
+            cell.removeChild(existingGlow);
+          }
+          
+          // Insert the glow as the first child to ensure lowest z-index
+          cell.insertBefore(glowElement, cell.firstChild);
+        }
+      });
+    }
     
+    // Second pass: Add all snake elements
     positions.forEach((position, i) => {
       // Convert [col, row] to grid cell index
       const index = colRowToIndex(position[0], position[1]);
@@ -296,7 +316,23 @@ const GamePage: React.FC = () => {
   const renderCookies = useCallback((positions: [number, number][]) => {
     if (!positions || positions.length === 0) return;
     
+    // Create a map of all snake cells to efficiently check for overlaps
+    const snakeCells = new Map<string, boolean>();
+    Object.keys(snakes).forEach(username => {
+      if (snakes[username] && snakes[username].length > 0) {
+        snakes[username].forEach(pos => {
+          // Use a string key for the position to make lookup easy
+          snakeCells.set(`${pos[0]},${pos[1]}`, true);
+        });
+      }
+    });
+    
     positions.forEach(position => {
+      // Skip cookies that are on the same position as any snake segment
+      if (snakeCells.has(`${position[0]},${position[1]}`)) {
+        return; // Skip this cookie
+      }
+      
       // Convert [col, row] to grid cell index
       const index = colRowToIndex(position[0], position[1]);
       const cell = getCell(index);
@@ -305,7 +341,7 @@ const GamePage: React.FC = () => {
         cell.classList.add(styles.cookieCell);
       }
     });
-  }, [colRowToIndex, getCell]);
+  }, [colRowToIndex, getCell, snakes]);
   
   const preserveAnimationClasses = useCallback(() => {
     if (!animationStartTime) return;
@@ -1037,15 +1073,15 @@ useEffect(() => {
           {renderGrid()}
         </div>
         
-        {/* Countdown display */}
-        {countdown !== null && countdown > 0 && (
+        {/* Countdown display - only show during pregame phase (when gameLive is false) */}
+        {countdown !== null && countdown > 0 && !gameLive && (
           <div className={styles.countdownCircle}>
             <span>{countdown}</span>
           </div>
         )}
         
-        {/* Final countdown overlay - appears only for countdown 3, 2, 1 */}
-        {countdown !== null && countdown <= 3 && countdown > 0 && (
+        {/* Final countdown overlay - appears only for countdown 3, 2, 1 during pregame phase */}
+        {countdown !== null && countdown <= 3 && countdown > 0 && gameLive && (
           <div className={styles.finalCountdownOverlay}>
             <span>{countdown}</span>
           </div>
