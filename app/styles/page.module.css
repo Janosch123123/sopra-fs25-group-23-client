@@ -892,7 +892,7 @@ a.secondary {
   left: 50%;
   width: 105%; /* Reverted from 105% to 100% */
   height: 105%; /* Reverted from 105% to 100% */
-  transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)); /* Centered with transform and applied rotation */
+  transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) !important; /* Centered with transform and applied rotation */
   background-color: transparent;
   background-size: cover; /* Cover the entire area */
   background-position: center;
@@ -918,6 +918,23 @@ a.secondary {
   background-image: url('../styles/bodys/red/curve_body_red.png');
 }
 
+/* Current Player Red (_cur version) */
+.currentPlayerCell.playerRed::after {
+  background-image: url('../styles/bodys/red_cur/body_red_cur.png');
+}
+
+.currentPlayerCell.playerRed.firstSquare::after {
+  background-image: url('../styles/bodys/red_cur/head_red_cur.png');
+}
+
+.currentPlayerCell.playerRed.lastSquare::after {
+  background-image: url('../styles/bodys/red_cur/tail_red_cur.png');
+}
+
+.currentPlayerCell.playerRed.curveBody::after {
+  background-image: url('../styles/bodys/red_cur/curve_red_cur.png');
+}
+
 /* Player Blue */
 .playerBlue::after {
   background-image: url('../styles/bodys/blue/body_blue.png');
@@ -935,7 +952,24 @@ a.secondary {
   background-image: url('../styles/bodys/blue/curve_body_blue.png');
 }
 
-/* Player Yellow (this was already used as default above) */
+/* Current Player Blue (_cur version) */
+.currentPlayerCell.playerBlue::after {
+  background-image: url('../styles/bodys/blue_cur/body_blue_cur.png');
+}
+
+.currentPlayerCell.playerBlue.firstSquare::after {
+  background-image: url('../styles/bodys/blue_cur/head_blue_cur.png');
+}
+
+.currentPlayerCell.playerBlue.lastSquare::after {
+  background-image: url('../styles/bodys/blue_cur/tail_blue_cur.png');
+}
+
+.currentPlayerCell.playerBlue.curveBody::after {
+  background-image: url('../styles/bodys/blue_cur/curve_blue_cur.png');
+}
+
+/* Player Yellow/Green */
 .playerGreen::after {
   background-image: url('../styles/bodys/yellow/body_yellow.png');
 }
@@ -950,6 +984,23 @@ a.secondary {
 
 .playerGreen.curveBody::after {
   background-image: url('../styles/bodys/yellow/curve_body_yellow.png');
+}
+
+/* Current Player Yellow/Green (_cur version) */
+.currentPlayerCell.playerGreen::after {
+  background-image: url('../styles/bodys/yellow_cur/body_yellow_cur.png');
+}
+
+.currentPlayerCell.playerGreen.firstSquare::after {
+  background-image: url('../styles/bodys/yellow_cur/head_yellow_cur.png');
+}
+
+.currentPlayerCell.playerGreen.lastSquare::after {
+  background-image: url('../styles/bodys/yellow_cur/tail_yellow_cur.png');
+}
+
+.currentPlayerCell.playerGreen.curveBody::after {
+  background-image: url('../styles/bodys/yellow_cur/curve_yellow_cur.png');
 }
 
 /* Player Purple */
@@ -969,14 +1020,31 @@ a.secondary {
   background-image: url('../styles/bodys/purple/curve_body_purple.png');
 }
 
+/* Current Player Purple (_cur version) */
+.currentPlayerCell.playerPurple::after {
+  background-image: url('../styles/bodys/purple_cur/body_purple_cur.png');
+}
+
+.currentPlayerCell.playerPurple.firstSquare::after {
+  background-image: url('../styles/bodys/purple_cur/head_purple_cur.png');
+}
+
+.currentPlayerCell.playerPurple.lastSquare::after {
+  background-image: url('../styles/bodys/purple_cur/tail_purple_cur.png');
+}
+
+.currentPlayerCell.playerPurple.curveBody::after {
+  background-image: url('../styles/bodys/purple_cur/curve_purple_cur.png');
+}
+
 /* Cookie cell styling */
 .cookieCell::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 120%;
-  height: 120%;
+  width: 110%;
+  height: 110%;
   transform: translate(-50%, -50%);
   background-image: url('../styles/cookie/cookie.png');
   background-size: contain;
@@ -986,10 +1054,24 @@ a.secondary {
 }
 
 /* Current player's cell styling for easier visibility */
-.currentPlayerCell::after {
-  border: 3px solid white;  /* Add a white border for the current player's cells */
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);  /* Add a glowing effect */
+.currentPlayerCell {
+  position: relative;
 }
+
+/* Add the shadow effect below all snake elements */
+.currentPlayerCell::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110%; /* Slightly larger than the cell */
+  height: 110%;
+  border-radius: 50%; /* Make it a circle */
+  transform: translate(-50%, -50%);
+  z-index: 0; /* Lower z-index to ensure it's below ALL snake elements */
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
 
 /* Leaderboard styling */
 .leaderboard {
