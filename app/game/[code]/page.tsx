@@ -26,6 +26,13 @@ const GamePage: React.FC = () => {
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
   const [showSpectatorOverlay, setShowSpectatorOverlay] = useState(false); // Add state for spectator overlay
   
+  // Game end states
+  const [gameEnded, setGameEnded] = useState(false);
+  const [finalRankings, setFinalRankings] = useState<string[]>([]); // Store player rankings
+  
+  // Track player colors for consistent display between game and podium
+  const [playerColorMapping, setPlayerColorMapping] = useState<Record<string, string>>({});
+  
   // Add new state variables for collision animation
   const [collisionPoint, setCollisionPoint] = useState<[number, number] | null>(null); // Store collision coordinates
   const [collidedSnakes, setCollidedSnakes] = useState<Record<string, boolean>>({}); // Track which snakes have collided
@@ -689,6 +696,16 @@ useEffect(() => {
               else if (data.type === 'gameEnd') {
                 console.log("Game ended, winner:", data.winner);
                 
+                // Set game end state and save the rankings
+                setGameEnded(true);
+                if (data.rank && Array.isArray(data.rank)) {
+                  setFinalRankings(data.rank);
+                } else {
+                  // Fallback if rank array isn't provided
+                  console.log("No rank array provided, using winner as fallback");
+                  setFinalRankings(data.winner ? [data.winner] : []);
+                }
+                
                 // If there's a collision reason, use that for collision animation
                 if (data.reason && (data.reason.includes('collision') || data.reason.includes('hit'))) {
                   // Get the current username
@@ -733,6 +750,8 @@ useEffect(() => {
                           renderPlayerSnakes(data.snakes || {});
                           setCollidedSnakes({}); // Clear collision state
                           setDeathAnimationInProgress(false); // Reset death animation state
+                          // Hide spectator overlay if active
+                          setShowSpectatorOverlay(false);
                         }, 1300); // Slightly longer than the fadeAway animation (2s)
                       }, 900); // Slightly longer than the explosion animation (1.2s)
                     }
@@ -919,6 +938,34 @@ useEffect(() => {
     }
   }, [playerIsDead, deathAnimationInProgress]); // Removed unnecessary style dependencies
 
+  // Update the podium display code to include snake heads - only assign colors during countdown
+  useEffect(() => {
+    // Initialize player color mapping ONLY during the countdown phase
+    // This ensures colors are assigned based on initial game state and not changed after
+    if (countdown !== null && Object.keys(snakes).length > 0 && Object.keys(playerColorMapping).length === 0) {
+      // Map each username to their player index (which determines their color)
+      const newColorMapping: Record<string, string> = {};
+      Object.keys(snakes).forEach((username, index) => {
+        // Use the same color class mapping logic as in renderPlayerSnake
+        const playerColorClasses = [
+          styles.playerRed,     // Red (1st player)
+          styles.playerBlue,    // Blue (2nd player) 
+          styles.playerGreen,   // Green (3rd player)
+          styles.playerPurple,  // Purple (4th player)
+        ];
+        
+        if (index < playerColorClasses.length) {
+          newColorMapping[username] = playerColorClasses[index];
+        } else {
+          newColorMapping[username] = styles.playerRed; // Fallback
+        }
+      });
+      
+      setPlayerColorMapping(newColorMapping);
+      console.log("Set player color mapping during countdown phase:", newColorMapping);
+    }
+  }, [snakes, playerColorMapping, countdown]);
+
   return (
     <div className={styles.mainPage}>
       
@@ -929,30 +976,23 @@ useEffect(() => {
         </div>
       )}
       
-      {/* Statistics Leaderboard */}
+      {/* Leaderboard */}
       <div className={styles.leaderboard}>
         <h3>Leaderboard</h3>
         <table className={styles.leaderboardTable}>
           <thead>
             <tr>
-              <th>Rank</th>
+              <th>#</th>
               <th>Player</th>
-              <th>Length</th>
+              <th>Size</th>
             </tr>
           </thead>
           <tbody>
             {getSortedPlayers().map((player, index) => {
               // Get the player color for the rank
-              const playerColors = [
-                '#FF0000', // Red (1st player)
-                '#0000FF', // Blue (2nd player)
-                '#FFFF00', // Yellow (3rd player)
-                '#8A2BE2'  // Violet (4th player)
-              ];
-              
-              const playerColor = player.index < playerColors.length 
-                ? playerColors[player.index] 
-                : stringToColor(player.username);
+              const playerColors = ['#ff2a2aff', '#0000ffff', '#FFFF00', '#ff00ffff']; // Purple (4th player)
+              const playerColor = player.index < playerColors.length ? 
+                playerColors[player.index] : stringToColor(player.username);
               
               // Check if this is the current player
               const currentUsername = localStorage.getItem("username");
@@ -960,9 +1000,9 @@ useEffect(() => {
               
               return (
                 <tr 
-                  key={index} 
+                  key={player.username} 
                   className={isCurrentPlayer ? styles.currentPlayerRow : ''}
-                  style={{ '--player-row-color': playerColor } as React.CSSProperties}
+                  style={{'--player-row-color': playerColor} as React.CSSProperties}
                 >
                   <td>{index + 1}</td>
                   <td>{player.username}</td>
@@ -972,60 +1012,105 @@ useEffect(() => {
             })}
           </tbody>
         </table>
-        {/* Leave lobby button */}
-       <button 
-        className={styles.leaveLobbyButtonGame} 
-        onClick={handleLeaveLobby}
-      >
-        Leave Lobby
-      </button>
+        
+        {/* Return to home button */}
+        <div className={styles.controls}>
+          <button 
+            className={styles.leaveLobbyButtonGame}
+            onClick={handleLeaveLobby}
+          >
+            Exit Game
+          </button>
+        </div>
+        
+        {/* Connection error message */}
+        {connectionError && (
+          <div className={styles.connectionError}>
+            Connection lost! Trying to reconnect...
+          </div>
+        )}
       </div>
-      {/* Overlay for when game is not live */}
-      {!gameLive && (
-        <div className={styles.gameOverlay}></div>
-      )}
       
-      {/* Game grid */}
-      <div className={`${styles.gameContainer} ${!gameLive ? styles.blurred : ''}`}>
-        <div className={styles.gameGrid}>
+      {/* Main game grid */}
+      <div className={styles.gameContainer}>
+        <div className={`${styles.gameGrid} ${showSpectatorOverlay ? styles.blurred : ''}`}>
           {renderGrid()}
         </div>
-        {connectionError && <div className={styles.connectionError}>Connection error. Reconnecting...</div>}
+        
+        {/* Countdown display */}
+        {countdown !== null && countdown > 0 && (
+          <div className={styles.countdownCircle}>
+            <span>{countdown}</span>
+          </div>
+        )}
+        
+        {/* Final countdown overlay - appears only for countdown 3, 2, 1 */}
+        {countdown !== null && countdown <= 3 && countdown > 0 && (
+          <div className={styles.finalCountdownOverlay}>
+            <span>{countdown}</span>
+          </div>
+        )}
+        
+        {/* Death overlay */}
+        {showDeathScreen && (
+          <div className={styles.deathOverlay}>
+            <div className={styles.deathMessage}>
+              <h2>You were eliminated!</h2>
+              <h3>Spectating the rest of the match...</h3>
+            </div>
+          </div>
+        )}
+        
+        {/* Spectator overlay */}
+        {showSpectatorOverlay && (
+          <div className={styles.spectatorOverlay}>
+            <div className={styles.spectatorMessage}>
+              <h2>SPECTATING</h2>
+            </div>
+          </div>
+        )}
       </div>
       
-      {/* Final Countdown Overlay - only show when 5 seconds or less remain and game is live */}
-      {gameLive && timestamp <= 5 && (
-        <div className={styles.finalCountdownOverlay}>
-          <span>{timestamp}</span>
-        </div>
-      )}
-      
-      {/* Big countdown circle positioned outside the blurred container */}
-      {countdown !== null && !gameLive && (
-        <div className={styles.countdownCircle}>
-          <span>{countdown}</span>
-        </div>
-      )}
-
-      {/* Death screen overlay - only show when player is dead */}
-      {showDeathScreen && (
-        <div className={styles.deathOverlay}>
-          <div className={styles.deathMessage}>
-            <h2>Eliminated</h2>
+      {/* Podium display for game end */}
+      {gameEnded && finalRankings.length > 0 && (
+        <div className={styles.podiumContainer}>
+          <h1 className={styles.podiumTitle}>Game Over!</h1>
+          <div className={styles.podiumLayout}>
+            {/* 2nd place - left position */}
+            {finalRankings.length > 1 && (
+              <div className={`${styles.podiumPlayer} ${styles.podiumSecond}`}>
+                <div className={styles.podiumUsername}>{finalRankings[1]}</div>
+                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[1]] || ''}`}></div>
+                <div className={styles.podiumRank}>2nd</div>
+              </div>
+            )}
+            
+            {/* 1st place - center position */}
+            {finalRankings.length > 0 && (
+              <div className={`${styles.podiumPlayer} ${styles.podiumFirst}`}>
+                <div className={styles.podiumUsername}>{finalRankings[0]}</div>
+                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[0]] || ''}`}></div>
+                <div className={styles.podiumRank}>1st</div>
+              </div>
+            )}
+            
+            {/* 3rd place - right position */}
+            {finalRankings.length > 2 && (
+              <div className={`${styles.podiumPlayer} ${styles.podiumThird}`}>
+                <div className={styles.podiumUsername}>{finalRankings[2]}</div>
+                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[2]] || ''}`}></div>
+                <div className={styles.podiumRank}>3rd</div>
+              </div>
+            )}
           </div>
+          <button 
+            className={styles.returnToHomeButton}
+            onClick={handleLeaveLobby}
+          >
+            Return to Home
+          </button>
         </div>
       )}
-
-      {/* Spectator overlay - only show when player is dead and death screen is hidden */}
-      {showSpectatorOverlay && (
-        <div className={styles.spectatorOverlay}>
-          <div className={styles.spectatorMessage}>
-            <h2>Spectating...</h2>
-          </div>
-        </div>
-      )}
-      
-     
     </div>
   );
 };

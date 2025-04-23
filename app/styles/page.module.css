@@ -391,7 +391,6 @@ a.secondary {
   cursor: pointer; /* Add cursor pointer for all lobbyButtons */
 }
 
-/* Volcano button hover effect - separating the before/after pseudo-elements from the text */
 .lobbyButtons::before {
   content: '';
   position: absolute;
@@ -895,7 +894,6 @@ a.secondary {
   height: 105%; /* Reverted from 105% to 100% */
   transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)); /* Centered with transform and applied rotation */
   background-color: transparent;
-  background-image: url('../styles/bodys/yellow/body_yellow.png'); /* Updated path */
   background-size: cover; /* Cover the entire area */
   background-position: center;
   z-index: 5; /* Higher z-index to ensure it's displayed on top */
@@ -903,25 +901,72 @@ a.secondary {
   box-shadow: none !important; /* Remove any shadows */
 }
 
-/* First square (snake head) styling */
-.firstSquare::after {
+/* Player Red */
+.playerRed::after {
+  background-image: url('../styles/bodys/red/body_red.png');
+}
+
+.playerRed.firstSquare::after {
+  background-image: url('../styles/bodys/red/head_red.png');
+}
+
+.playerRed.lastSquare::after {
+  background-image: url('../styles/bodys/red/tail_red.png');
+}
+
+.playerRed.curveBody::after {
+  background-image: url('../styles/bodys/red/curve_body_red.png');
+}
+
+/* Player Blue */
+.playerBlue::after {
+  background-image: url('../styles/bodys/blue/body_blue.png');
+}
+
+.playerBlue.firstSquare::after {
+  background-image: url('../styles/bodys/blue/head_blue.png');
+}
+
+.playerBlue.lastSquare::after {
+  background-image: url('../styles/bodys/blue/tail_blue.png');
+}
+
+.playerBlue.curveBody::after {
+  background-image: url('../styles/bodys/blue/curve_body_blue.png');
+}
+
+/* Player Yellow (this was already used as default above) */
+.playerGreen::after {
+  background-image: url('../styles/bodys/yellow/body_yellow.png');
+}
+
+.playerGreen.firstSquare::after {
   background-image: url('../styles/bodys/yellow/head_yellow.png');
-  background-size: 105% 105%; /* Reverted from 105% to 100% */
-  background-position: center;
 }
 
-/* Last square (snake tail) styling */
-.lastSquare::after {
+.playerGreen.lastSquare::after {
   background-image: url('../styles/bodys/yellow/tail_yellow.png');
-  background-size: 100% 100%; /* Reverted from 105% to 100% */
-  background-position: center;
 }
 
-/* Curved body segment styling */
-.curveBody::after {
+.playerGreen.curveBody::after {
   background-image: url('../styles/bodys/yellow/curve_body_yellow.png');
-  background-size: 100% 100%; /* Reverted from 105% to 100% */
-  background-position: center;
+}
+
+/* Player Purple */
+.playerPurple::after {
+  background-image: url('../styles/bodys/purple/body_purple.png');
+}
+
+.playerPurple.firstSquare::after {
+  background-image: url('../styles/bodys/purple/head_purple.png');
+}
+
+.playerPurple.lastSquare::after {
+  background-image: url('../styles/bodys/purple/tail_purple.png');
+}
+
+.playerPurple.curveBody::after {
+  background-image: url('../styles/bodys/purple/curve_body_purple.png');
 }
 
 /* Cookie cell styling */
@@ -1149,7 +1194,14 @@ a.secondary {
   margin-left: 0 !important; /* No left margin */
   cursor: pointer; /* Add cursor pointer specifically for this button */
 }
-
+.loginTitle{
+  font-family: "Oswald", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 20px;
+  text-align: center;
+}
 .login-button {
   composes: lobbyButtons;
   --color:#1c4d96;
@@ -1370,39 +1422,6 @@ a.secondary {
   border: 1px solid rgba(255, 0, 0, 0.4);
 }
 
-/* Player colors using hue-rotate filters */
-.playerRed::after {
-  filter: hue-rotate(330deg) saturate(150%) brightness(95%); /* Red hue */
-}
-
-.playerBlue::after {
-  filter: hue-rotate(220deg) saturate(120%) brightness(95%); /* Blue hue */
-}
-
-.playerGreen::after {
-  filter: hue-rotate(110deg) saturate(130%) brightness(95%); /* Green hue */
-}
-
-.playerPurple::after {
-  filter: hue-rotate(280deg) saturate(140%) brightness(85%); /* Purple hue */
-}
-
-/* Additional player colors */
-.playerOrange::after {
-  filter: hue-rotate(30deg) saturate(150%) brightness(95%); /* Orange hue */
-}
-
-.playerPink::after {
-  filter: hue-rotate(300deg) saturate(140%) brightness(95%); /* Pink hue */
-}
-
-.playerTeal::after {
-  filter: hue-rotate(160deg) saturate(130%) brightness(95%); /* Teal hue */
-}
-
-.playerBrown::after {
-  filter: hue-rotate(20deg) saturate(80%) brightness(80%); /* Brown hue */
-}
 
 .dashboardContainer h2 {
   text-align: center; /* Center the title */
@@ -1492,4 +1511,209 @@ a.secondary {
     width: 400%;
     height: 400%;
   }
+}
+
+/* Podium display styling for game end */
+.podiumContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  color: white;
+}
+
+.podiumTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 4rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 40px;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+.podiumLayout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+  position: relative;
+}
+
+.podiumPlayer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.5s ease-in-out;
+}
+
+.podiumFirst {
+  order: 2;
+  margin: 0 20px;
+  animation: podiumFirstAppear 1s forwards;
+}
+
+.podiumSecond {
+  order: 1;
+  margin-bottom: -40px;
+  animation: podiumSecondAppear 1.2s forwards;
+}
+
+.podiumThird {
+  order: 3;
+  margin-bottom: -80px;
+  animation: podiumThirdAppear 1.4s forwards;
+}
+
+.podiumUsername {
+  font-family: "Oswald", sans-serif;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.podiumFirst .podiumUsername {
+  font-size: 3rem;
+  color: #FFD700; /* Gold */
+}
+
+.podiumSecond .podiumUsername {
+  font-size: 2.3rem;
+  color: #C0C0C0; /* Silver */
+}
+
+.podiumThird .podiumUsername {
+  font-size: 2rem;
+  color: #CD7F32; /* Bronze */
+}
+
+.podiumRank {
+  font-family: "Oswald", sans-serif;
+  font-weight: bold;
+  font-size: 2.5rem;
+  margin-top: 10px;
+}
+
+.podiumBase {
+  position: relative;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.podiumBase::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+}
+
+.podiumBase.playerRed::after {
+  background-image: url('../styles/bodys/red/head_red.png');
+}
+
+.podiumBase.playerBlue::after {
+  background-image: url('../styles/bodys/blue/head_blue.png');
+}
+
+.podiumBase.playerGreen::after {
+  background-image: url('../styles/bodys/yellow/head_yellow.png');
+}
+
+.podiumBase.playerPurple::after {
+  background-image: url('../styles/bodys/purple/head_purple.png');
+}
+
+.podiumFirst .podiumBase {
+  width: 180px;
+  height: 180px;
+  background-color: #FFD700; /* Gold */
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.podiumSecond .podiumBase {
+  width: 150px;
+  height: 140px;
+  background-color: #C0C0C0; /* Silver */
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
+}
+
+.podiumThird .podiumBase {
+  width: 140px;
+  height: 100px;
+  background-color: #CD7F32; /* Bronze */
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.5);
+}
+
+@keyframes podiumFirstAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  50% { transform: translateY(-20px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes podiumSecondAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  30% { transform: translateY(50px); opacity: 0; }
+  80% { transform: translateY(-10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes podiumThirdAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  40% { transform: translateY(50px); opacity: 0; }
+  90% { transform: translateY(-10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.returnToHomeButton {
+  margin-top: 50px;
+  padding: 15px 40px;
+  background-color: #fa541c; /* Volcano color to match other buttons */
+  color: white;
+  border: 4px solid #ffffff;
+  border-radius: 20px;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.returnToHomeButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: skewX(-25deg);
+  transition: left 0.7s ease;
+  z-index: -1;
+}
+
+.returnToHomeButton:hover {
+  transform: scale(1.05) translateY(-3px);
+}
+
+.returnToHomeButton:hover::before {
+  left: 150%;
 }
