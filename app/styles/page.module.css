@@ -1512,3 +1512,208 @@ a.secondary {
     height: 400%;
   }
 }
+
+/* Podium display styling for game end */
+.podiumContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  color: white;
+}
+
+.podiumTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 4rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 40px;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+.podiumLayout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+  position: relative;
+}
+
+.podiumPlayer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.5s ease-in-out;
+}
+
+.podiumFirst {
+  order: 2;
+  margin: 0 20px;
+  animation: podiumFirstAppear 1s forwards;
+}
+
+.podiumSecond {
+  order: 1;
+  margin-bottom: -40px;
+  animation: podiumSecondAppear 1.2s forwards;
+}
+
+.podiumThird {
+  order: 3;
+  margin-bottom: -80px;
+  animation: podiumThirdAppear 1.4s forwards;
+}
+
+.podiumUsername {
+  font-family: "Oswald", sans-serif;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.podiumFirst .podiumUsername {
+  font-size: 3rem;
+  color: #FFD700; /* Gold */
+}
+
+.podiumSecond .podiumUsername {
+  font-size: 2.3rem;
+  color: #C0C0C0; /* Silver */
+}
+
+.podiumThird .podiumUsername {
+  font-size: 2rem;
+  color: #CD7F32; /* Bronze */
+}
+
+.podiumRank {
+  font-family: "Oswald", sans-serif;
+  font-weight: bold;
+  font-size: 2.5rem;
+  margin-top: 10px;
+}
+
+.podiumBase {
+  position: relative;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.podiumBase::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+}
+
+.podiumBase.playerRed::after {
+  background-image: url('../styles/bodys/red/head_red.png');
+}
+
+.podiumBase.playerBlue::after {
+  background-image: url('../styles/bodys/blue/head_blue.png');
+}
+
+.podiumBase.playerGreen::after {
+  background-image: url('../styles/bodys/yellow/head_yellow.png');
+}
+
+.podiumBase.playerPurple::after {
+  background-image: url('../styles/bodys/purple/head_purple.png');
+}
+
+.podiumFirst .podiumBase {
+  width: 180px;
+  height: 180px;
+  background-color: #FFD700; /* Gold */
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.podiumSecond .podiumBase {
+  width: 150px;
+  height: 140px;
+  background-color: #C0C0C0; /* Silver */
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
+}
+
+.podiumThird .podiumBase {
+  width: 140px;
+  height: 100px;
+  background-color: #CD7F32; /* Bronze */
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.5);
+}
+
+@keyframes podiumFirstAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  50% { transform: translateY(-20px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes podiumSecondAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  30% { transform: translateY(50px); opacity: 0; }
+  80% { transform: translateY(-10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes podiumThirdAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  40% { transform: translateY(50px); opacity: 0; }
+  90% { transform: translateY(-10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.returnToHomeButton {
+  margin-top: 50px;
+  padding: 15px 40px;
+  background-color: #fa541c; /* Volcano color to match other buttons */
+  color: white;
+  border: 4px solid #ffffff;
+  border-radius: 20px;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.returnToHomeButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: skewX(-25deg);
+  transition: left 0.7s ease;
+  z-index: -1;
+}
+
+.returnToHomeButton:hover {
+  transform: scale(1.05) translateY(-3px);
+}
+
+.returnToHomeButton:hover::before {
+  left: 150%;
+}
