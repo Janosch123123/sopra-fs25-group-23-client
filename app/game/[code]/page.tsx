@@ -131,7 +131,7 @@ const GamePage: React.FC = () => {
   }, []);
   
   // Updated function to render a player's snake using [col, row] coordinates with PNG images and different color classes
-  // Now includes support for collision animation
+  // Now includes support for collision animation and improved glow effect positioning
   const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
     
@@ -141,10 +141,6 @@ const GamePage: React.FC = () => {
       styles.playerBlue,    // Blue (2nd player) 
       styles.playerGreen,   // Green (3rd player)
       styles.playerPurple,  // Purple (4th player)
-      styles.playerOrange,  // Orange (5th player)
-      styles.playerPink,    // Pink (6th player)
-      styles.playerTeal,    // Teal (7th player)
-      styles.playerBrown    // Brown (8th player)
     ];
     
     // Get the appropriate color class for this player
@@ -160,8 +156,32 @@ const GamePage: React.FC = () => {
     // Get current username for highlighting the current player's snake
     const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
 
-    // Calculate rotation angles for curved segments - REMOVED UNUSED FUNCTION
+    // IMPROVED IMPLEMENTATION: Process positions in two passes
+    // First pass: Add all glow elements for the current player's snake
+    if (username === currentUsername) {
+      positions.forEach((position) => {
+        const index = colRowToIndex(position[0], position[1]);
+        const cell = getCell(index);
+        
+        if (cell) {
+          // Create and add the glow element as a separate DOM element
+          // This ensures it's rendered before any snake parts
+          const glowElement = document.createElement('div');
+          glowElement.className = styles.currentPlayerGlow;
+          
+          // Clear any existing glow to prevent duplicates
+          const existingGlow = cell.querySelector(`.${styles.currentPlayerGlow}`);
+          if (existingGlow) {
+            cell.removeChild(existingGlow);
+          }
+          
+          // Insert the glow as the first child to ensure lowest z-index
+          cell.insertBefore(glowElement, cell.firstChild);
+        }
+      });
+    }
     
+    // Second pass: Add all snake elements
     positions.forEach((position, i) => {
       // Convert [col, row] to grid cell index
       const index = colRowToIndex(position[0], position[1]);
