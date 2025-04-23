@@ -64,7 +64,7 @@ const Login: React.FC = () => {
               layout="vertical"
             >
               <Form.Item>
-                <h1 className="login-title">Login with existing User</h1>
+                <h1 className={styles.loginTitle}>Login with existing User</h1>
               </Form.Item>
               <Form.Item
                 name="username"
@@ -89,8 +89,7 @@ const Login: React.FC = () => {
                   Login
                 </Button>
               </Form.Item>
-              <h3 className="login-title">Or</h3>
-              <br></br>
+              <h3 className={styles.loginTitle}>Or</h3>
               <Button
                   type="primary"
                   variant="solid"

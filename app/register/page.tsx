@@ -65,7 +65,7 @@ const Login: React.FC = () => {
               layout="vertical"
             >
               <Form.Item>
-                <h1 className="login-title">Register a new User</h1>
+                <h1 className={styles.loginTitle}>Register a new User</h1>
               </Form.Item>
               <Form.Item
                 name="username"
@@ -94,8 +94,7 @@ const Login: React.FC = () => {
           </div>
           <br></br>
           <div className={styles.greenContainer}>
-            <h2 className="login-title">Already have an Account?</h2>
-            <br></br>
+            <h3 className={styles.loginTitle}>Already have an Account?</h3>
             <Button
                 type="primary"
                 variant="solid"
