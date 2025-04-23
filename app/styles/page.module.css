@@ -1340,6 +1340,7 @@ a.secondary {
 
 /* Death screen overlay styling */
 .deathOverlay {
+  color:white;
   position: absolute;
   top: 0;
   left: 0;
@@ -1348,7 +1349,7 @@ a.secondary {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgb(255, 255, 255);
   z-index: 10;
   animation: fadeToBlack 0.8s forwards;
   pointer-events: none; /* Allow clicks to pass through */
@@ -1371,6 +1372,7 @@ a.secondary {
 }
 
 .deathMessage {
+  color: white;
   background-color: #b70808;
   border-radius: 12px;
   padding: 30px 50px;

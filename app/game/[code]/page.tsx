@@ -1069,7 +1069,7 @@ useEffect(() => {
       
       {/* Main game grid */}
       <div className={styles.gameContainer}>
-        <div className={`${styles.gameGrid} ${showSpectatorOverlay ? styles.blurred : ''}`}>
+        <div className={styles.gameGrid}>
           {renderGrid()}
         </div>
         

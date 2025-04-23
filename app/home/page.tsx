@@ -12,6 +12,8 @@ interface UserStats {
   level: number;
   wins: number;
   kills: number;
+  playedGames: number;
+  lengthPR: number;
 }
 
 const MainPage: React.FC = () => {
@@ -241,6 +243,14 @@ const MainPage: React.FC = () => {
             <tr>
               <td>#Kills:</td>
               <td>{userStats.kills}</td>
+            </tr>
+            <tr>
+              <td>#Games:</td>
+              <td>{userStats.playedGames}</td>
+            </tr>
+            <tr>
+              <td>Length-PR:</td>
+              <td>{userStats.lengthPR}</td>
             </tr>
           </tbody>
         </table>
