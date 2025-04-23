@@ -971,14 +971,18 @@ a.secondary {
 
 /* Cookie cell styling */
 .cookieCell::after {
-  content: '🍪'; /* Cookie emoji instead of a circle */
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  font-size: 1.8rem; /* Increased size from 1.2rem to 1.8rem */
+  width: 120%;
+  height: 120%;
   transform: translate(-50%, -50%);
+  background-image: url('../styles/cookie/cookie.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 1;
-  text-shadow: 0 0 5px rgba(255, 215, 0, 0.7); /* Glow effect */
 }
 
 /* Current player's cell styling for easier visibility */
