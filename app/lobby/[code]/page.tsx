@@ -50,9 +50,18 @@ const LobbyPage: React.FC = () => {
     // Send start game message
     send({
       type: "startGame",
-      lobbyId: lobbyCode
+      lobbyId: lobbyCode,
+      settings: {
+        spawnRate: spawnRate
+      }
     });
-    console.log("Sent startGame message");
+    console.log("Start game message sent:", {
+      type: "startGame",
+      lobbyId: lobbyCode,
+      settings: {
+        spawnRate: spawnRate
+      }
+    });
   };
 
   // Function to handle leave lobby
@@ -330,20 +339,20 @@ const LobbyPage: React.FC = () => {
   , []); 
 
 
-  const updateSettings = () => {
-    if (!isAdmin) return; // Only allow admin to update settings
+  // const updateSettings = () => {
+  //   if (!isAdmin) return; // Only allow admin to update settings
     
-    // Send updated settings to server
-    send({
-      type: 'update_lobby_settings',
-      lobbyCode: lobbyCode,
-      userId: localStorage.getItem("userId") || '',
-      settings: {
-        spawnRate: spawnRate,
-        includePowerUps: includePowerUps
-      }
-    });
-  };
+  //   // Send updated settings to server
+  //   send({
+  //     type: 'update_lobby_settings',
+  //     lobbyCode: lobbyCode,
+  //     userId: localStorage.getItem("userId") || '',
+  //     settings: {
+  //       spawnRate: spawnRate,
+  //       includePowerUps: includePowerUps
+  //     }
+  //   });
+  // };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -385,7 +394,7 @@ const LobbyPage: React.FC = () => {
     setSpawnRate(newSpawnRate);
     
     // Update the setting via WebSocket after a short delay
-    setTimeout(() => updateSettings(), 100);
+    // setTimeout(() => updateSettings(), 100);
   };
 
   const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -394,7 +403,7 @@ const LobbyPage: React.FC = () => {
     setIncludePowerUps(event.target.checked);
     
     // Update the setting via WebSocket after a short delay
-    setTimeout(() => updateSettings(), 100);
+    // setTimeout(() => updateSettings(), 100);
   };
   
 
