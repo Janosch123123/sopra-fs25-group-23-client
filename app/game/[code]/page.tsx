@@ -316,7 +316,23 @@ const GamePage: React.FC = () => {
   const renderCookies = useCallback((positions: [number, number][]) => {
     if (!positions || positions.length === 0) return;
     
+    // Create a map of all snake cells to efficiently check for overlaps
+    const snakeCells = new Map<string, boolean>();
+    Object.keys(snakes).forEach(username => {
+      if (snakes[username] && snakes[username].length > 0) {
+        snakes[username].forEach(pos => {
+          // Use a string key for the position to make lookup easy
+          snakeCells.set(`${pos[0]},${pos[1]}`, true);
+        });
+      }
+    });
+    
     positions.forEach(position => {
+      // Skip cookies that are on the same position as any snake segment
+      if (snakeCells.has(`${position[0]},${position[1]}`)) {
+        return; // Skip this cookie
+      }
+      
       // Convert [col, row] to grid cell index
       const index = colRowToIndex(position[0], position[1]);
       const cell = getCell(index);
@@ -325,7 +341,7 @@ const GamePage: React.FC = () => {
         cell.classList.add(styles.cookieCell);
       }
     });
-  }, [colRowToIndex, getCell]);
+  }, [colRowToIndex, getCell, snakes]);
   
   const preserveAnimationClasses = useCallback(() => {
     if (!animationStartTime) return;
@@ -1057,15 +1073,15 @@ useEffect(() => {
           {renderGrid()}
         </div>
         
-        {/* Countdown display */}
-        {countdown !== null && countdown > 0 && (
+        {/* Countdown display - only show during pregame phase (when gameLive is false) */}
+        {countdown !== null && countdown > 0 && !gameLive && (
           <div className={styles.countdownCircle}>
             <span>{countdown}</span>
           </div>
         )}
         
-        {/* Final countdown overlay - appears only for countdown 3, 2, 1 */}
-        {countdown !== null && countdown <= 3 && countdown > 0 && (
+        {/* Final countdown overlay - appears only for countdown 3, 2, 1 during pregame phase */}
+        {countdown !== null && countdown <= 3 && countdown > 0 && gameLive && (
           <div className={styles.finalCountdownOverlay}>
             <span>{countdown}</span>
           </div>
