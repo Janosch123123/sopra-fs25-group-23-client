@@ -1441,3 +1441,74 @@ a.secondary {
 .checkboxContainer label {
   color: white;
 }
+@keyframes fadeAway {
+  0% {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: brightness(1.5);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+    filter: brightness(1.7) saturate(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+/* Apply to snake cells that have collided */
+.dyingSnake::after {
+  animation: fadeAway 1s forwards;
+  filter: brightness(150%) saturate(200%);
+  z-index: 10;
+}
+
+/* Class to indicate which snake just died */
+.dyingSnake::after {
+  animation: fadeAway 1.5s forwards;
+  filter: brightness(150%) saturate(200%);
+  z-index: 10;
+}
+
+/* Explosion effect for the collision point */
+.collisionPoint::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,200,100,0.8) 30%, rgba(255,0,0,0.4) 60%, rgba(255,255,255,0) 100%);  
+  opacity: 0;
+  animation: explosionEffect 0.8s forwards; /* Reduced from 1.2s to 0.8s */
+  z-index: 20;
+  pointer-events: none;
+  animation-iteration-count: 1; /* Explicitly set to play only once */
+}
+
+@keyframes explosionEffect {
+  0% {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  30% {
+    opacity: 1; /* Full opacity sooner */
+    width: 200%;
+    height: 200%;
+  }
+  70% {
+    opacity: 0.8;
+    width: 350%;
+    height: 350%;
+  }
+  100% {
+    opacity: 0;
+    width: 400%;
+    height: 400%;
+  }
+}
