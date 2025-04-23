@@ -176,8 +176,14 @@ const MainPage: React.FC = () => {
             } else {
               // Only set validatingLobby to false if lobby doesn't exist
               setValidatingLobby(false);
-              // Show error if lobby doesn't exist
-              setLobbyCodeError('The lobby does not exist');
+              
+              // Check if the reason is "full"
+              if (data.reason === 'full') {
+                setLobbyCodeError('The lobby is full');
+              } else {
+                // Show default error if lobby doesn't exist or other reason
+                setLobbyCodeError('The lobby does not exist');
+              }
             }
           }
         } catch (error) {
