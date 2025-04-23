@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:network": "next dev --turbopack --hostname 192.168.178.181 --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "deno lint",
