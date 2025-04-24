@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import styles from "@/styles/page.module.css";
 import { useParams, useRouter } from "next/navigation";
 import { useLobbySocket } from "@/hooks/useLobbySocket";
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 // Update the interface to match the expected message format
 interface SnakeData {
@@ -48,6 +49,7 @@ const GamePage: React.FC = () => {
   
   const intentionalDisconnect = useRef(false);
   const [deathAnimationInProgress, setDeathAnimationInProgress] = useState(false);
+  const { value: isAdmin } = useLocalStorage<boolean>("isAdmin", false);
 
   const [connectionError, setConnectionError] = useState(false);
   // Reference to store all grid cells for direct access
@@ -805,6 +807,7 @@ useEffect(() => {
                 setShowSpectatorOverlay(false);
                 setShowDeathScreen(false);
               }
+              
               else if (data.type === 'error') {
                 console.error("WebSocket error:", data.message);
                 setConnectionError(true);
@@ -1158,21 +1161,22 @@ useEffect(() => {
           </div>
           <div className={styles.endGameContainer}>
             <button 
-              className={styles.restartGameButton}
+              className={`${styles.restartGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
               onClick={handleRestartGame}
+              disabled={!isAdmin}
             >
-              Restart Game
+              {isAdmin ? "Restart Game" : "Only Admin Can Restart Game"}
             </button>
-            <button 
-              className={styles.returnToHomeButton}
-              onClick={handleLeaveLobby}
-            >
-              Return to Home
-            </button>
-          </div>
-        </div>
-      )}
+              <button 
+                className={styles.returnToHomeButton}
+                onClick={handleLeaveLobby}
+              >
+                Return to Home
+              </button>
+            </div>
     </div>
+    )}
+  </div>
   );
 };
 

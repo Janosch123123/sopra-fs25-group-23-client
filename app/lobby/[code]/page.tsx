@@ -4,7 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
-
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 interface Player {
   username: string;
@@ -27,6 +27,8 @@ const LobbyPage: React.FC = () => {
   const lobbyCode = params?.code as string;
   const apiService = useApi();
   
+  // Add isAdmin localStorage hook
+  const { set: setAdminStorage } = useLocalStorage<boolean>("isAdmin", false);
   
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -126,6 +128,7 @@ const LobbyPage: React.FC = () => {
       
       // Set as admin if any check passes
       setIsAdmin(isAdminById || isAdminByUsername);
+      setAdminStorage(isAdminById || isAdminByUsername); // Update localStorage
       
       // Find the admin username from the players list
       if (lobbyData.players && lobbyData.players.length > 0) {
