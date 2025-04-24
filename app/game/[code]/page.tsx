@@ -66,6 +66,9 @@ const GamePage: React.FC = () => {
     timestamp: number;
   }[]>([]);
 
+  // Get lobby settings from local storage
+  const { value: lobbySettings } = useLocalStorage<string>("lobbySettings", "medium");
+  
   // Utility function to convert [col, row] to linear index
   const colRowToIndex = useCallback((col: number, row: number): number => {
     return row * COLS + col;
@@ -960,7 +963,10 @@ useEffect(() => {
     setShowDeathScreen(false);
     send({
       type: "startGame",
-      lobbyId: lobbyCode
+      lobbyId: lobbyCode,
+      settings: {
+        spawnRate: lobbySettings
+      }
     });
   };
 

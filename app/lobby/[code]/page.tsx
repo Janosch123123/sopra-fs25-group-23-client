@@ -29,6 +29,7 @@ const LobbyPage: React.FC = () => {
   
   // Add isAdmin localStorage hook
   const { set: setAdminStorage } = useLocalStorage<boolean>("isAdmin", false);
+  const { set: setLobbySettingsStorage } = useLocalStorage<String>("lobbySettings", "medium");
   
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +50,10 @@ const LobbyPage: React.FC = () => {
     if (!isAdmin) return; // Only admin can start the game
     
     console.log("handleStartGame function called");
+    
+    // Save spawnRate to localStorage
+    setLobbySettingsStorage(spawnRate);
+    
     // Send start game message
     send({
       type: "startGame",
