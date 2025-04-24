@@ -410,14 +410,14 @@ const LobbyPage: React.FC = () => {
     // setTimeout(() => updateSettings(), 100);
   };
 
-  const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change includePowerUps
+  // const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!isAdmin) return; // Only allow admin to change includePowerUps
 
-    setIncludePowerUps(event.target.checked);
+  //   setIncludePowerUps(event.target.checked);
     
-    // Update the setting via WebSocket after a short delay
-    // setTimeout(() => updateSettings(), 100);
-  };
+  //   // Update the setting via WebSocket after a short delay
+  //   // setTimeout(() => updateSettings(), 100);
+  // };
   
   const handleSugarRushChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!isAdmin) return; // Only allow admin to change sugarRush
