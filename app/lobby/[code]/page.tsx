@@ -29,7 +29,7 @@ const LobbyPage: React.FC = () => {
   
   // Add isAdmin localStorage hook
   const { set: setAdminStorage } = useLocalStorage<boolean>("isAdmin", false);
-  const { set: setLobbySettingsStorage } = useLocalStorage<String>("lobbySettings", "medium");
+  const { set: setLobbySettingsStorage } = useLocalStorage<string>("lobbySettings", "medium");
   
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
