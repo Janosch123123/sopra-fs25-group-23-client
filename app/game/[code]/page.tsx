@@ -68,6 +68,7 @@ const GamePage: React.FC = () => {
 
   // Get lobby settings from local storage
   const { value: lobbySettings } = useLocalStorage<string>("lobbySettings", "medium");
+  const { value: sugarRush } = useLocalStorage<boolean>("sugarRush", false);
   
   // Utility function to convert [col, row] to linear index
   const colRowToIndex = useCallback((col: number, row: number): number => {
@@ -965,7 +966,8 @@ useEffect(() => {
       type: "startGame",
       lobbyId: lobbyCode,
       settings: {
-        spawnRate: lobbySettings
+        spawnRate: lobbySettings,
+        sugarRush: sugarRush
       }
     });
   };
