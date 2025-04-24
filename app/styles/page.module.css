@@ -250,6 +250,53 @@ a.secondary {
   z-index: 0;
 }
 
+.mainContentContainer {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+.logoContainer {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  z-index: 2;
+  margin-top: -100px; /* Reduced top margin to move logo up closer to the top */
+}
+
+.logoImage {
+  position: relative;
+  width: 350px;
+  height: 350px;
+}
+
+.logoImage::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/logo/logo.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+  -webkit-filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
+  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
+}
+
+/* Make sure content inside mainPage is positioned above the background */
+.mainPage > * {
+  position: relative;
+  z-index: 1;
+}
 
 @keyframes patternMoveLeftToRight {
   0% {
@@ -349,12 +396,12 @@ a.secondary {
 }
 
 .playButtonContainer {
-  flex: 25; /* Make the container even bigger */
   display: flex;
-  justify-content: center; /* Changed from flex-start to center */
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
-  height: 100vh; /* Ensure it takes full height */
-  padding-left: 0; /* Removed left padding */
+  gap: 20px;
+  width: 100%;
 }
 
 .playButton {
@@ -438,6 +485,21 @@ a.secondary {
   background-color: #028b00 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
   margin-left: 20px !important; /* Remove margin for closer positioning */
+}
+.mainButton {
+  composes: lobbyButtons;
+  --color:#1c4d96;
+  font-size: 4rem !important; /* Smaller font size */
+  padding: 0 20px !important; /* Reduced horizontal padding */
+  min-width: 300px !important; /* Smaller width */
+  min-height: 120px !important; /* Match input field height */
+  border: 4px solid #ffffff !important; /* Thinner border */
+  border-radius: 20px !important; /* Smaller border radius */
+  background-color: #1858b8 !important; /* Volcano color */
+  color: #ffffff !important; /* Ensure text color is applied */
+  margin-left: 20px !important; /* Remove margin for closer positioning */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-weight: bold !important; /* Bold weight from Oswald */
 }
 
 .backButton {
@@ -777,7 +839,7 @@ a.secondary {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: 100;
+  margin-left: 100px;
   width: 100%;
   height: 100%;
   padding: 20px;
@@ -1085,8 +1147,8 @@ a.secondary {
   border-radius: 20px; /* Match dashboardContainer border-radius */
   border: 4px solid #345a97; /* Match dashboardContainer border */
   z-index: 2;
-  min-width: 260px; /* Increased minimum width */
-  max-width: 300px; /* Increased maximum width */
+  min-width: 300px; /* Increased minimum width */
+  max-width: 400px; /* Increased maximum width */
 }
 
 .leaderboard h3 {
@@ -1158,7 +1220,7 @@ a.secondary {
   .leaderboard {
     top: 15px;
     transform: none;
-    min-width: 260px;
+    min-width: 300px;
   }
 }
 
@@ -1240,7 +1302,6 @@ a.secondary {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: 60px;
   transform: translate(-50%, -50%);
   width: 150px;
   height: 150px;
@@ -1657,7 +1718,7 @@ a.secondary {
 
 .podiumThird {
   order: 3;
-  margin-bottom: -80px;
+  margin-bottom: -40px;
   animation: podiumThirdAppear 1.4s forwards;
 }
 
@@ -1769,39 +1830,35 @@ a.secondary {
 }
 
 .returnToHomeButton {
-  margin-top: 50px;
-  padding: 15px 40px;
-  background-color: #fa541c; /* Volcano color to match other buttons */
-  color: white;
-  border: 4px solid #ffffff;
-  border-radius: 20px;
-  font-family: "Oswald", sans-serif;
-  font-size: 1.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
+  composes: lobbyButtons;
+  --color:#bc0000;
+  font-size: 2.2rem !important; /* Smaller font size */
+  padding: 0 20px !important; /* Reduced horizontal padding */
+  min-width: 250px !important; /* Smaller width */
+  min-height: 85px !important; /* Match input field height */
+  border: 4px solid #ffffff !important; /* Thinner border */
+  border-radius: 20px !important; /* Smaller border radius */
+  background-color: #bc1313 !important; /* Volcano color */
+  color: #ffffff !important; /* Ensure text color is applied */
+  margin-left: 20px !important; /* Remove margin for closer positioning */
+  margin-top: 50px !important; /* Add margin for spacing */
 }
 
-.returnToHomeButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 200%;
-  background-color: rgba(255, 255, 255, 0.3);
-  transform: skewX(-25deg);
-  transition: left 0.7s ease;
-  z-index: -1;
+.restartGameButton {
+  composes: lobbyButtons;
+  --color:#04c601;
+  font-size: 2.2rem !important; /* Smaller font size */
+  padding: 0 20px !important; /* Reduced horizontal padding */
+  min-width: 250px !important; /* Smaller width */
+  min-height: 85px !important; /* Match input field height */
+  border: 4px solid #ffffff !important; /* Thinner border */
+  border-radius: 20px !important; /* Smaller border radius */
+  background-color: #068b04 !important; /* Volcano color */
+  color: #ffffff !important; /* Ensure text color is applied */
+  margin-left: 20px !important; /* Remove margin for closer positioning */
+  margin-top: 50px !important; /* Add margin for spacing */
 }
-
-.returnToHomeButton:hover {
-  transform: scale(1.05) translateY(-3px);
-}
-
-.returnToHomeButton:hover::before {
-  left: 150%;
+.endGameContainer {
+  display: flex;
+  flex-direction: row;
 }

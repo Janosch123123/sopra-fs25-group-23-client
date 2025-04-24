@@ -799,6 +799,12 @@ useEffect(() => {
                 console.log("WebSocket connection established successfully");
                 setConnectionError(false);
               }
+              else if (data.type === 'gameStarted') {
+                // Reset game state when a new game starts
+                setGameEnded(false);
+                setShowSpectatorOverlay(false);
+                setShowDeathScreen(false);
+              }
               else if (data.type === 'error') {
                 console.error("WebSocket error:", data.message);
                 setConnectionError(true);
@@ -943,6 +949,17 @@ useEffect(() => {
     // Navigate back to the main page
     router.push('/home');
   };
+  
+  // Function to handle restarting the game
+  const handleRestartGame = () => {
+    setGameEnded(false);
+    setShowSpectatorOverlay(false);
+    setShowDeathScreen(false);
+    send({
+      type: "startGame",
+      lobbyId: lobbyCode
+    });
+  };
 
   // Effect to handle showing and hiding the death screen
   useEffect(() => {
@@ -1009,6 +1026,13 @@ useEffect(() => {
       {gameLive && (
         <div className={styles.timer}>
           Time: {formatTime(timestamp)}
+        </div>
+      )}
+      
+      {/* Final Countdown Overlay when time is ≤ 5 seconds and game is not ended */}
+      {gameLive && timestamp <= 5 && !gameEnded && (
+        <div className={styles.finalCountdownOverlay}>
+          <span>{timestamp}</span>
         </div>
       )}
       
@@ -1080,12 +1104,6 @@ useEffect(() => {
           </div>
         )}
         
-        {/* Final countdown overlay - appears only for countdown 3, 2, 1 during pregame phase */}
-        {countdown !== null && countdown <= 3 && countdown > 0 && gameLive && (
-          <div className={styles.finalCountdownOverlay}>
-            <span>{countdown}</span>
-          </div>
-        )}
         
         {/* Death overlay */}
         {showDeathScreen && (
@@ -1110,7 +1128,6 @@ useEffect(() => {
       {/* Podium display for game end */}
       {gameEnded && finalRankings.length > 0 && (
         <div className={styles.podiumContainer}>
-          <h1 className={styles.podiumTitle}>Game Over!</h1>
           <div className={styles.podiumLayout}>
             {/* 2nd place - left position */}
             {finalRankings.length > 1 && (
@@ -1139,12 +1156,20 @@ useEffect(() => {
               </div>
             )}
           </div>
-          <button 
-            className={styles.returnToHomeButton}
-            onClick={handleLeaveLobby}
-          >
-            Return to Home
-          </button>
+          <div className={styles.endGameContainer}>
+            <button 
+              className={styles.restartGameButton}
+              onClick={handleRestartGame}
+            >
+              Restart Game
+            </button>
+            <button 
+              className={styles.returnToHomeButton}
+              onClick={handleLeaveLobby}
+            >
+              Return to Home
+            </button>
+          </div>
         </div>
       )}
     </div>

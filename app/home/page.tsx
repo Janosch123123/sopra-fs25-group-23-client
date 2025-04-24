@@ -225,6 +225,13 @@ const MainPage: React.FC = () => {
     }
   };
 
+  // Handle Enter key press in the lobby code input
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !showButtons) {
+      handleJoinWithCode();
+    }
+  };
+
   return (
     <div className={styles.mainPage}>
       <div className={styles.dashboardContainer}>
@@ -295,6 +302,7 @@ const MainPage: React.FC = () => {
                     placeholder="Enter Lobby Code"
                     value={lobbyCode}
                     onChange={handleLobbyCodeChange}
+                    onKeyDown={handleKeyDown}
                     className={styles.stretchedInput}
                     style={{ 
                       flex: '1',
