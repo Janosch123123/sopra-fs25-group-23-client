@@ -30,6 +30,7 @@ const LobbyPage: React.FC = () => {
   // Add isAdmin localStorage hook
   const { set: setAdminStorage } = useLocalStorage<boolean>("isAdmin", false);
   const { set: setLobbySettingsStorage } = useLocalStorage<string>("lobbySettings", "medium");
+  const { set: setSugarRushStorage } = useLocalStorage<boolean>("sugarRush", false);
   
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +41,7 @@ const LobbyPage: React.FC = () => {
 
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
+  const [sugarRush, setSugarRush] = useState(false);
   
   // Initialize WebSocket connection
   const { isConnected, connect, send, getSocket, disconnect} = useLobbySocket();
@@ -53,20 +55,23 @@ const LobbyPage: React.FC = () => {
     
     // Save spawnRate to localStorage
     setLobbySettingsStorage(spawnRate);
+    setSugarRushStorage(sugarRush); // Save sugarRush to localStorage
     
     // Send start game message
     send({
       type: "startGame",
       lobbyId: lobbyCode,
       settings: {
-        spawnRate: spawnRate
+        spawnRate: spawnRate,
+        sugarRush: sugarRush
       }
     });
     console.log("Start game message sent:", {
       type: "startGame",
       lobbyId: lobbyCode,
       settings: {
-        spawnRate: spawnRate
+        spawnRate: spawnRate,
+        sugarRush: sugarRush
       }
     });
   };
@@ -405,13 +410,20 @@ const LobbyPage: React.FC = () => {
     // setTimeout(() => updateSettings(), 100);
   };
 
-  const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change includePowerUps
+  // const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!isAdmin) return; // Only allow admin to change includePowerUps
 
-    setIncludePowerUps(event.target.checked);
+  //   setIncludePowerUps(event.target.checked);
     
-    // Update the setting via WebSocket after a short delay
-    // setTimeout(() => updateSettings(), 100);
+  //   // Update the setting via WebSocket after a short delay
+  //   // setTimeout(() => updateSettings(), 100);
+  // };
+  
+  const handleSugarRushChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAdmin) return; // Only allow admin to change sugarRush
+
+    setSugarRush(event.target.checked);
+    setSugarRushStorage(event.target.checked); // Save to localStorage
   };
   
 
@@ -469,7 +481,7 @@ const LobbyPage: React.FC = () => {
             </div>
           </div>
           
-          <div className={styles.checkboxContainer}>
+          {/* <div className={styles.checkboxContainer}>
             <input
               type="checkbox"
               id="includePowerUps"
@@ -479,6 +491,18 @@ const LobbyPage: React.FC = () => {
               className={!isAdmin ? styles.disabledControl : ''}
             />
             <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
+          </div> */}
+          
+          <div className={styles.checkboxContainer}>
+            <input
+              type="checkbox"
+              id="sugarRush"
+              checked={sugarRush}
+              onChange={handleSugarRushChange}
+              disabled={!isAdmin} // Disable the checkbox for non-admin users
+              className={!isAdmin ? styles.disabledControl : ''}
+            />
+            <label htmlFor="sugarRush" className={styles.optionTitle}>Sugar Rush</label>
           </div>
         </div>
         
