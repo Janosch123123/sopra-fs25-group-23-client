@@ -7,16 +7,13 @@ import styles from "@/styles/page.module.css"; // Import styles
 const Home: React.FC = () => {
   const router = useRouter();
 
-  const handleLoginClick = () => {
-    router.push("/login");
-  };
 
   return (
     <div className={styles.mainPage}>
       <div className={styles.mainContentContainer}>
         <div className={styles.logoContainer}>
           <div className={styles.logoImage}>
-            {/* Logo will be displayed via CSS ::after pseudo-element */}
+            {/* Logo will be displayed via CSS */}
           </div>
         </div>
         <div className={styles.playButtonContainer}>
