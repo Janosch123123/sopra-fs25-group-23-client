@@ -478,7 +478,7 @@ useEffect(() => {
   });
   
   // If we found any dead snakes, trigger the collision animation
-  if (deadSnakes.length > 0 && !deathAnimationInProgress) {
+  if (deadSnakes.length > 0 && !deathAnimationInProgress && timestamp == 5000) {
     console.log("⚠️ Dead snakes detected:", deadSnakes);
     
     // Handle only the first dead snake if multiple died in the same frame
