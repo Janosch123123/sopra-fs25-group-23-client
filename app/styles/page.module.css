@@ -712,6 +712,25 @@ a.secondary {
   margin-left: 0 !important; /* No left margin */
 }
 
+.logoutButton {
+  composes: lobbyButtons;
+  --color: #137ca5; /* Slightly darker volcano color for hover effect */
+  font-size: 1.5rem !important; /* Smaller font size */
+  padding: 10px 20px !important; /* Reduced padding */
+  min-width: 175px !important; /* Smaller width */
+  min-height: 65px !important; /* Smaller height */
+  border: 3px solid #ffffff !important; /* Thinner border */
+  border-radius: 20px !important; /* Less rounded corners */
+  background-color: #1890c7 !important; /* Slightly different red */
+  color: #ffffff !important; /* Keep white text */
+  margin-left: 0 !important; /* Remove left margin */
+  margin-top: 0 !important; /* Remove top margin */
+  position: absolute !important; /* Position absolutely */
+  top: -100px !important; /* Distance from top */
+  right: 20px !important; /* Distance from right */
+  letter-spacing: normal !important; /* Normal letter spacing */
+}
+
 
 .loginContent {
   background-color: #66bb6a; /* Darker medium green background */

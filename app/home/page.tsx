@@ -27,6 +27,23 @@ const MainPage: React.FC = () => {
   const [lobbyCode, setLobbyCode] = useState('');
   const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
 
+
+  const handleLogout = async () => {
+    try {
+      // Clear all items from local storage
+      localStorage.clear();
+      
+      // Or if you only want to clear specific items:
+      // localStorage.removeItem('token');
+      // localStorage.removeItem('userData');
+      
+      // Redirect using router.push
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   useEffect(() => {
     const userId = localStorage.getItem("userId");
 
@@ -178,6 +195,7 @@ const MainPage: React.FC = () => {
       message.error('Please enter a lobby code');
       return;
     }
+    
 
     // Validate that the input is a valid integer
     if (!/^\d+$/.test(lobbyCode)) {
@@ -338,6 +356,15 @@ const MainPage: React.FC = () => {
                 onClick={handleQuickPlay}
               >
                 Quickplay
+              </Button>
+              <Button
+                type="primary"
+                variant="solid"
+                className={styles.logoutButton}
+                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleLogout}
+              >
+                Logout
               </Button>
             </>
           ) : (
