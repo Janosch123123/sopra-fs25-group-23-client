@@ -44,7 +44,43 @@ const MainPage: React.FC = () => {
     }
   };
 
-  const handleSingleplayer = () => {
+  const handleSingleplayer = async () => {
+    try {
+      // Get token from localStorage for authentication
+      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+      
+      // Connect to WebSocket server if not already connected
+      // if (!isConnected) {
+        const socket = await connect({ token });
+        
+        // Set up message handler for WebSocket events
+        socket.onmessage = (event) => {
+          try {
+            console.log("Raw message:", event.data);
+            
+            // Parse the message data
+            const data = JSON.parse(event.data);
+            console.log('Parsed JSON message:', data);
+            
+            // Handle lobby creation response
+            if (data.type === 'lobby_created' && data.lobbyId) {
+              router.push(`/lobby/${data.lobbyId}`);
+            }
+          } catch (error) {
+            console.error('Error handling message:', error);
+          }
+        };
+      // }
+      
+      // Send the create lobby request
+      send({
+        type: 'soloLobby'
+      });
+      
+    } catch (error) {
+      console.error('Error creating lobby:', error);
+      // Show error to user
+    }
   }
     
     useEffect(() => {
