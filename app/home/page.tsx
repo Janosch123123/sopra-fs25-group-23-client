@@ -44,7 +44,10 @@ const MainPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  const handleSingleplayer = () => {
+  }
+    
+    useEffect(() => {
     const userId = localStorage.getItem("userId");
 
     const fetchUserStats = async () => {
@@ -330,6 +333,15 @@ const MainPage: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', alignItems: 'flex-start' }}>
           {showButtons ? (
             <>
+            <Button
+                type="primary"
+                variant="solid"
+                className={styles.logoutButton}
+                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
               <Button
                 type="primary"
                 variant="solid"
@@ -360,11 +372,11 @@ const MainPage: React.FC = () => {
               <Button
                 type="primary"
                 variant="solid"
-                className={styles.logoutButton}
+                className={styles.singlePlayerButton}
                 style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
-                onClick={handleLogout}
+                onClick={handleSingleplayer}
               >
-                Logout
+                Singleplayer
               </Button>
             </>
           ) : (
