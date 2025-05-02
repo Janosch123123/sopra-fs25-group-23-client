@@ -283,10 +283,6 @@ const MainPage: React.FC = () => {
               <td>{userStats.username}</td>
             </tr>
             <tr>
-              <td>Level:</td>
-              <td>{userStats.level}</td>
-            </tr>
-            <tr>
               <td>#Wins:</td>
               <td>{userStats.wins}</td>
             </tr>
@@ -301,6 +297,40 @@ const MainPage: React.FC = () => {
             <tr>
               <td>Length-PR:</td>
               <td>{userStats.lengthPR}</td>
+            </tr>
+            <tr>
+              <td style={{
+                borderBottom: 'none',
+              }}>Level:</td>
+              <td style={{
+                borderBottom: 'none',
+              }}>{Math.floor(userStats.level)}</td>
+            </tr>
+            <tr>
+              <td
+                colSpan={2}
+                style={{
+                  padding: 0,
+                  position: 'relative',
+                  backgroundColor: '#345a97',
+                  borderBottom: 'none',
+
+                }}
+                >
+                <div className={styles.levelProgressContainer} style={{ width: '100%', }}>
+                  <div
+                    className={styles.levelProgressBar}
+                    style={{
+                      marginLeft: '-3px',
+                      
+                      width: `${(userStats.level % 1) * 100}%`,
+                      backgroundColor: '#4caf50',
+                      height: '10px',
+                      borderRadius: '10px', // Make both ends rounded
+                    }}
+                    ></div>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
