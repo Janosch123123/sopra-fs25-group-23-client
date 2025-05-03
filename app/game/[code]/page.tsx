@@ -19,9 +19,11 @@ const GamePage: React.FC = () => {
   const [gameLive, setGameLive] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
-  // Store cookies locations in state but don't directly reference them
-  // We'll use this state to track cookies, but we'll pass the data directly to renderCookies
-  const [, setCookiesLocations] = useState<[number, number][]>([]);
+  // Store item locations in state
+  const [cookiePositions, setCookiePositions] = useState<[number, number][]>([]);
+  const [goldenCookiePositions, setGoldenCookiePositions] = useState<[number, number][]>([]);
+  const [multiplierPositions, setMultiplierPositions] = useState<[number, number][]>([]);
+  const [reverseControlPositions, setReverseControlPositions] = useState<[number, number][]>([]);
   const [timestamp, setTimestamp] = useState<number>(0);
   const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
@@ -99,6 +101,9 @@ const GamePage: React.FC = () => {
           styles.curveBody,
           styles.playerCell,
           styles.cookieCell,
+          styles.goldenCookieCell,
+          styles.multiplierCell,
+          styles.reverseControlsCell,
           styles.currentPlayerCell,
           styles.playerRed,
           styles.playerBlue,
@@ -318,9 +323,11 @@ const GamePage: React.FC = () => {
     });
   }, [colRowToIndex, getCell, collidedSnakes, collisionPoint]);
   
-  // Updated function to render cookies using [col, row] coordinates
-  const renderCookies = useCallback((positions: [number, number][]) => {
-    if (!positions || positions.length === 0) return;
+  // Updated function to render cookies and special items using [col, row] coordinates
+  const renderItems = useCallback((cookies: [number, number][] = [], 
+                               goldenCookies: [number, number][] = [], 
+                               multipliers: [number, number][] = [], 
+                               reverseControls: [number, number][] = []) => {
     
     // Create a map of all snake cells to efficiently check for overlaps
     const snakeCells = new Map<string, boolean>();
@@ -333,10 +340,11 @@ const GamePage: React.FC = () => {
       }
     });
     
-    positions.forEach(position => {
-      // Skip cookies that are on the same position as any snake segment
+    // Render regular cookies
+    cookies.forEach(position => {
+      // Skip items that are on the same position as any snake segment
       if (snakeCells.has(`${position[0]},${position[1]}`)) {
-        return; // Skip this cookie
+        return; // Skip this item
       }
       
       // Convert [col, row] to grid cell index
@@ -345,6 +353,48 @@ const GamePage: React.FC = () => {
       
       if (cell) {
         cell.classList.add(styles.cookieCell);
+      }
+    });
+    
+    // Render golden cookies
+    goldenCookies.forEach(position => {
+      if (snakeCells.has(`${position[0]},${position[1]}`)) {
+        return; 
+      }
+      
+      const index = colRowToIndex(position[0], position[1]);
+      const cell = getCell(index);
+      
+      if (cell) {
+        cell.classList.add(styles.goldenCookieCell);
+      }
+    });
+    
+    // Render multipliers
+    multipliers.forEach(position => {
+      if (snakeCells.has(`${position[0]},${position[1]}`)) {
+        return;
+      }
+      
+      const index = colRowToIndex(position[0], position[1]);
+      const cell = getCell(index);
+      
+      if (cell) {
+        cell.classList.add(styles.multiplierCell);
+      }
+    });
+    
+    // Render reverse controls
+    reverseControls.forEach(position => {
+      if (snakeCells.has(`${position[0]},${position[1]}`)) {
+        return;
+      }
+      
+      const index = colRowToIndex(position[0], position[1]);
+      const cell = getCell(index);
+      
+      if (cell) {
+        cell.classList.add(styles.reverseControlsCell);
       }
     });
   }, [colRowToIndex, getCell, snakes]);
@@ -679,15 +729,15 @@ useEffect(() => {
                 let cookiePositions: [number, number][] = [];
                 if (Array.isArray(data.cookies) && data.cookies.length > 0 && Array.isArray(data.cookies[0])) {
                   cookiePositions = data.cookies;
-                  setCookiesLocations(data.cookies);
+                  setCookiePositions(data.cookies);
                 } else if (Array.isArray(data.cookies)) {
                   // Convert legacy format (array of indexes) to [col, row] format
                   cookiePositions = data.cookies.map((index: number) => indexToColRow(index));
-                  setCookiesLocations(cookiePositions);
+                  setCookiePositions(cookiePositions);
                 }
                 
                 // Render cookies immediately
-                renderCookies(cookiePositions);
+                renderItems(cookiePositions, goldenCookiePositions, multiplierPositions, reverseControlPositions);
 
                 // Reset player death state when game is restarting
                 setPlayerIsDead(false);
@@ -711,11 +761,19 @@ useEffect(() => {
                 // Update snake positions immediately without waiting for state update
                 renderPlayerSnakes(data.snakes || {});
                 
-                // Set cookies data
-                setCookiesLocations(data.cookies || []);
+                // Set all item positions from the message
+                setCookiePositions(data.cookies || []);
+                setGoldenCookiePositions(data.goldenCookies || []);
+                setMultiplierPositions(data.multipliers || []);
+                setReverseControlPositions(data.reverseControls || []);
                 
-                // Render cookies immediately
-                renderCookies(data.cookies || []);
+                // Render all items immediately
+                renderItems(
+                  data.cookies || [], 
+                  data.goldenCookies || [], 
+                  data.multipliers || [], 
+                  data.reverseControls || []
+                );
                 
                 // Update timestamp if available
                 if (data.timestamp !== undefined) {
@@ -729,7 +787,7 @@ useEffect(() => {
                                data.snakes[currentUsername].length > 0;
                 
                 if (gameLive && !isAlive && !deathAnimationInProgress) {              
-                setPlayerIsDead(true);
+                  setPlayerIsDead(true);
                 }
                 setConnectionError(false);
               }
@@ -838,7 +896,7 @@ useEffect(() => {
         console.log("Not disconnecting WebSocket on unmount");
       }
     };
-  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderCookies, indexToColRow, gameLive, lastHeadPositions, deathAnimationInProgress, lastGameState]);
+  }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderItems, indexToColRow, gameLive, lastHeadPositions, deathAnimationInProgress, lastGameState]);
 
   // Function to format timestamp in MM:SS format
   const formatTime = (seconds: number): string => {
