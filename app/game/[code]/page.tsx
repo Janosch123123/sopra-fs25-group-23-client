@@ -38,6 +38,7 @@ const GamePage: React.FC = () => {
   const [collisionPoint, setCollisionPoint] = useState<[number, number] | null>(null); // Store collision coordinates
   const [collidedSnakes, setCollidedSnakes] = useState<Record<string, boolean>>({}); // Track which snakes have collided
   const [lastGameState, setLastGameState] = useState<{snakes: SnakeData, timestamp: number} | null>(null); // Store previous game state for comparison
+  const [prevGameState, setPrevGameState] = useState<{snakes: SnakeData, timestamp: number} | null>(null); // Store previous game state for rendering
   const [lastHeadPositions, setLastHeadPositions] = useState<Record<string, [number, number]>>({}); // Store last known head positions
   
   // Get lobby code from URL parameters
@@ -104,14 +105,6 @@ const GamePage: React.FC = () => {
           styles.playerBlue,
           styles.playerGreen,
           styles.playerPurple,
-          styles.playerOrange,
-          styles.playerPink,
-          styles.playerTeal,
-          styles.playerBrown,
-          // Add these new classes for collision animation
-          styles.collidedSnake,
-          styles.dyingSnake,
-          styles.collisionPoint
         );
         // Remove any inline styles for player colors
         cell.style.setProperty('--player-color', '');
@@ -138,8 +131,12 @@ const GamePage: React.FC = () => {
   
   // Updated function to render a player's snake using [col, row] coordinates with PNG images and different color classes
   // Now includes support for collision animation and improved glow effect positioning
-  const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
+  const renderPlayerSnake = useCallback((username: string, positions: [number, number][], prevPositions: [number, number][], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
+    
+    //log current and prev gamestates/positions
+    console.log(`Previous positions for ${username}:`, prevPositions);
+    console.log(`Current positions for ${username}:`, positions);
     
     // Define color classes based on player index - expanded with more color options
     const playerColorClasses = [
@@ -162,30 +159,6 @@ const GamePage: React.FC = () => {
     // Get current username for highlighting the current player's snake
     const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
 
-    // IMPROVED IMPLEMENTATION: Process positions in two passes
-    // First pass: Add all glow elements for the current player's snake
-    if (username === currentUsername) {
-      positions.forEach((position) => {
-        const index = colRowToIndex(position[0], position[1]);
-        const cell = getCell(index);
-        
-        if (cell) {
-          // Create and add the glow element as a separate DOM element
-          // This ensures it's rendered before any snake parts
-          const glowElement = document.createElement('div');
-          glowElement.className = styles.currentPlayerGlow;
-          
-          // Clear any existing glow to prevent duplicates
-          const existingGlow = cell.querySelector(`.${styles.currentPlayerGlow}`);
-          if (existingGlow) {
-            cell.removeChild(existingGlow);
-          }
-          
-          // Insert the glow as the first child to ensure lowest z-index
-          cell.insertBefore(glowElement, cell.firstChild);
-        }
-      });
-    }
     
     // Second pass: Add all snake elements
     positions.forEach((position, i) => {
@@ -385,53 +358,71 @@ const GamePage: React.FC = () => {
     }
   }, [animatingCells, animationStartTime]);
 
+  // Update prevGameState when lastGameState changes
+  useEffect(() => {
+    if (lastGameState) {
+      setPrevGameState(lastGameState);
+    }
+  }, [lastGameState]);
 
   // Function to render all player snakes immediately without waiting for state update
-  // Updated to handle missing snakes during collision animation
-  // Function to render all player snakes immediately without waiting for state update
-// Updated to handle missing snakes during collision animation
-const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
-  // Always clear all cells first to ensure a clean state
-  clearAllCells();
-  
-  // Get list of player usernames
-  const playerUsernames = Object.keys(snakesData);
-  
-  // First, render ALL snakes from the current state
-  // This ensures all living snakes remain visible
-  playerUsernames.forEach((username, playerIndex) => {
-    // Only render if the snake exists and has segments
-    if (snakesData[username] && snakesData[username].length > 0) {
-      renderPlayerSnake(username, snakesData[username], playerIndex);
-    }
-  });
-  
-  // If we're in collision state, also render any dead snakes from lastGameState
-  // that aren't in the current state
-  if (Object.keys(collidedSnakes).length > 0 && lastGameState) {
-    Object.keys(collidedSnakes).forEach(username => {
-      // Check if this snake is missing or empty in the current state but exists in last state
-      const isEmptyOrMissingInCurrent = !snakesData[username] || 
-                                        (snakesData[username] && snakesData[username].length === 0);
-                                        
-      const existsInLastState = lastGameState.snakes[username] && 
-                              lastGameState.snakes[username].length > 0;
-                              
-      if (isEmptyOrMissingInCurrent && existsInLastState) {
-        // console.log(`Adding collided snake ${username} from last state`);
+  const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
+    // Always clear all cells first to ensure a clean state
+    clearAllCells();
+    
+    // Get list of player usernames
+    const playerUsernames = Object.keys(snakesData);
+    
+    // First, render ALL snakes from the current state
+    // This ensures all living snakes remain visible
+    playerUsernames.forEach((username, playerIndex) => {
+      // Only render if the snake exists and has segments
+      if (snakesData[username] && snakesData[username].length > 0) {
+        // Get previous positions from prevGameState if available
+        const prevPositions = prevGameState && 
+                            prevGameState.snakes[username] && 
+                            prevGameState.snakes[username].length > 0 
+                            ? prevGameState.snakes[username] 
+                            : [];
         
-        // Find original player index
-        const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
-        
-        // Render the snake using last known positions
-        renderPlayerSnake(username, lastGameState.snakes[username], originalIndex);
+        renderPlayerSnake(username, snakesData[username], prevPositions, playerIndex);
       }
     });
-  }
-  setTimeout(() => {
-    preserveAnimationClasses();
-  }, 0);
-}, [clearAllCells, renderPlayerSnake, collidedSnakes, lastGameState, preserveAnimationClasses]);
+    
+    // If we're in collision state, also render any dead snakes from lastGameState
+    // that aren't in the current state
+    if (Object.keys(collidedSnakes).length > 0 && lastGameState) {
+      Object.keys(collidedSnakes).forEach(username => {
+        // Check if this snake is missing or empty in the current state but exists in last state
+        const isEmptyOrMissingInCurrent = !snakesData[username] || 
+                                          (snakesData[username] && snakesData[username].length === 0);
+                                          
+        const existsInLastState = lastGameState.snakes[username] && 
+                                lastGameState.snakes[username].length > 0;
+                                
+        if (isEmptyOrMissingInCurrent && existsInLastState) {
+          // console.log(`Adding collided snake ${username} from last state`);
+          
+          // Find original player index
+          const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
+          
+          // Get previous positions - for dead snakes, use two game states back if available
+          const prevPositions = prevGameState && 
+                              prevGameState.snakes[username] && 
+                              prevGameState.snakes[username].length > 0 
+                              ? prevGameState.snakes[username] 
+                              : [];
+          
+          // Render the snake using last known positions
+          renderPlayerSnake(username, lastGameState.snakes[username], prevPositions, originalIndex);
+        }
+      });
+    }
+    setTimeout(() => {
+      preserveAnimationClasses();
+    }, 0);
+  }, [clearAllCells, renderPlayerSnake, collidedSnakes, lastGameState, prevGameState, preserveAnimationClasses]);
+
   // Update lastHeadPositions whenever snakes change
   useEffect(() => {
     // Update the last known head positions for all snakes
