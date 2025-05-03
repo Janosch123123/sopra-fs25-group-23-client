@@ -12,12 +12,14 @@ interface UserStats {
   level: number;
   wins: number;
   kills: number;
+  playedGames: number;
+  lengthPR: number;
 }
 
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { connect, send } = useLobbySocket();
+  const { connect, send} = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [validatingLobby, setValidatingLobby] = useState(false);
@@ -124,6 +126,43 @@ const MainPage: React.FC = () => {
     }
   };
 
+  const handleQuickPlay = async () => {
+    try {
+      // Get token from localStorage for authentication
+      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+
+      // Connect to WebSocket server if not already connected
+      const socket = await connect({ token });
+
+      // Set up message handler for WebSocket events
+      socket.onmessage = (event) => {
+        try {
+          console.log("Raw message:", event.data);
+
+          // Parse the message data
+          const data = JSON.parse(event.data);
+          console.log('Parsed JSON message:', data);
+
+          // Handle quickplay response
+          if (data.type === 'quickPlayResponse' && data.lobbyId) {
+            router.push(`/lobby/${data.lobbyId}`);
+          }
+        } catch (error) {
+          console.error('Error handling message:', error);
+        }
+      };
+
+      // Send the quickplay request
+      send({
+        type: 'quickPlay'
+      });
+
+    } catch (error) {
+      console.error('Error initiating quickplay:', error);
+      // Show error to user
+    }
+  };
+
   const handleJoinLobbyClick = () => {
     setShowButtons(false);
   };
@@ -174,8 +213,14 @@ const MainPage: React.FC = () => {
             } else {
               // Only set validatingLobby to false if lobby doesn't exist
               setValidatingLobby(false);
-              // Show error if lobby doesn't exist
-              setLobbyCodeError('The lobby does not exist');
+              
+              // Check if the reason is "full"
+              if (data.reason === 'full') {
+                setLobbyCodeError('The lobby is full');
+              } else {
+                // Show default error if lobby doesn't exist or other reason
+                setLobbyCodeError('The lobby does not exist');
+              }
             }
           }
         } catch (error) {
@@ -217,6 +262,13 @@ const MainPage: React.FC = () => {
     }
   };
 
+  // Handle Enter key press in the lobby code input
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !showButtons) {
+      handleJoinWithCode();
+    }
+  };
+
   return (
     <div className={styles.mainPage}>
       <div className={styles.dashboardContainer}>
@@ -231,16 +283,54 @@ const MainPage: React.FC = () => {
               <td>{userStats.username}</td>
             </tr>
             <tr>
-              <td>Level:</td>
-              <td>{userStats.level}</td>
-            </tr>
-            <tr>
               <td>#Wins:</td>
               <td>{userStats.wins}</td>
             </tr>
             <tr>
               <td>#Kills:</td>
               <td>{userStats.kills}</td>
+            </tr>
+            <tr>
+              <td>#Games:</td>
+              <td>{userStats.playedGames}</td>
+            </tr>
+            <tr>
+              <td>Length-PR:</td>
+              <td>{userStats.lengthPR}</td>
+            </tr>
+            <tr>
+              <td style={{
+                borderBottom: 'none',
+              }}>Level:</td>
+              <td style={{
+                borderBottom: 'none',
+              }}>{Math.floor(userStats.level)}</td>
+            </tr>
+            <tr>
+              <td
+                colSpan={2}
+                style={{
+                  padding: 0,
+                  position: 'relative',
+                  backgroundColor: '#345a97',
+                  borderBottom: 'none',
+
+                }}
+                >
+                <div className={styles.levelProgressContainer} style={{ width: '100%', }}>
+                  <div
+                    className={styles.levelProgressBar}
+                    style={{
+                      marginLeft: '-3px',
+                      
+                      width: `${(userStats.level % 1) * 100}%`,
+                      backgroundColor: '#4caf50',
+                      height: '10px',
+                      borderRadius: '10px', // Make both ends rounded
+                    }}
+                    ></div>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -270,6 +360,15 @@ const MainPage: React.FC = () => {
               >
                 Join Lobby
               </Button>
+              <Button
+                type="primary"
+                variant="solid"
+                className={styles.lobbyButtons}
+                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                onClick={handleQuickPlay}
+              >
+                Quickplay
+              </Button>
             </>
           ) : (
             <div className={styles.joinButtonContainer} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -279,6 +378,7 @@ const MainPage: React.FC = () => {
                     placeholder="Enter Lobby Code"
                     value={lobbyCode}
                     onChange={handleLobbyCodeChange}
+                    onKeyDown={handleKeyDown}
                     className={styles.stretchedInput}
                     style={{ 
                       flex: '1',
