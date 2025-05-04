@@ -1134,6 +1134,37 @@ a.secondary {
   pointer-events: none; /* Allow clicks to pass through */
 }
 
+/* Revised head animation styling - ONLY animate the image, not the cell */
+.headAnimating {
+  position: relative;
+  z-index: 10;
+  /* Ensure there's NO animation on the cell itself */
+  animation: none !important; /* Force override any previously defined animations */
+  transform: none !important; /* Force no transformation on the cell */
+}
+
+/* Apply animation ONLY to the PNG image in the ::after element */
+.headAnimating::after {
+  animation: moveHeadImage 0.2s linear forwards;
+}
+
+@keyframes moveHeadImage {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--rotation, 0deg));
+  }
+  100% {
+    transform: translate(
+      calc(-50% + var(--head-move-x)), 
+      calc(-50% + var(--head-move-y))
+    ) rotate(var(--rotation, 0deg));
+  }
+}
+
+/* Remove the moveHead animation entirely as it's not needed */
+@keyframes moveHead {
+  0% { transform: none; }
+  100% { transform: none; }
+}
 
 /* Leaderboard styling */
 .leaderboard {

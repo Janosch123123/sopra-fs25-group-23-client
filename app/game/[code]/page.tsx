@@ -138,25 +138,29 @@ const GamePage: React.FC = () => {
   
   // Updated function to render a player's snake using [col, row] coordinates with PNG images and different color classes
   // Now includes support for collision animation and improved glow effect positioning
-  const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
+  const renderPlayerSnake = useCallback((username: string, positions: [number, number][], prevPositions: [number, number][], playerIndex: number) => {
     if (!positions || positions.length === 0) return;
+
+    // determine direction of next square of HEAD
+    let headChange = "stay";
+    let xHeadDisplacement = 0;
+    let yHeadDisplacement = 0;
     
-    // Define color classes based on player index - expanded with more color options
-    const playerColorClasses = [
-      styles.playerRed,     // Red (1st player)
-      styles.playerBlue,    // Blue (2nd player) 
-      styles.playerGreen,   // Green (3rd player)
-      styles.playerPurple,  // Purple (4th player)
-    ];
-    
-    // Get the appropriate color class for this player
-    let playerColorClass = '';
-    if (playerIndex < playerColorClasses.length) {
-      playerColorClass = playerColorClasses[playerIndex];
-    } else {
-      // For any additional players beyond our predefined colors, use a color based on their username
-      // This is a fallback that shouldn't normally be needed with 8 color options
-      playerColorClass = styles.playerRed; // Default to red but apply custom filter
+    if (positions[0][0] < prevPositions[0][0]) {  
+      headChange = "left";
+      xHeadDisplacement = -1;
+    }
+    else if (positions[0][0] > prevPositions[0][0]) {
+      headChange = "right";
+      xHeadDisplacement = 1;
+    }
+    else if (positions[0][1] < prevPositions[0][1]) {
+      headChange = "up";
+      yHeadDisplacement = -1;
+    }
+    else if (positions[0][1] > prevPositions[0][1]) {
+      headChange = "down";
+      yHeadDisplacement = 1;
     }
     
     // Get current username for highlighting the current player's snake
@@ -189,55 +193,122 @@ const GamePage: React.FC = () => {
     
     // Second pass: Add all snake elements
     positions.forEach((position, i) => {
-      // Convert [col, row] to grid cell index
+      // Special handling for head (first element)
+      if (i === 0) {
+        // For the head, we use previous position and animate to current position
+        const headStartPosition = [...prevPositions[0]]; // Use previous head position
+        const headStartIndex = colRowToIndex(headStartPosition[0], headStartPosition[1]);
+        const headStartCell = getCell(headStartIndex);
+        
+        // Calculate current head position
+        const headEndPosition = [...positions[0]]; // Current head position
+        const headEndIndex = colRowToIndex(headEndPosition[0], headEndPosition[1]);
+        const headEndCell = getCell(headEndIndex);
+        
+        // Only animate if we have valid cells and head has actually moved
+        if (headStartCell && headEndCell && 
+           (headStartPosition[0] !== headEndPosition[0] || headStartPosition[1] !== headEndPosition[1])) {
+          
+          // Add head at the starting position
+          if (headStartCell) {
+            headStartCell.classList.add(styles.playerCell, styles.firstSquare);
+            
+            // Add color class
+            const playerColorClasses = [
+              styles.playerRed,     // Red (1st player)
+              styles.playerBlue,    // Blue (2nd player) 
+              styles.playerGreen,   // Green (3rd player)
+              styles.playerPurple,  // Purple (4th player)
+            ];
+            
+            // Get the appropriate color class for this player
+            let playerColorClass = '';
+            if (playerIndex < playerColorClasses.length) {
+              playerColorClass = playerColorClasses[playerIndex];
+            } else {
+              playerColorClass = styles.playerRed; // Default to red but apply custom filter
+            }
+            
+            if (playerColorClass) {
+              headStartCell.classList.add(playerColorClass);
+            }
+            // Calculate head rotation based on the next segment (if it exists)
+            if (positions.length > 1) {
+              const head = positions[0];
+              const neck = positions[1];
+              
+              // Determine the direction the head is facing (adjusted by -90 degrees)
+              let rotationDeg = 0;
+              if (neck[0] < head[0]) rotationDeg = 90;    // Head facing right
+              else if (neck[0] > head[0]) rotationDeg = -90;  // Head facing left
+              else if (neck[1] < head[1]) rotationDeg = 180;   // Head facing down
+              else if (neck[1] > head[1]) rotationDeg = 0; // Head facing up
+              
+              // Apply rotation using inline style
+              headStartCell.style.setProperty('--rotation', `${rotationDeg}deg`);
+            }
+            
+            // Add indicator if this is the current player's snake
+            if (username === currentUsername) {
+              headStartCell.classList.add(styles.currentPlayerCell);
+            }
+            
+            // Add animation class and set animation properties
+            headStartCell.classList.add(styles.headAnimating);
+            
+            // Set animation direction
+            headStartCell.style.setProperty('--head-move-x', `${xHeadDisplacement * 100}%`);
+            headStartCell.style.setProperty('--head-move-y', `${yHeadDisplacement * 100}%`);
+            
+            // Clear the animation after it completes
+            setTimeout(() => {
+              if (headStartCell) {
+                headStartCell.classList.remove(
+                  styles.playerCell, 
+                  styles.firstSquare, 
+                  styles.headAnimating,
+                  playerColorClass,
+                  styles.collidedSnake,
+                  styles.dyingSnake,
+                  styles.collisionPoint,
+                  styles.currentPlayerCell
+                );
+                headStartCell.style.removeProperty('--rotation');
+                headStartCell.style.removeProperty('--head-move-x');
+                headStartCell.style.removeProperty('--head-move-y');
+              }
+            }, 200); // Animation duration
+          }
+        }
+      }
+      
+      // Convert [col, row] to grid cell index for the current position
       const index = colRowToIndex(position[0], position[1]);
       const cell = getCell(index);
       
       if (cell) {
         cell.classList.add(styles.playerCell);
         
-        // Add color class to apply the correct hue-rotate filter
+        // Add color class
+        const playerColorClasses = [
+          styles.playerRed,     // Red (1st player)
+          styles.playerBlue,    // Blue (2nd player) 
+          styles.playerGreen,   // Green (3rd player)
+          styles.playerPurple,  // Purple (4th player)
+        ];
+        
+        // Get the appropriate color class for this player
+        let playerColorClass = '';
+        if (playerIndex < playerColorClasses.length) {
+          playerColorClass = playerColorClasses[playerIndex];
+        } else {
+          playerColorClass = styles.playerRed; // Default to red but apply custom filter
+        }
+        
         if (playerColorClass) {
           cell.classList.add(playerColorClass);
         }
-        
-        // Add collision animation class if this snake has collided
-        if (collidedSnakes[username]) {
-          cell.classList.add(styles.collidedSnake);
-          
-          // Add dying effect to the current player's snake
-          if (username === currentUsername) {
-            cell.classList.add(styles.dyingSnake);
-          }
-        }
-        
-        // Add collision point effect to the exact collision location
-        if (collisionPoint && 
-            position[0] === collisionPoint[0] && 
-            position[1] === collisionPoint[1]) {
-          cell.classList.add(styles.collisionPoint);
-        }
-        
-        // Mark head (first element)
-        if (i === 0) {
-          cell.classList.add(styles.firstSquare);
-          
-          // Calculate head rotation based on the next segment (if it exists)
-          if (positions.length > 1) {
-            const head = positions[0];
-            const neck = positions[1];
-            
-            // Determine the direction the head is facing (adjusted by -90 degrees)
-            let rotationDeg = 0;
-            if (neck[0] < head[0]) rotationDeg = 90;    // Head facing right
-            else if (neck[0] > head[0]) rotationDeg = -90;  // Head facing left
-            else if (neck[1] < head[1]) rotationDeg = 180;   // Head facing down
-            else if (neck[1] > head[1]) rotationDeg = 0; // Head facing up
-            
-            // Apply rotation using inline style
-            cell.style.setProperty('--rotation', `${rotationDeg}deg`);
-          }
-        }
+
         
         // Mark tail (last element)
         else if (i === positions.length - 1) {
@@ -388,8 +459,6 @@ const GamePage: React.FC = () => {
 
   // Function to render all player snakes immediately without waiting for state update
   // Updated to handle missing snakes during collision animation
-  // Function to render all player snakes immediately without waiting for state update
-// Updated to handle missing snakes during collision animation
 const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
   // Always clear all cells first to ensure a clean state
   clearAllCells();
@@ -402,35 +471,14 @@ const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
   playerUsernames.forEach((username, playerIndex) => {
     // Only render if the snake exists and has segments
     if (snakesData[username] && snakesData[username].length > 0) {
-      renderPlayerSnake(username, snakesData[username], playerIndex);
+      // Get previous positions from lastGameState if available, otherwise use current positions
+      const prevPositions = lastGameState && lastGameState.snakes[username] ? 
+        lastGameState.snakes[username] : snakesData[username];
+      
+      renderPlayerSnake(username, snakesData[username], prevPositions, playerIndex);
     }
   });
   
-  // If we're in collision state, also render any dead snakes from lastGameState
-  // that aren't in the current state
-  if (Object.keys(collidedSnakes).length > 0 && lastGameState) {
-    Object.keys(collidedSnakes).forEach(username => {
-      // Check if this snake is missing or empty in the current state but exists in last state
-      const isEmptyOrMissingInCurrent = !snakesData[username] || 
-                                        (snakesData[username] && snakesData[username].length === 0);
-                                        
-      const existsInLastState = lastGameState.snakes[username] && 
-                              lastGameState.snakes[username].length > 0;
-                              
-      if (isEmptyOrMissingInCurrent && existsInLastState) {
-        console.log(`Adding collided snake ${username} from last state`);
-        
-        // Find original player index
-        const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
-        
-        // Render the snake using last known positions
-        renderPlayerSnake(username, lastGameState.snakes[username], originalIndex);
-      }
-    });
-  }
-  setTimeout(() => {
-    preserveAnimationClasses();
-  }, 0);
 }, [clearAllCells, renderPlayerSnake, collidedSnakes, lastGameState, preserveAnimationClasses]);
   // Update lastHeadPositions whenever snakes change
   useEffect(() => {
