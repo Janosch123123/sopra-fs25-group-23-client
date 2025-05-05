@@ -16,29 +16,34 @@ interface UserStats {
   lengthPR: number;
 }
 
+interface LeaderboardPlayer {
+  id: number;
+  username: string;
+  level: number;
+  wins: number;
+  kills: number;
+  playedGames: number;
+  lengthPR: number;
+  winRate: number;
+}
+
 const MainPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { connect, send} = useLobbySocket();
+  const { connect, send } = useLobbySocket();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [validatingLobby, setValidatingLobby] = useState(false);
   const [showButtons, setShowButtons] = useState(true);
   const [lobbyCode, setLobbyCode] = useState('');
   const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
-
+  const [leaderboardPlayers, setLeaderboardPlayers] = useState<LeaderboardPlayer[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
 
   const handleLogout = async () => {
     try {
-      // Clear all items from local storage
       localStorage.clear();
-      
-      // Or if you only want to clear specific items:
-      // localStorage.removeItem('token');
-      // localStorage.removeItem('userData');
-      
-      // Redirect using router.push
-      router.push('/login');
+      router.push("/login");
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -46,176 +51,147 @@ const MainPage: React.FC = () => {
 
   const handleSingleplayer = async () => {
     try {
-      // Get token from localStorage for authentication
+// Get token from localStorage for authentication
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
       // Connect to WebSocket server if not already connected
       // if (!isConnected) {
-        const socket = await connect({ token });
-        
-        // Set up message handler for WebSocket events
-        socket.onmessage = (event) => {
-          try {
-            console.log("Raw message:", event.data);
+      const socket = await connect({ token });
+
+// Set up message handler for WebSocket events
+      socket.onmessage = (event) => {
+        try {
+console.log("Raw message:", event.data);
             
             // Parse the message data
-            const data = JSON.parse(event.data);
-            console.log('Parsed JSON message:', data);
+          const data = JSON.parse(event.data);
+console.log('Parsed JSON message:', data);
             
             // Handle lobby creation response
-            if (data.type === 'lobby_created' && data.lobbyId) {
-              router.push(`/lobby/${data.lobbyId}`);
-            }
-          } catch (error) {
-            console.error('Error handling message:', error);
+          if (data.type === 'lobby_created' && data.lobbyId) {
+            router.push(`/lobby/${data.lobbyId}`);
           }
-        };
-      // }
-      
-      // Send the create lobby request
+        } catch (error) {
+          console.error("Error handling message:", error);
+        }
+      };
+
       send({
-        type: 'soloLobby'
+        type: "soloLobby",
       });
-      
     } catch (error) {
-      console.error('Error creating lobby:', error);
-      // Show error to user
+      console.error("Error creating lobby:", error);
     }
-  }
-    
-    useEffect(() => {
+  };
+
+  useEffect(() => {
     const userId = localStorage.getItem("userId");
 
     const fetchUserStats = async () => {
       try {
         setLoading(true);
-        
+
         if (!userId) {
-          console.error('User ID not available');
+          console.error("User ID not available");
           setLoading(false);
           return;
         }
-      
+
         const response = await apiService.get<UserStats>(`/users/${userId}`);
         setUserStats(response);
       } catch (error) {
-        console.error('Error fetching user stats:', error);
+        console.error("Error fetching user stats:", error);
       } finally {
         setLoading(false);
       }
     };
 
+    const fetchLeaderboard = async () => {
+      try {
+        setLeaderboardLoading(true);
+        const response = await apiService.get<LeaderboardPlayer[]>("/leaderboard");
+        setLeaderboardPlayers(response);
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+      } finally {
+        setLeaderboardLoading(false);
+      }
+    };
+
     const checkToken = async () => {
-      // Check if token exists in localStorage
       const token = localStorage.getItem("token");
       if (!token) {
-        // If no token, redirect to login page
         router.push("/login");
         return;
       }
-    
+
       try {
-        // If token exists, verify it's still valid with the backend
-        const formatedToken = token.replace(/"/g, '');
-        const response = await apiService.post<{ authorized: boolean }>(
-          "/auth/verify", 
-          { formatedToken }
-        );
-        
-        // If token is not authorized, redirect to login
+        const formatedToken = token.replace(/"/g, "");
+        const response = await apiService.post<{ authorized: boolean }>("/auth/verify", { formatedToken });
+
         if (!response.authorized) {
           router.push("/login");
           return;
         }
 
         await fetchUserStats();
-
       } catch (error) {
-        console.error('Error verifying user token:', error);
+        console.error("Error verifying user token:", error);
         router.push("/login");
       }
     };
 
     checkToken();
-    
-    // Disconnect WebSocket when component unmounts
-    return () => {
-    };
+    fetchLeaderboard();
+
+    return () => {};
   }, [apiService, router]);
 
   const handleCreateLobby = async () => {
     try {
-      // Get token from localStorage for authentication
-      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
-      
-      // Connect to WebSocket server if not already connected
-      // if (!isConnected) {
-        const socket = await connect({ token });
-        
-        // Set up message handler for WebSocket events
-        socket.onmessage = (event) => {
-          try {
-            console.log("Raw message:", event.data);
-            
-            // Parse the message data
-            const data = JSON.parse(event.data);
-            console.log('Parsed JSON message:', data);
-            
-            // Handle lobby creation response
-            if (data.type === 'lobby_created' && data.lobbyId) {
-              router.push(`/lobby/${data.lobbyId}`);
-            }
-          } catch (error) {
-            console.error('Error handling message:', error);
+      const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
+      const socket = await connect({ token });
+
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "lobby_created" && data.lobbyId) {
+            router.push(`/lobby/${data.lobbyId}`);
           }
-        };
-      // }
-      
-      // Send the create lobby request
+        } catch (error) {
+          console.error("Error handling message:", error);
+        }
+      };
+
       send({
-        type: 'create_lobby'
+        type: "create_lobby",
       });
-      
     } catch (error) {
-      console.error('Error creating lobby:', error);
-      // Show error to user
+      console.error("Error creating lobby:", error);
     }
   };
 
   const handleQuickPlay = async () => {
     try {
-      // Get token from localStorage for authentication
-      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
-
-      // Connect to WebSocket server if not already connected
+      const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
       const socket = await connect({ token });
 
-      // Set up message handler for WebSocket events
       socket.onmessage = (event) => {
         try {
-          console.log("Raw message:", event.data);
-
-          // Parse the message data
           const data = JSON.parse(event.data);
-          console.log('Parsed JSON message:', data);
-
-          // Handle quickplay response
-          if (data.type === 'quickPlayResponse' && data.lobbyId) {
+          if (data.type === "quickPlayResponse" && data.lobbyId) {
             router.push(`/lobby/${data.lobbyId}`);
           }
         } catch (error) {
-          console.error('Error handling message:', error);
+          console.error("Error handling message:", error);
         }
       };
 
-      // Send the quickplay request
       send({
-        type: 'quickPlay'
+        type: "quickPlay",
       });
-
     } catch (error) {
-      console.error('Error initiating quickplay:', error);
-      // Show error to user
+      console.error("Error initiating quickplay:", error);
     }
   };
 
@@ -225,103 +201,83 @@ const MainPage: React.FC = () => {
 
   const handleBackClick = () => {
     setShowButtons(true);
-    setLobbyCode('');
+    setLobbyCode("");
     setLobbyCodeError(null);
   };
 
   const handleJoinWithCode = async () => {
     if (!lobbyCode.trim()) {
-      message.error('Please enter a lobby code');
+      message.error("Please enter a lobby code");
       return;
     }
-    
 
-    // Validate that the input is a valid integer
     if (!/^\d+$/.test(lobbyCode)) {
-      message.error('Lobby code must be a valid integer number');
+      message.error("Lobby code must be a valid integer number");
       return;
     }
 
     setValidatingLobby(true);
-    setLobbyCodeError(null); // Reset error state
-    
+    setLobbyCodeError(null);
+
     try {
-      // Get token from localStorage for authentication
-      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
-      
-      // Connect to WebSocket server if not already connected
-      
-        const socket = await connect({ token });
-      
-      // Set up a one-time message handler for lobby validation response
+      const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
+      const socket = await connect({ token });
+
       const messageHandler = (event: MessageEvent) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('Received validation response:', data);
-          
-          if (data.type === 'validateLobbyResponse') {
-            // Clean up event listener
-            socket.removeEventListener('message', messageHandler);
-            
+
+          if (data.type === "validateLobbyResponse") {
+            socket.removeEventListener("message", messageHandler);
+
             if (data.valid === true) {
-              // Keep validating state active until navigation completes
-              // and navigate to the lobby if it exists
               router.push(`/lobby/${lobbyCode}`);
             } else {
-              // Only set validatingLobby to false if lobby doesn't exist
               setValidatingLobby(false);
-              
-              // Check if the reason is "full"
-              if (data.reason === 'full') {
-                setLobbyCodeError('The lobby is full');
+
+              if (data.reason === "full") {
+                setLobbyCodeError("The lobby is full");
               } else {
-                // Show default error if lobby doesn't exist or other reason
-                setLobbyCodeError('The lobby does not exist');
+                setLobbyCodeError("The lobby does not exist");
               }
             }
           }
         } catch (error) {
-          console.error('Error handling message:', error);
+          console.error("Error handling message:", error);
           setValidatingLobby(false);
         }
       };
-    
-      // Add the message event listener
-      socket.addEventListener('message', messageHandler);
-      
-      // Send the validate lobby request
+
+      socket.addEventListener("message", messageHandler);
+
       send({
-        type: 'validateLobby',
-        lobbyCode: lobbyCode
+        type: "validateLobby",
+        lobbyCode: lobbyCode,
       });
-      
-      // Set a timeout to prevent infinite waiting
+
       setTimeout(() => {
         if (validatingLobby) {
-          socket.removeEventListener('message', messageHandler);
+          socket.removeEventListener("message", messageHandler);
           setValidatingLobby(false);
-          message.error('Server did not respond. Please try again.');
+          message.error("Server did not respond. Please try again.");
         }
       }, 5000);
-
     } catch (error) {
-      console.error('Error validating lobby:', error);
+      console.error("Error validating lobby:", error);
       setValidatingLobby(false);
-      message.error('Failed to validate lobby code');
+      message.error("Failed to validate lobby code");
     }
   };
 
   const handleLobbyCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow digits (integers)
     const value = e.target.value;
-    if (value === '' || /^\d+$/.test(value)) {
+    if (value === "" || /^\d+$/.test(value)) {
       setLobbyCode(value);
     }
   };
 
-  // Handle Enter key press in the lobby code input
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !showButtons) {
+    if (e.key === "Enter" && !showButtons) {
       handleJoinWithCode();
     }
   };
@@ -333,56 +289,69 @@ const MainPage: React.FC = () => {
         {loading ? (
           <p>Loading statistics...</p>
         ) : userStats ? (
-        <table className={styles.statisticsTable}>
-          <tbody>
-            <tr>
-              <td>Username:</td>
-              <td>{userStats.username}</td>
-            </tr>
-            <tr>
-              <td>Level:</td>
-              <td>{userStats.level}</td>
-            </tr>
-            <tr>
-              <td>#Wins:</td>
-              <td>{userStats.wins}</td>
-            </tr>
-            <tr>
-              <td>#Kills:</td>
-              <td>{userStats.kills}</td>
-            </tr>
-            <tr>
-              <td>#Games:</td>
-              <td>{userStats.playedGames}</td>
-            </tr>
-            <tr>
-              <td>Length-PR:</td>
-              <td>{userStats.lengthPR}</td>
-            </tr>
-          </tbody>
-        </table>
+          <table className={styles.statisticsTable}>
+            <tbody>
+              <tr>
+                <td>Username:</td>
+                <td>{userStats.username}</td>
+              </tr>
+              <tr>
+                <td>Level:</td>
+                <td>{userStats.level}</td>
+              </tr>
+              <tr>
+                <td>#Wins:</td>
+                <td>{userStats.wins}</td>
+              </tr>
+              <tr>
+                <td>#Kills:</td>
+                <td>{userStats.kills}</td>
+              </tr>
+              <tr>
+                <td>#Games:</td>
+                <td>{userStats.playedGames}</td>
+              </tr>
+              <tr>
+                <td>Length-PR:</td>
+                <td>{userStats.lengthPR}</td>
+              </tr>
+            </tbody>
+
+          </table>
         ) : (
           <p>No statistics available</p>
         )}
+        <Button type="primary" variant="solid" className={styles.logoutButton} onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
-      <div className={styles.playButtonContainer} style={{ fontSize: '10px', fontWeight: 'bold', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', alignItems: 'flex-start' }}>
+      <div
+        className={styles.playButtonContainer}
+        style={{
+          fontSize: "10px",
+          fontWeight: "bold",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            marginTop: "20px",
+            alignItems: "flex-start",
+          }}
+        >
           {showButtons ? (
             <>
-            <Button
-                type="primary"
-                variant="solid"
-                className={styles.logoutButton}
-                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
               <Button
                 type="primary"
                 variant="solid"
                 className={styles.lobbyButtons}
-                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
                 onClick={handleCreateLobby}
               >
                 Create Lobby
@@ -391,7 +360,7 @@ const MainPage: React.FC = () => {
                 type="primary"
                 variant="solid"
                 className={styles.lobbyButtons}
-                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
                 onClick={handleJoinLobbyClick}
               >
                 Join Lobby
@@ -399,8 +368,8 @@ const MainPage: React.FC = () => {
               <Button
                 type="primary"
                 variant="solid"
-                className={styles.lobbyButtons}
-                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                className={styles.singleButtons}
+                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
                 onClick={handleQuickPlay}
               >
                 Quickplay
@@ -408,16 +377,19 @@ const MainPage: React.FC = () => {
               <Button
                 type="primary"
                 variant="solid"
-                className={styles.singlePlayerButton}
-                style={{ border: '6px solid #ffffff', borderRadius: '20px' }}
+                className={styles.singleButtons}
+                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
                 onClick={handleSingleplayer}
               >
-                Singleplayer
+                Singleplay
               </Button>
             </>
           ) : (
-            <div className={styles.joinButtonContainer} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+            <div
+              className={styles.joinButtonContainer}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+            >
+              <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                 <div className={styles.inputContainer}>
                   <Input
                     placeholder="Enter Lobby Code"
@@ -425,18 +397,16 @@ const MainPage: React.FC = () => {
                     onChange={handleLobbyCodeChange}
                     onKeyDown={handleKeyDown}
                     className={styles.stretchedInput}
-                    style={{ 
-                      flex: '1',
-                      borderColor: lobbyCodeError ? '#ff4d4f' : '#ffffff'
+                    style={{
+                      flex: "1",
+                      borderColor: lobbyCodeError ? "#ff4d4f" : "#ffffff",
                     }}
                     disabled={validatingLobby}
-                    type="number" // Set input type to number
-                    min={0} // Only positive integers
+                    type="number"
+                    min={0}
                     status={lobbyCodeError ? "error" : ""}
                   />
-                  {lobbyCodeError && (
-                    <div className={styles.errorMessage}>{lobbyCodeError}</div>
-                  )}
+                  {lobbyCodeError && <div className={styles.errorMessage}>{lobbyCodeError}</div>}
                 </div>
                 <Button
                   type="primary"
@@ -446,7 +416,7 @@ const MainPage: React.FC = () => {
                   loading={validatingLobby}
                   disabled={validatingLobby}
                 >
-                  {validatingLobby ? 'Validating...' : 'Join'}
+                  {validatingLobby ? "Validating..." : "Join"}
                 </Button>
               </div>
               <Button
@@ -459,9 +429,39 @@ const MainPage: React.FC = () => {
                 Back
               </Button>
             </div>
-            )}
+          )}
         </div>
+        
       </div>
+      <div className={styles.globalLeaderboardContainer}>
+          <div className={styles.globalLobbyContainer} style={{ marginTop: "20px",marginRight: "100px", minWidth: "300px" }}>
+            <h2>Global Leaderboard</h2>
+            {leaderboardLoading ? (
+              <p>Loading leaderboard...</p>
+            ) : leaderboardPlayers.length > 0 ? (
+              <table className={styles.globalLobbyTable}>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Level</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboardPlayers.map((player, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{player.username}</td>
+                      <td>{Math.floor(player.level)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No leaderboard data available</p>
+            )}
+          </div>
+        </div>
     </div>
   );
 };
