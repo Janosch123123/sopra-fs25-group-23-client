@@ -749,7 +749,7 @@ a.secondary {
   border: none; /* Remove existing border */
   border-bottom: 1px solid #72870d; /* Match statisticsTable td */
   text-align: center;
-  border-radius: 0px; /* Match statisticsTable td */
+  border-radius: 0px;
   color: white; /* Ensure text is always white */
 }
 .startGameButton {
@@ -786,16 +786,15 @@ a.secondary {
 .logoutButton {
   composes: lobbyButtons;
   --color: #137ca5; /* Slightly darker volcano color for hover effect */
-  font-size: 1.5rem !important; /* Smaller font size */
+  font-size: 1.6rem !important; /* Smaller font size */
   padding: 10px 20px !important; /* Reduced padding */
-  min-width: 200px !important; /* Smaller width */
-  min-height: 65px !important; /* Smaller height */
+  min-width: 180px !important; /* Smaller width */
+  min-height: 55px !important; /* Smaller height */
   border: 4px solid #ffffff !important; /* Thinner border */
   border-radius: 15px !important; /* Less rounded corners */
   background-color: #ff0000 !important; /* Slightly different red */
   color: #ffffff !important; /* Keep white text */
-  margin-top: 20px !important; /* Space between testButton and this */
-  margin-left: 50px;
+  margin-top: -20px !important; /* Space between testButton and this */
   margin-bottom: 0 !important; /* Remove top margin */
   position: relative !important; /* Position absolutely */
   letter-spacing: normal !important; /* Normal letter spacing */

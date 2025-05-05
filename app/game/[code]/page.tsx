@@ -20,10 +20,9 @@ const GamePage: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
   // Store item locations in state
-  const [cookiePositions, setCookiePositions] = useState<[number, number][]>([]);
-  const [goldenCookiePositions, setGoldenCookiePositions] = useState<[number, number][]>([]);
-  const [multiplierPositions, setMultiplierPositions] = useState<[number, number][]>([]);
-  const [reverseControlPositions, setReverseControlPositions] = useState<[number, number][]>([]);
+  const [goldenCookies, setGoldenCookies] = useState<[number, number][]>([]);
+  const [multipliers, setMultipliers] = useState<[number, number][]>([]);
+  const [reverseControls, setReverseControls] = useState<[number, number][]>([]);
   const [timestamp, setTimestamp] = useState<number>(0);
   const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
@@ -729,15 +728,13 @@ useEffect(() => {
                 let cookiePositions: [number, number][] = [];
                 if (Array.isArray(data.cookies) && data.cookies.length > 0 && Array.isArray(data.cookies[0])) {
                   cookiePositions = data.cookies;
-                  setCookiePositions(data.cookies);
                 } else if (Array.isArray(data.cookies)) {
                   // Convert legacy format (array of indexes) to [col, row] format
                   cookiePositions = data.cookies.map((index: number) => indexToColRow(index));
-                  setCookiePositions(cookiePositions);
                 }
                 
                 // Render cookies immediately
-                renderItems(cookiePositions, goldenCookiePositions, multiplierPositions, reverseControlPositions);
+                renderItems(cookiePositions, goldenCookies, multipliers, reverseControls);
 
                 // Reset player death state when game is restarting
                 setPlayerIsDead(false);
@@ -762,10 +759,9 @@ useEffect(() => {
                 renderPlayerSnakes(data.snakes || {});
                 
                 // Set all item positions from the message
-                setCookiePositions(data.cookies || []);
-                setGoldenCookiePositions(data.goldenCookies || []);
-                setMultiplierPositions(data.multipliers || []);
-                setReverseControlPositions(data.reverseControls || []);
+                setGoldenCookies(data.goldenCookies || []);
+                setMultipliers(data.multipliers || []);
+                setReverseControls(data.reverseControls || []);
                 
                 // Render all items immediately
                 renderItems(

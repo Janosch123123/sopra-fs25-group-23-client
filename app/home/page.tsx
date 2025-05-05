@@ -431,6 +431,15 @@ console.log('Parsed JSON message:', data);
                     </Button>
                   </div>
                 </div>
+                <Button
+                  type="primary"
+                  variant="solid"
+                  className={styles.logoutButton}
+                  onClick={handleLogout}
+                  style={{ marginTop: "0px", justifyContent: "center" }}
+                >
+                  Logout
+                </Button>
               </div>
             ) : (
               <div className={styles.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column",  gap: "30px" }}>
@@ -478,6 +487,7 @@ console.log('Parsed JSON message:', data);
                     Back
                   </Button>
                 </div>
+    
               </div>
             )}
           </div>
