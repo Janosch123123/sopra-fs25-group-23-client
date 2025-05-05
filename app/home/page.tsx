@@ -289,35 +289,64 @@ console.log('Parsed JSON message:', data);
         {loading ? (
           <p>Loading statistics...</p>
         ) : userStats ? (
-          <table className={styles.statisticsTable}>
-            <tbody>
-              <tr>
-                <td>Username:</td>
-                <td>{userStats.username}</td>
-              </tr>
-              <tr>
-                <td>Level:</td>
-                <td>{userStats.level}</td>
-              </tr>
-              <tr>
-                <td>#Wins:</td>
-                <td>{userStats.wins}</td>
-              </tr>
-              <tr>
-                <td>#Kills:</td>
-                <td>{userStats.kills}</td>
-              </tr>
-              <tr>
-                <td>#Games:</td>
-                <td>{userStats.playedGames}</td>
-              </tr>
-              <tr>
-                <td>Length-PR:</td>
-                <td>{userStats.lengthPR}</td>
-              </tr>
-            </tbody>
+        <table className={styles.statisticsTable}>
+          <tbody>
+            <tr>
+              <td>Username:</td>
+              <td>{userStats.username}</td>
+            </tr>
+            <tr>
+              <td>#Wins:</td>
+              <td>{userStats.wins}</td>
+            </tr>
+            <tr>
+              <td>#Kills:</td>
+              <td>{userStats.kills}</td>
+            </tr>
+            <tr>
+              <td>#Games:</td>
+              <td>{userStats.playedGames}</td>
+            </tr>
+            <tr>
+              <td>Length-PR:</td>
+              <td>{userStats.lengthPR}</td>
+            </tr>
+            <tr>
+              <td style={{
+                borderBottom: 'none',
+              }}>Level:</td>
+              <td style={{
+                borderBottom: 'none',
+              }}>{Math.floor(userStats.level)}</td>
+            </tr>
+            <tr>
+              <td
+                colSpan={2}
+                style={{
+                  padding: 0,
+                  position: 'relative',
+                  backgroundColor: '#345a97',
+                  borderBottom: 'none',
 
-          </table>
+                }}
+                >
+                <div className={styles.levelProgressContainer} style={{ width: '100%', }}>
+                  <div
+                    className={styles.levelProgressBar}
+                    style={{
+                      marginLeft: '-3px',
+                      
+                      width: `${(userStats.level % 1) * 100}%`,
+                      backgroundColor: '#4caf50',
+                      height: '10px',
+                      borderRadius: '10px', // Make both ends rounded
+                    }}
+                    ></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
         ) : (
           <p>No statistics available</p>
         )}

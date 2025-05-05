@@ -452,7 +452,7 @@ const LobbyPage: React.FC = () => {
                 <td>
                   {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
                 </td>
-                <td>{player.level}</td>
+                <td>{Math.floor(player.level)}</td>
               </tr>
             ))}
           </tbody>

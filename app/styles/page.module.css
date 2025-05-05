@@ -1135,11 +1135,120 @@ a.secondary {
   width: 110%;
   height: 110%;
   transform: translate(-50%, -50%);
-  background-image: url('../styles/cookie/cookie.png');
+  background-image: url('../styles/items/cookie.png');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: 1;
+  z-index: 6;
+}
+
+/* Golden Cookie cell styling */
+.goldenCookieCell {
+  position: relative;
+}
+
+.goldenCookieCell::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130%;
+  height: 130%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/flare.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+  animation: rotateFlare 12s linear infinite;
+}
+.goldenCookieCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 105%;
+  height: 105%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/golden_cookie.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6;
+  animation: pulseate 3s ease-in-out infinite;
+}
+
+/* Multiplier cell styling with rotating flare */
+.multiplierCell {
+  position: relative;
+}
+
+.multiplierCell::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/flare2.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+  animation: rotateFlare 12s linear infinite;
+}
+
+.multiplierCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110%;
+  height: 110%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/2x.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6;
+  animation: pulseate 3s ease-in-out infinite;
+}
+
+/* Reverse Controls cell styling */
+.reverseControlsCell::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  width: 200%;
+  height: 200%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/reverse.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6;
+}
+
+@keyframes rotateFlare {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes pulseate {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 /* Current player's cell styling for easier visibility */
