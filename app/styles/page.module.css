@@ -686,11 +686,10 @@ a.secondary {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #44a742; 
-  border-color: #279025;
+  background-color: #a5c118; 
   padding: 20px;
   border-radius: 20px;
-  border: 4px solid #279025; /* White border */
+  border: 4px solid #72870d /* White border */
 }
 
 .globalLobbyContainer h1 {
@@ -699,14 +698,14 @@ a.secondary {
 
 .globalLobbyTable {
   composes: lobbyTable;
-  background-color: #49a742;
+  background-color: #a5c118;
 
 }
 
 .globalLobbyTable th, .globalLobbyTable td {
   padding: 10px;
   border: none; /* Remove existing border */
-  border-bottom: 1px solid #279025; /* Match statisticsTable td */
+  border-bottom: 1px solid #72870d; /* Match statisticsTable td */
   text-align: center;
   border-radius: 30px; /* Match statisticsTable td */
   color: white; /* Ensure text is always white */
@@ -1598,7 +1597,7 @@ a.secondary {
 /* Spectator mode overlay for eliminated players */
 .spectatorOverlay {
   position: absolute;
-  margin-left: 60;
+  margin-left: 10px;
   top: 0;
   left: 0;
   width: 100%;
@@ -1606,8 +1605,7 @@ a.secondary {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 3; /* Lower z-index than deathOverlay (10) */
+  z-index: 7; /* Lower z-index than deathOverlay (10) */
   pointer-events: none;
   filter: grayscale(70%);
   opacity: 1; /* Start visible immediately */
@@ -1632,20 +1630,6 @@ a.secondary {
   font-weight: bold;
   color: white;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-}
-
-/* Spectator mode overlay for eliminated players */
-.spectatorOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
-  z-index: 3; /* Lower z-index than deathOverlay (10) */
-  pointer-events: none;
-  filter: grayscale(70%);
-  opacity: 1; /* Start visible immediately */
 }
 
 /* Admin badge styling */
@@ -1709,6 +1693,14 @@ a.secondary {
 
 
 .dashboardContainer h2 {
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+}
+
+.globalLeaderboardContainer h2 {
   text-align: center; /* Center the title */
   font-size: 2.5rem; /* Increase font size */
   text-decoration: underline; /* Underline the title */

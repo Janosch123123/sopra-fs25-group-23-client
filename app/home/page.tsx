@@ -464,7 +464,7 @@ console.log('Parsed JSON message:', data);
       </div>
       <div className={styles.globalLeaderboardContainer}>
           <div className={styles.globalLobbyContainer} style={{ marginTop: "20px",marginRight: "100px", minWidth: "300px" }}>
-            <h2>Global Leaderboard</h2>
+            <h2>Top 5 Players</h2>
             {leaderboardLoading ? (
               <p>Loading leaderboard...</p>
             ) : leaderboardPlayers.length > 0 ? (
@@ -477,7 +477,7 @@ console.log('Parsed JSON message:', data);
                   </tr>
                 </thead>
                 <tbody>
-                  {leaderboardPlayers.map((player, index) => (
+                  {leaderboardPlayers.slice(0, 5).map((player, index) => (
                     <tr key={index}>
                       <td>{index + 1}</td>
                       <td>{player.username}</td>
