@@ -250,6 +250,19 @@ a.secondary {
   z-index: 0;
 }
 
+.mainHomePage {
+  position: relative;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Adding a new class to handle join lobby mode display */
+.joinLobbyMode {
+  justify-content: flex-start;
+}
+
 .mainContentContainer {
   flex-direction: column;
   justify-content: center;
@@ -283,13 +296,32 @@ a.secondary {
   width: 100%;
   height: 100%;
   transform: translate(-50%, -50%);
-  background-image: url('../styles/logo/logo.png');
+  background-image: url('../styles/logo/logo1.png');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 5;
-  -webkit-filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
-  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
+}
+ 
+.logoHomeImage {
+  position: relative;
+  width: 370px;
+  height: 300px;
+}
+
+.logoHomeImage::after {
+  content: '';
+  position: absolute;
+  top: 20%; /* Changed from 50% to 40% to move image up */
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/logo/logo1.png');
+  background-size: 100% auto; /* Changed from 'contain' to '100% auto' to maintain width */
+  background-position: center top; /* Changed from 'center' to 'center top' to crop from bottom */
+  background-repeat: no-repeat;
+  z-index: 5;
 }
 
 /* Make sure content inside mainPage is positioned above the background */
@@ -367,7 +399,7 @@ a.secondary {
   border-radius: 20px;
   border: 4px solid #345a97; /* Darker dark green border */
   margin-right: 20px;
-  margin-left: 200px; /* Added margin-left to move it to the right */
+  margin-left: 120px; /* Added margin-left to move it to the right */
 }
 
 .statisticsTable {
@@ -396,11 +428,9 @@ a.secondary {
 }
 
 .playButtonContainer {
+  margin-top: 0px;
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
   width: 100%;
 }
 
@@ -417,25 +447,33 @@ a.secondary {
   font-family: "Oswald", sans-serif; /* Updated to Oswald font */
 }
 
+.lobbyButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+}
+
 .lobbyButtons {
-  --color: #fb7042; /* Changed to a blue color */
-  background-color: #fa541c !important; /* Volcano color */
+  background-color: #1c52c5 !important; /* Volcano color */
   position: relative;
   overflow: hidden;
   z-index: 1;
   transition: transform 0.3s ease, background-color 0.3s ease;
-  font-size: 3.5rem !important; /* Ensure the font size is applied */
+  font-size: 2.8rem !important; /* Ensure the font size is applied */
   font-weight: 600 !important; /* Bold weight from Oswald */
   padding: 50px 100px; /* Increase padding */
-  min-width: 400px; /* Ensure width grows */
-  min-height: 150px; /* Ensure height increases */
+  min-width: 290px; /* Ensure width grows */
+  min-height: 120px; /* Ensure height increases */
   border: 10px solid #ffffff; /* White border */
   color: #ffffff; /* White text color */
-  margin-left: 160px; /* Remove margin to the left */
+  margin-left: 10px; /* Remove margin to the left */
+  margin-bottom: 10px;
   border-radius: 400px; /* Add rounded corners */
   font-family: "Oswald", sans-serif; /* Updated to Oswald font */
   letter-spacing: -0.10rem;
   cursor: pointer; /* Add cursor pointer for all lobbyButtons */
+  
 }
 
 .lobbyButtons::before {
@@ -486,6 +524,12 @@ a.secondary {
   color: #ffffff !important; /* Ensure text color is applied */
   margin-left: 20px !important; /* Remove margin for closer positioning */
 }
+
+.singleButtons {
+  composes: lobbyButtons;
+  background-color: #0988c8 !important; /* Volcano color */
+}
+
 .mainButton {
   composes: lobbyButtons;
   --color:#1c4d96;
@@ -493,7 +537,7 @@ a.secondary {
   padding: 0 20px !important; /* Reduced horizontal padding */
   min-width: 300px !important; /* Smaller width */
   min-height: 120px !important; /* Match input field height */
-  border: 4px solid #ffffff !important; /* Thinner border */
+  border: 6px solid #ffffff !important; /* Thinner border */
   border-radius: 20px !important; /* Smaller border radius */
   background-color: #1858b8 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
@@ -504,17 +548,17 @@ a.secondary {
 
 .backButton {
   composes: lobbyButtons;
-  --color: #952300;
   font-size: 1.5rem !important; /* Even smaller font size */
   padding: 0 20px !important; /* Same reduced horizontal padding */
   min-width: 120px !important; /* Slightly wider than join button */
   min-height: 60px !important; /* Shorter height */
   border: 4px solid #ffffff !important; /* Same border thickness */
   border-radius: 20px !important; /* Same border radius */
-  background-color: #d33100!important; /* Same volcano color */
+  background-color: #ff0000!important; /* Same volcano color */
   color: #ffffff !important; /* Same text color */
   margin-left: 0 !important; /* No left margin */
   margin-top: 15px !important; /* Add some space from the input above */
+  margin-bottom: 0px !important; /* Remove top margin */
   align-self: center !important; /* Center the button */
 }
 
@@ -540,14 +584,15 @@ a.secondary {
   display: flex;
   flex-direction: row;
   gap: 0; /* Remove gap between input and button */
-  width: 100%;
+  min-width: 603px;
   align-items: flex-start;
   background-color: transparent;
   padding: 30px;
   border-radius: 20px;
-  background-color: #66bb6a;
-  border: 5px solid #43a047;
+  background-color: #2e98e4;
+  border: 5px solid #1c77b9;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  margin-top: 150px;
 }
 
 .inputContainer {
@@ -630,12 +675,12 @@ a.secondary {
 }
 
 .lobbyCodeTitle {
-  font-size: 2rem; /* Increase title font size */
+  font-size: 1.5rem; /* Increase title font size */
 }
 
 .lobbyCodeInput {
   width: 400px; /* Increase width */
-  font-size: 2rem; /* Increase font size */
+  font-size: 1.5rem; /* Increase font size */
   padding: 30px; /* Increase padding */
   border: 4px solid #8a8a8a; /* Increase border size */
   border-radius: 8px;
@@ -647,7 +692,7 @@ a.secondary {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #427fa7; /* Volcano background color */
+  background-color: #427fa7; 
   border-color: #345a97;
   padding: 20px;
   border-radius: 8px;
@@ -663,7 +708,7 @@ a.secondary {
   font-size: 1.5rem; /* Maintain existing font size */
   border-collapse: collapse;
   margin-bottom: 20px;
-  border-radius: 40px; /* Match statisticsTable */
+  border-radius: 20px; /* Match statisticsTable */
   font-family: "Oswald", sans-serif; /* Match statisticsTable */
   color: white; /* Ensure text is always white */
 }
@@ -673,14 +718,40 @@ a.secondary {
   border: none; /* Remove existing border */
   border-bottom: 1px solid #345a97; /* Match statisticsTable td */
   text-align: center;
-  border-radius: 30px; /* Match statisticsTable td */
+  border-radius: 20px; /* Match statisticsTable td */
   color: white; /* Ensure text is always white */
-}
-
-.lobbyTable th {
   font-weight: bold;
 }
 
+.globalLobbyContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: #a5c118; 
+  padding: 20px;
+  border-radius: 20px;
+  border: 4px solid #72870d; /* White border */
+  margin-left: 20px;
+}
+
+.globalLobbyContainer h1 {
+  font-weight: bold; /* Make the title bold */
+}
+
+.globalLobbyTable {
+  composes: lobbyTable;
+  border-radius: 10px; /* Match statisticsTable */
+  background-color: #a5c118;
+
+}
+
+.globalLobbyTable th, .globalLobbyTable td {
+  padding: 10px;
+  border: none; /* Remove existing border */
+  border-bottom: 1px solid #72870d; /* Match statisticsTable td */
+  text-align: center;
+  border-radius: 0px;
+  color: white; /* Ensure text is always white */
+}
 .startGameButton {
   composes: lobbyButtons;
   --color: #187a00;
@@ -712,7 +783,22 @@ a.secondary {
   margin-left: 0 !important; /* No left margin */
 }
 
-
+.logoutButton {
+  composes: lobbyButtons;
+  --color: #137ca5; /* Slightly darker volcano color for hover effect */
+  font-size: 1.6rem !important; /* Smaller font size */
+  padding: 10px 20px !important; /* Reduced padding */
+  min-width: 180px !important; /* Smaller width */
+  min-height: 55px !important; /* Smaller height */
+  border: 4px solid #ffffff !important; /* Thinner border */
+  border-radius: 15px !important; /* Less rounded corners */
+  background-color: #ff0000 !important; /* Slightly different red */
+  color: #ffffff !important; /* Keep white text */
+  margin-top: -20px !important; /* Space between testButton and this */
+  margin-bottom: 0 !important; /* Remove top margin */
+  position: relative !important; /* Position absolutely */
+  letter-spacing: normal !important; /* Normal letter spacing */
+}
 .loginContent {
   background-color: #66bb6a; /* Darker medium green background */
   padding: 40px;
@@ -769,27 +855,11 @@ a.secondary {
   width: 100%;
 }
 
-.backButton {
-  font-size: 1rem;
-  font-weight: bold;
-  padding: 10px 20px;
-  background-color: #004d00; /* Dark green */
-  border: 2px solid #ffffff; /* White border */
-  color: #ffffff; /* White text color */
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 20px; /* Add margin to the top */
-}
-
-.backButton:hover {
-  background-color: #003300; /* Darker green on hover */
-}
 
 .volcanoBackButton {
   font-size: 1rem;
   font-weight: bold;
   padding: 10px 20px;
-  background-color: #f4f4f4; /* Volcano color */
   border: 2px solid #b6b6b6; /* White border */
   color: #ff0000; /* White text color */
   border-radius: 8px;
@@ -797,9 +867,6 @@ a.secondary {
   margin-top: 20px; /* Add margin to the top */
 }
 
-.volcanoBackButton:hover {
-  background-color: #9c9c9c; /* Darker volcano color on hover */
-}
 
 .sliderContainer {
   display: flex;
@@ -1306,6 +1373,12 @@ a.secondary {
   font-size: 1.6rem; /* Slightly larger font size for rank */
 }
 
+/* Highlight the user's row in the leaderboard */
+.userRank {
+  background-color: rgba(255, 255, 255, 0.5); /* Slightly lighter background */
+  font-weight: bold;
+}
+
 /* Make sure the leaderboard remains visible in different screen sizes */
 @media (max-width: 1200px) {
   .leaderboard {
@@ -1461,12 +1534,12 @@ a.secondary {
 .login-button {
   composes: lobbyButtons;
   --color:#1c4d96;
-  font-size: 1.3rem !important; /* Smaller font size */
+  font-size: 1.5rem !important; /* Smaller font size */
   padding: 0 20px !important; /* Reduced horizontal padding */
   min-width: 370px !important; /* Ensure button fills full container width */
-  min-height: 50px !important; /* Match input field height */
-  border: 2px solid #ffffff !important; /* Thinner border */
-  border-radius: 20px !important; /* Smaller border radius */
+  min-height: 55px !important; /* Match input field height */
+  border: 4px solid #ffffff !important; /* Thinner border */
+  border-radius: 15px !important; /* Smaller border radius */
   background-color: #1858b8 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
   margin-left: 0;
@@ -1571,7 +1644,7 @@ a.secondary {
 /* Spectator mode overlay for eliminated players */
 .spectatorOverlay {
   position: absolute;
-  margin-left: 60;
+  margin-left: 10px;
   top: 0;
   left: 0;
   width: 100%;
@@ -1579,8 +1652,7 @@ a.secondary {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 3; /* Lower z-index than deathOverlay (10) */
+  z-index: 7; /* Lower z-index than deathOverlay (10) */
   pointer-events: none;
   filter: grayscale(70%);
   opacity: 1; /* Start visible immediately */
@@ -1605,20 +1677,6 @@ a.secondary {
   font-weight: bold;
   color: white;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-}
-
-/* Spectator mode overlay for eliminated players */
-.spectatorOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
-  z-index: 3; /* Lower z-index than deathOverlay (10) */
-  pointer-events: none;
-  filter: grayscale(70%);
-  opacity: 1; /* Start visible immediately */
 }
 
 /* Admin badge styling */
@@ -1687,6 +1745,18 @@ a.secondary {
   text-decoration: underline; /* Underline the title */
   font-weight: 600; /* Bold weight from Oswald */
   font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+}
+
+.globalLobbyContainer h2 {
+  color: white;
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+}
+.globalLeaderboardContainer{
+  margin-top: 20px;
 }
 
 .dashboardContainer h2,
