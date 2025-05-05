@@ -706,6 +706,7 @@ useEffect(() => {
               
               // Handle pre-game countdown messages
               if (data.type === 'preGame') {
+                setShowSpectatorOverlay(false);
                 setGameLive(false);
                 setCountdown(data.countdown);
                 
@@ -1185,7 +1186,7 @@ useEffect(() => {
         )}
         
         {/* Spectator overlay */}
-        {showSpectatorOverlay && (
+        {showSpectatorOverlay && gameLive &&(
           <div className={styles.spectatorOverlay}>
             <div className={styles.spectatorMessage}>
               <h2>SPECTATING</h2>

@@ -1133,7 +1133,7 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 5;
-  animation: rotateFlare 12s linear infinite;
+  animation: rotateFlare 24s linear infinite;
 }
 .goldenCookieCell::after {
   content: '';
@@ -1194,14 +1194,15 @@ a.secondary {
   position: absolute;
   top: 100%;
   left: 100%;
-  width: 200%;
-  height: 200%;
+  width: 210%;
+  height: 210%;
   transform: translate(-50%, -50%);
-  background-image: url('../styles/items/reverse.png');
+  background-image: url('../styles/items/reverse2.png');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 6;
+  animation: pulseate 3s ease-in-out infinite;
 }
 
 @keyframes rotateFlare {
@@ -1273,7 +1274,7 @@ a.secondary {
 
 .leaderboardTable {
   width: 270px;
-  font-size: 1.3rem; /* Match statisticsTable */
+  font-size: 1.5rem; /* Match statisticsTable */
   font-weight: 500; /* Match statisticsTable */
   border-collapse: collapse;
   border-radius: 40px; /* Match statisticsTable */
@@ -1568,27 +1569,7 @@ a.secondary {
   100% { opacity: 0; transform: scale(0.95); }
 }
 
-/* Spectator mode overlay for eliminated players */
-.spectatorOverlay {
-  position: absolute;
-  margin-left: 60;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 3; /* Lower z-index than deathOverlay (10) */
-  pointer-events: none;
-  filter: grayscale(70%);
-  opacity: 1; /* Start visible immediately */
-  display: flex; /* Enable flexbox to center the message */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  font-family: 'Oswald', sans-serif; /* Updated to Oswald font */
-}
+
 
 /* Spectator message styling */
 .spectatorMessage {
@@ -1610,17 +1591,23 @@ a.secondary {
 /* Spectator mode overlay for eliminated players */
 .spectatorOverlay {
   position: absolute;
+  margin-left: 10px;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: transparent;
-  z-index: 3; /* Lower z-index than deathOverlay (10) */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10; /* Lower z-index than deathOverlay (10) */
   pointer-events: none;
   filter: grayscale(70%);
   opacity: 1; /* Start visible immediately */
+  display: flex; /* Enable flexbox to center the message */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  font-family: 'Oswald', sans-serif; /* Updated to Oswald font */
 }
-
 /* Admin badge styling */
 .adminBadge {
   display: inline-block;
