@@ -14,6 +14,7 @@ interface UserStats {
   kills: number;
   playedGames: number;
   lengthPR: number;
+  winRate?: number; // Adding winRate as an optional property
 }
 
 interface LeaderboardPlayer {
@@ -39,6 +40,8 @@ const MainPage: React.FC = () => {
   const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
   const [leaderboardPlayers, setLeaderboardPlayers] = useState<LeaderboardPlayer[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  // Add a state for user rank if not in top 5
+  const [userRankInfo, setUserRankInfo] = useState<{ rank: number } | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -111,6 +114,20 @@ console.log('Parsed JSON message:', data);
         setLeaderboardLoading(true);
         const response = await apiService.get<LeaderboardPlayer[]>("/leaderboard");
         setLeaderboardPlayers(response);
+        
+        // Check if the user needs to fetch their rank
+        const username = localStorage.getItem("username")?.replace(/"/g, '') || '';
+        const userInTop5 = response.slice(0, 5).some(player => player.username === username);
+        
+        if (!userInTop5 && userId) {
+          try {
+            // Fetch user's rank if not in top 5
+            const rankResponse = await apiService.get<{ rank: number }>(`/leaderboard/${userId}`);
+            setUserRankInfo(rankResponse);
+          } catch (err) {
+            console.error("Error fetching user rank:", err);
+          }
+        }
       } catch (error) {
         console.error("Error fetching leaderboard:", error);
       } finally {
@@ -284,211 +301,236 @@ console.log('Parsed JSON message:', data);
 
   return (
     <div className={styles.mainPage}>
-      <div className={styles.dashboardContainer}>
-        <h2>User Statistics</h2>
-        {loading ? (
-          <p>Loading statistics...</p>
-        ) : userStats ? (
-        <table className={styles.statisticsTable}>
-          <tbody>
-            <tr>
-              <td>Username:</td>
-              <td>{userStats.username}</td>
-            </tr>
-            <tr>
-              <td>#Wins:</td>
-              <td>{userStats.wins}</td>
-            </tr>
-            <tr>
-              <td>#Kills:</td>
-              <td>{userStats.kills}</td>
-            </tr>
-            <tr>
-              <td>#Games:</td>
-              <td>{userStats.playedGames}</td>
-            </tr>
-            <tr>
-              <td>Length-PR:</td>
-              <td>{userStats.lengthPR}</td>
-            </tr>
-            <tr>
-              <td style={{
-                borderBottom: 'none',
-              }}>Level:</td>
-              <td style={{
-                borderBottom: 'none',
-              }}>{Math.floor(userStats.level)}</td>
-            </tr>
-            <tr>
-              <td
-                colSpan={2}
-                style={{
-                  padding: 0,
-                  position: 'relative',
-                  backgroundColor: '#345a97',
+      <div className={styles.mainHomePage}>
+        <div className={styles.dashboardContainer}>
+          <h2>User Statistics</h2>
+          {loading ? (
+            <p>Loading statistics...</p>
+          ) : userStats ? (
+          <table className={styles.statisticsTable}>
+            <tbody>
+              <tr>
+                <td>Username:</td>
+                <td>{userStats.username}</td>
+              </tr>
+              <tr>
+                <td>#Wins:</td>
+                <td>{userStats.wins}</td>
+              </tr>
+              <tr>
+                <td>#Kills:</td>
+                <td>{userStats.kills}</td>
+              </tr>
+              <tr>
+                <td>#Games:</td>
+                <td>{userStats.playedGames}</td>
+              </tr>
+              <tr>
+                <td>Winrate:</td>
+                <td>{userStats.winRate !== undefined ? `${Math.round(userStats.winRate * 100)}%` : 
+                    userStats.playedGames > 0 ? `${Math.round((userStats.wins / userStats.playedGames) * 100)}%` : '0%'}</td>
+              </tr>
+              <tr>
+                <td>Length-PR:</td>
+                <td>{userStats.lengthPR}</td>
+              </tr>
+              <tr>
+                <td style={{
                   borderBottom: 'none',
+                }}>Level:</td>
+                <td style={{
+                  borderBottom: 'none',
+                }}>{Math.floor(userStats.level)}</td>
+              </tr>
+              <tr>
+                <td
+                  colSpan={2}
+                  style={{
+                    padding: 0,
+                    position: 'relative',
+                    backgroundColor: '#345a97',
+                    borderBottom: 'none',
 
-                }}
-                >
-                <div className={styles.levelProgressContainer} style={{ width: '100%', }}>
-                  <div
-                    className={styles.levelProgressBar}
-                    style={{
-                      marginLeft: '-3px',
-                      
-                      width: `${(userStats.level % 1) * 100}%`,
-                      backgroundColor: '#4caf50',
-                      height: '10px',
-                      borderRadius: '10px', // Make both ends rounded
-                    }}
-                    ></div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        ) : (
-          <p>No statistics available</p>
-        )}
-        <Button type="primary" variant="solid" className={styles.logoutButton} onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
-      <div
-        className={styles.playButtonContainer}
-        style={{
-          fontSize: "10px",
-          fontWeight: "bold",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-            marginTop: "20px",
-            alignItems: "flex-start",
-          }}
-        >
-          {showButtons ? (
-            <>
-              <Button
-                type="primary"
-                variant="solid"
-                className={styles.lobbyButtons}
-                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
-                onClick={handleCreateLobby}
-              >
-                Create Lobby
-              </Button>
-              <Button
-                type="primary"
-                variant="solid"
-                className={styles.lobbyButtons}
-                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
-                onClick={handleJoinLobbyClick}
-              >
-                Join Lobby
-              </Button>
-              <Button
-                type="primary"
-                variant="solid"
-                className={styles.singleButtons}
-                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
-                onClick={handleQuickPlay}
-              >
-                Quickplay
-              </Button>
-              <Button
-                type="primary"
-                variant="solid"
-                className={styles.singleButtons}
-                style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
-                onClick={handleSingleplayer}
-              >
-                Singleplay
-              </Button>
-            </>
+                  }}
+                  >
+                  <div className={styles.levelProgressContainer} style={{ width: '100%', }}>
+                    <div
+                      className={styles.levelProgressBar}
+                      style={{
+                        marginLeft: '-3px',
+                        
+                        width: `${(userStats.level % 1) * 100}%`,
+                        backgroundColor: '#4caf50',
+                        height: '10px',
+                        borderRadius: '10px', // Make both ends rounded
+                      }}
+                      ></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
           ) : (
-            <div
-              className={styles.joinButtonContainer}
-              style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-            >
-              <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                <div className={styles.inputContainer}>
-                  <Input
-                    placeholder="Enter Lobby Code"
-                    value={lobbyCode}
-                    onChange={handleLobbyCodeChange}
-                    onKeyDown={handleKeyDown}
-                    className={styles.stretchedInput}
-                    style={{
-                      flex: "1",
-                      borderColor: lobbyCodeError ? "#ff4d4f" : "#ffffff",
-                    }}
-                    disabled={validatingLobby}
-                    type="number"
-                    min={0}
-                    status={lobbyCodeError ? "error" : ""}
-                  />
-                  {lobbyCodeError && <div className={styles.errorMessage}>{lobbyCodeError}</div>}
-                </div>
-                <Button
-                  type="primary"
-                  variant="solid"
-                  className={styles.joinButton}
-                  onClick={handleJoinWithCode}
-                  loading={validatingLobby}
-                  disabled={validatingLobby}
-                >
-                  {validatingLobby ? "Validating..." : "Join"}
-                </Button>
-              </div>
-              <Button
-                type="primary"
-                variant="solid"
-                className={styles.backButton}
-                onClick={handleBackClick}
-                style={{ marginTop: '15px', justifyContent: 'center'}}
-              >
-                Back
-              </Button>
-            </div>
+            <p>No statistics available</p>
           )}
+
         </div>
-        
-      </div>
-      <div className={styles.globalLeaderboardContainer}>
-          <div className={styles.globalLobbyContainer} style={{ marginTop: "20px",marginRight: "100px", minWidth: "300px" }}>
-            <h2>Top 5 Players</h2>
-            {leaderboardLoading ? (
-              <p>Loading leaderboard...</p>
-            ) : leaderboardPlayers.length > 0 ? (
-              <table className={styles.globalLobbyTable}>
-                <thead>
-                  <tr>
-                    <th>Rank</th>
-                    <th>Username</th>
-                    <th>Level</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboardPlayers.slice(0, 5).map((player, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{player.username}</td>
-                      <td>{Math.floor(player.level)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              marginTop: "20px",
+              alignItems: "flex-start",
+            }}
+          >
+            {showButtons ? (
+              <div className={styles.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+                <div className={styles.logoHomeImage}>
+                  {/* Logo will be displayed via CSS */}
+                </div>
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: "-80px"}}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Button
+                      type="primary"
+                      variant="solid"
+                      className={styles.lobbyButtons}
+                      style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
+                      onClick={handleCreateLobby}
+                    >
+                      Create Lobby
+                    </Button>
+                    <Button
+                      type="primary"
+                      variant="solid"
+                      className={styles.singleButtons}
+                      style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
+                      onClick={handleQuickPlay}
+                    >
+                      Quickplay
+                    </Button>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end" }}>
+                  <Button
+                      type="primary"
+                      variant="solid"
+                      className={styles.lobbyButtons}
+                      style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
+                      onClick={handleJoinLobbyClick}
+                    >
+                      Join Lobby
+                    </Button>
+                    <Button
+                      type="primary"
+                      variant="solid"
+                      className={styles.singleButtons}
+                      style={{ border: "6px solid #ffffff", borderRadius: "20px" }}
+                      onClick={handleSingleplayer}
+                    >
+                      Singleplay
+                    </Button>
+                  </div>
+                </div>
+              </div>
             ) : (
-              <p>No leaderboard data available</p>
+              <div className={styles.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column",  gap: "30px" }}>
+                <div className={styles.logoHomeImage}>
+                  {/* Logo will be displayed via CSS */}
+                </div>
+                <div className={styles.joinButtonContainer} style={{ marginTop: "-70px",  display: "flex", flexDirection: "column"}}>
+                  <div style={{ display: "flex", flexDirection: "row"}}>
+                    <div className={styles.inputContainer}>
+                      <Input
+                        placeholder="Enter Lobby Code"
+                        value={lobbyCode}
+                        onChange={handleLobbyCodeChange}
+                        onKeyDown={handleKeyDown}
+                        className={styles.stretchedInput}
+                        style={{
+                          flex: "1",
+                          borderColor: lobbyCodeError ? "#ff4d4f" : "#ffffff",
+                        }}
+                        disabled={validatingLobby}
+                        type="number"
+                        min={0}
+                        status={lobbyCodeError ? "error" : ""}
+                      />
+                      {lobbyCodeError && <div className={styles.errorMessage}>{lobbyCodeError}</div>}
+                    </div>
+                    <Button
+                      type="primary"
+                      variant="solid"
+                      className={styles.joinButton}
+                      onClick={handleJoinWithCode}
+                      loading={validatingLobby}
+                      disabled={validatingLobby}
+                    >
+                      {validatingLobby ? "Validating..." : "Join"}
+                    </Button>
+                  </div>
+                  <Button
+                    type="primary"
+                    variant="solid"
+                    className={styles.backButton}
+                    onClick={handleBackClick}
+                    style={{ marginTop: '15px', justifyContent: 'center'}}
+                  >
+                    Back
+                  </Button>
+                </div>
+              </div>
             )}
+          </div>
+          <div className={styles.globalLobbyContainer} style={{ marginTop: "0px", marginRight:"100px", minWidth: "400px" }}>
+            <h2>Top 5 Players</h2>
+              {leaderboardLoading ? (
+                <p>Loading leaderboard...</p>
+              ) : leaderboardPlayers.length > 0 ? (
+                <table className={styles.globalLobbyTable}>
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Username</th>
+                      <th>Level</th>
+                      <th>Winrate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaderboardPlayers.slice(0, 5).map((player, index) => {
+                      const username = localStorage.getItem("username")?.replace(/"/g, '') || '';
+                      const isCurrentUser = player.username === username;
+                      return (
+                        <tr key={index} className={isCurrentUser ? styles.userRank : ''}>
+                          <td>{index + 1}</td>
+                          <td>{player.username}{isCurrentUser}</td>
+                          <td>{Math.floor(player.level)}</td>
+                          <td>{Math.round(player.winRate * 100)}%</td>
+                        </tr>
+                      );
+                    })}
+                    
+                    {/* Add user's own rank if not in top 5 */}
+                    {userRankInfo && (
+                      <>
+                        <tr>
+                          <td colSpan={4} style={{ textAlign: 'center', padding: '5px', fontSize: '2rem' }}>
+                            ...
+                          </td>
+                        </tr>
+                        <tr className={styles.userRank}>
+                          <td>{userRankInfo.rank}</td>
+                          <td>{userStats?.username} (You)</td>
+                          <td>{userStats ? Math.floor(userStats.level) : '-'}</td>
+                          <td>{userStats?.winRate !== undefined ? `${Math.round(userStats.winRate * 100)}%` : 
+                              userStats && userStats.playedGames > 0 ? `${Math.round((userStats.wins / userStats.playedGames) * 100)}%` : '0%'}</td>
+                        </tr>
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                <p>No leaderboard data available</p>
+              )}
           </div>
         </div>
     </div>
