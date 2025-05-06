@@ -1200,7 +1200,7 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 5;
-  animation: rotateFlare 24s linear infinite;
+  animation: rotate 24s linear infinite;
 }
 .goldenCookieCell::after {
   content: '';
@@ -1236,7 +1236,7 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 5;
-  animation: rotateFlare 12s linear infinite;
+  animation: rotate 12s linear infinite;
 }
 
 .multiplierCell::after {
@@ -1272,12 +1272,41 @@ a.secondary {
   animation: pulseate 3s ease-in-out infinite;
 }
 
-@keyframes rotateFlare {
+/* Divider cell styling */
+.dividerCell::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  width: 210%;
+  height: 210%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/divider.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6; 
+  animation: rotateScale 5s linear infinite;
+}
+
+@keyframes rotate {
   from {
     transform: translate(-50%, -50%) rotate(0deg);
   }
   to {
     transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes rotateScale {
+  0%{
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  50%{
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.05);
+  }
+  100%{
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
   }
 }
 @keyframes pulseate {

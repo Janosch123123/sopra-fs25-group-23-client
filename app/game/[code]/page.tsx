@@ -23,6 +23,7 @@ const GamePage: React.FC = () => {
   const [goldenCookies, setGoldenCookies] = useState<[number, number][]>([]);
   const [multipliers, setMultipliers] = useState<[number, number][]>([]);
   const [reverseControls, setReverseControls] = useState<[number, number][]>([]);
+  const [dividers, setDividers] = useState<[number, number][]>([]); // Add state for divider items
   const [timestamp, setTimestamp] = useState<number>(0);
   const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
@@ -115,7 +116,8 @@ const GamePage: React.FC = () => {
           // Add these new classes for collision animation
           styles.collidedSnake,
           styles.dyingSnake,
-          styles.collisionPoint
+          styles.collisionPoint,
+          styles.dividerCell
         );
         // Remove any inline styles for player colors
         cell.style.setProperty('--player-color', '');
@@ -326,7 +328,8 @@ const GamePage: React.FC = () => {
   const renderItems = useCallback((cookies: [number, number][] = [], 
                                goldenCookies: [number, number][] = [], 
                                multipliers: [number, number][] = [], 
-                               reverseControls: [number, number][] = []) => {
+                               reverseControls: [number, number][] = [],
+                               dividers: [number, number][] = []) => {
     
     // Create a map of all snake cells to efficiently check for overlaps
     const snakeCells = new Map<string, boolean>();
@@ -394,6 +397,20 @@ const GamePage: React.FC = () => {
       
       if (cell) {
         cell.classList.add(styles.reverseControlsCell);
+      }
+    });
+
+    // Render dividers
+    dividers.forEach(position => {
+      if (snakeCells.has(`${position[0]},${position[1]}`)) {
+        return;
+      }
+      
+      const index = colRowToIndex(position[0], position[1]);
+      const cell = getCell(index);
+      
+      if (cell) {
+        cell.classList.add(styles.dividerCell);
       }
     });
   }, [colRowToIndex, getCell, snakes]);
@@ -735,7 +752,7 @@ useEffect(() => {
                 }
                 
                 // Render cookies immediately
-                renderItems(cookiePositions, goldenCookies, multipliers, reverseControls);
+                renderItems(cookiePositions, goldenCookies, multipliers, reverseControls, dividers);
 
                 // Reset player death state when game is restarting
                 setPlayerIsDead(false);
@@ -763,13 +780,15 @@ useEffect(() => {
                 setGoldenCookies(data.goldenCookies || []);
                 setMultipliers(data.multipliers || []);
                 setReverseControls(data.reverseControls || []);
+                setDividers(data.dividers || []); // Update dividers state
                 
                 // Render all items immediately
                 renderItems(
                   data.cookies || [], 
                   data.goldenCookies || [], 
                   data.multipliers || [], 
-                  data.reverseControls || []
+                  data.reverseControls || [],
+                  data.dividers || [] // Pass dividers to renderItems
                 );
                 
                 // Update timestamp if available
@@ -1087,7 +1106,6 @@ useEffect(() => {
 
   return (
     <div className={styles.mainPage}>
-      
       {/* Timer display */}
       {gameLive && (
         <div className={styles.timer}>
@@ -1237,9 +1255,9 @@ useEffect(() => {
                 Return to Home
               </button>
             </div>
+        </div>
+      )}
     </div>
-    )}
-  </div>
   );
 };
 
