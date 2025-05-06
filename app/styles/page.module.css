@@ -1215,7 +1215,7 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 6;
-  animation: pulseate 3s ease-in-out infinite;
+  animation: sway 2s ease-in-out infinite ;
 }
 
 /* Multiplier cell styling with rotating flare */
@@ -1286,8 +1286,27 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 6; 
-  animation: rotateScale 5s linear infinite;
+  animation: rotatePulse 4s linear infinite;
 }
+
+@keyframes rotatePulse {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate(-50%, -50%) rotate(90deg) scale(1.05);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1);
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(270deg) scale(1.05);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+  }
+}
+
 
 @keyframes rotate {
   from {
@@ -1298,17 +1317,6 @@ a.secondary {
   }
 }
 
-@keyframes rotateScale {
-  0%{
-    transform: translate(-50%, -50%) rotate(0deg) scale(1);
-  }
-  50%{
-    transform: translate(-50%, -50%) rotate(180deg) scale(1.05);
-  }
-  100%{
-    transform: translate(-50%, -50%) rotate(360deg) scale(1);
-  }
-}
 @keyframes pulseate {
   0% {
     transform: translate(-50%, -50%) scale(1);
@@ -1321,6 +1329,17 @@ a.secondary {
   }
 }
 
+@keyframes sway {
+  0% {
+    transform: translate(-50%, -50%) rotate(-10deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(10deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-10deg);
+  }
+}
 /* Current player's cell styling for easier visibility */
 .currentPlayerCell {
   position: relative;
