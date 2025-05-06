@@ -1200,7 +1200,7 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 5;
-  animation: rotateFlare 12s linear infinite;
+  animation: rotate 24s linear infinite;
 }
 .goldenCookieCell::after {
   content: '';
@@ -1215,7 +1215,7 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 6;
-  animation: pulseate 3s ease-in-out infinite;
+  animation: sway 2s ease-in-out infinite ;
 }
 
 /* Multiplier cell styling with rotating flare */
@@ -1236,7 +1236,7 @@ a.secondary {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 5;
-  animation: rotateFlare 12s linear infinite;
+  animation: rotate 12s linear infinite;
 }
 
 .multiplierCell::after {
@@ -1261,17 +1261,54 @@ a.secondary {
   position: absolute;
   top: 100%;
   left: 100%;
-  width: 200%;
-  height: 200%;
+  width: 210%;
+  height: 210%;
   transform: translate(-50%, -50%);
-  background-image: url('../styles/items/reverse.png');
+  background-image: url('../styles/items/reverse2.png');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 6;
+  animation: pulseate 3s ease-in-out infinite;
 }
 
-@keyframes rotateFlare {
+/* Divider cell styling */
+.dividerCell::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  width: 210%;
+  height: 210%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/divider.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6; 
+  animation: rotatePulse 4s linear infinite;
+}
+
+@keyframes rotatePulse {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate(-50%, -50%) rotate(90deg) scale(1.05);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1);
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(270deg) scale(1.05);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+  }
+}
+
+
+@keyframes rotate {
   from {
     transform: translate(-50%, -50%) rotate(0deg);
   }
@@ -1279,6 +1316,7 @@ a.secondary {
     transform: translate(-50%, -50%) rotate(360deg);
   }
 }
+
 @keyframes pulseate {
   0% {
     transform: translate(-50%, -50%) scale(1);
@@ -1291,6 +1329,17 @@ a.secondary {
   }
 }
 
+@keyframes sway {
+  0% {
+    transform: translate(-50%, -50%) rotate(-10deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(10deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-10deg);
+  }
+}
 /* Current player's cell styling for easier visibility */
 .currentPlayerCell {
   position: relative;
@@ -1340,7 +1389,7 @@ a.secondary {
 
 .leaderboardTable {
   width: 270px;
-  font-size: 1.3rem; /* Match statisticsTable */
+  font-size: 1.5rem; /* Match statisticsTable */
   font-weight: 500; /* Match statisticsTable */
   border-collapse: collapse;
   border-radius: 40px; /* Match statisticsTable */
