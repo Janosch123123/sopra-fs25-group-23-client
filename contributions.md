@@ -113,7 +113,7 @@ reason).
 
 ---
 
-## Contributions Week 6 - [Begin Date] to [End Date]
+## Contributions Week 6 - [30.04.2025] to [07.05.2025]
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
@@ -125,3 +125,5 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@StalyTV]** | [05.05.2025]   | [[🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/30c5bebe45cb643e2cb8c4936ad566e1cf49beb0)] | [Implemented the display of a Leaderboard of the top 5 Players (based on their Level) with their Username, Level and winrate dispalyed. Currently logged in User will see his own rank below the leaderboard. This also needed a lot of restructuring of the page, mainly consisting of adding a Logo and aligning the Buttons for Quickplay and Singleplay.] | [This will make all other players see the best ranked/leveled players of all time and hopefully give the game a more competitive vibe] |
+|                    | [03.06.2025]   | [[🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/4fb75179a84b38d4b7209ee6c03ca74597f84a03)] | [Designed Icons for Power-Ups/Downs for multiplier (2x), golden cookie and reverse controls items. Added items in CSS file and implementing logic for display in /game/[id] page.tsx] | [Needed to be done to display an Icon for items the different items.] |
