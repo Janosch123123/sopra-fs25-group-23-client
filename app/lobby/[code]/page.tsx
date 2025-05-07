@@ -1,10 +1,10 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
-
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 interface Player {
   username: string;
@@ -27,6 +27,10 @@ const LobbyPage: React.FC = () => {
   const lobbyCode = params?.code as string;
   const apiService = useApi();
   
+  // Add isAdmin localStorage hook
+  const { set: setAdminStorage } = useLocalStorage<boolean>("isAdmin", false);
+  const { set: setLobbySettingsStorage } = useLocalStorage<string>("lobbySettings", "medium");
+  const { set: setSugarRushStorage } = useLocalStorage<boolean>("sugarRush", false);
   
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,26 +41,46 @@ const LobbyPage: React.FC = () => {
 
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
+  const [sugarRush, setSugarRush] = useState(false);
   
   // Initialize WebSocket connection
-  const { isConnected, connect, send, getSocket } = useLobbySocket();
-  
+  const { isConnected, connect, send, getSocket, disconnect} = useLobbySocket();
+  const intentionalDisconnect = useRef(false);
+
   // Function to handle start game
   const handleStartGame = () => {
     if (!isAdmin) return; // Only admin can start the game
     
     console.log("handleStartGame function called");
+    
+    // Save spawnRate to localStorage
+    setLobbySettingsStorage(spawnRate);
+    setSugarRushStorage(sugarRush); // Save sugarRush to localStorage
+    
     // Send start game message
     send({
       type: "startGame",
-      lobbyId: lobbyCode
+      lobbyId: lobbyCode,
+      settings: {
+        spawnRate: spawnRate,
+        sugarRush: sugarRush
+      }
     });
-    console.log("Sent startGame message");
+    console.log("Start game message sent:", {
+      type: "startGame",
+      lobbyId: lobbyCode,
+      settings: {
+        spawnRate: spawnRate,
+        sugarRush: sugarRush
+      }
+    });
   };
 
   // Function to handle leave lobby
   const handleLeaveLobby = () => {
-    console.log("Leaving lobby");
+    disconnect();
+    intentionalDisconnect.current = true; // Set flag to indicate intentional disconnect
+    console.log("Disconnected from WebSocket");
     router.push("/home");
   };
 
@@ -123,6 +147,7 @@ const LobbyPage: React.FC = () => {
       
       // Set as admin if any check passes
       setIsAdmin(isAdminById || isAdminByUsername);
+      setAdminStorage(isAdminById || isAdminByUsername); // Update localStorage
       
       // Find the admin username from the players list
       if (lobbyData.players && lobbyData.players.length > 0) {
@@ -204,7 +229,7 @@ const LobbyPage: React.FC = () => {
                     code: data.lobbyId || lobbyCode,
                     players: players,
                     settings: {
-                      spawnRate: spawnRate,
+                      spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
                       includePowerUps: includePowerUps
                     },
                     adminId: data.adminId
@@ -264,7 +289,7 @@ const LobbyPage: React.FC = () => {
                     code: data.lobbyId || lobbyCode,
                     players: players,
                     settings: {
-                      spawnRate: spawnRate,
+                      spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
                       includePowerUps: includePowerUps
                     },
                     adminId: data.adminId
@@ -304,9 +329,17 @@ const LobbyPage: React.FC = () => {
     
     setupWebSocket();
     
-    // Don't disconnect on unmount, as we want to keep the connection alive
-    // when navigating between pages
-  }, [connect, lobbyCode, isConnected, send, getSocket, router]);
+    // At the end of your setupWebSocket useEffect, add this return statement:
+    return () => {
+      if (intentionalDisconnect.current) {
+        console.log("Disconnecting WebSocket on unmount");
+        disconnect();
+      } else {
+        console.log("Not disconnecting WebSocket on unmount");
+      }
+    };
+  
+  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate, disconnect]); // Added missing dependencies
 
   // Request lobby state when component mounts
   // This is to ensure we have the latest data when the component loads
@@ -315,23 +348,24 @@ const LobbyPage: React.FC = () => {
       type: "lobbystate",
     });
   }
-  , []);
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+  , []); 
 
 
-  const updateSettings = () => {
-    if (!isAdmin) return; // Only allow admin to update settings
+  // const updateSettings = () => {
+  //   if (!isAdmin) return; // Only allow admin to update settings
     
-    // Send updated settings to server
-    send({
-      type: 'update_lobby_settings',
-      lobbyCode: lobbyCode,
-      userId: localStorage.getItem("userId") || '',
-      settings: {
-        spawnRate: spawnRate,
-        includePowerUps: includePowerUps
-      }
-    });
-  };
+  //   // Send updated settings to server
+  //   send({
+  //     type: 'update_lobby_settings',
+  //     lobbyCode: lobbyCode,
+  //     userId: localStorage.getItem("userId") || '',
+  //     settings: {
+  //       spawnRate: spawnRate,
+  //       includePowerUps: includePowerUps
+  //     }
+  //   });
+  // };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -373,16 +407,23 @@ const LobbyPage: React.FC = () => {
     setSpawnRate(newSpawnRate);
     
     // Update the setting via WebSocket after a short delay
-    setTimeout(() => updateSettings(), 100);
+    // setTimeout(() => updateSettings(), 100);
   };
 
-  const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change includePowerUps
+  // const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!isAdmin) return; // Only allow admin to change includePowerUps
 
-    setIncludePowerUps(event.target.checked);
+  //   setIncludePowerUps(event.target.checked);
     
-    // Update the setting via WebSocket after a short delay
-    setTimeout(() => updateSettings(), 100);
+  //   // Update the setting via WebSocket after a short delay
+  //   // setTimeout(() => updateSettings(), 100);
+  // };
+  
+  const handleSugarRushChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAdmin) return; // Only allow admin to change sugarRush
+
+    setSugarRush(event.target.checked);
+    setSugarRushStorage(event.target.checked); // Save to localStorage
   };
   
 
@@ -411,7 +452,7 @@ const LobbyPage: React.FC = () => {
                 <td>
                   {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
                 </td>
-                <td>{player.level}</td>
+                <td>{Math.floor(player.level)}</td>
               </tr>
             ))}
           </tbody>
@@ -440,7 +481,7 @@ const LobbyPage: React.FC = () => {
             </div>
           </div>
           
-          <div className={styles.checkboxContainer}>
+          {/* <div className={styles.checkboxContainer}>
             <input
               type="checkbox"
               id="includePowerUps"
@@ -450,6 +491,18 @@ const LobbyPage: React.FC = () => {
               className={!isAdmin ? styles.disabledControl : ''}
             />
             <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
+          </div> */}
+          
+          <div className={styles.checkboxContainer}>
+            <input
+              type="checkbox"
+              id="sugarRush"
+              checked={sugarRush}
+              onChange={handleSugarRushChange}
+              disabled={!isAdmin} // Disable the checkbox for non-admin users
+              className={!isAdmin ? styles.disabledControl : ''}
+            />
+            <label htmlFor="sugarRush" className={styles.optionTitle}>Sugar Rush</label>
           </div>
         </div>
         
