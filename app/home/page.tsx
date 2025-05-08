@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import { Button, Input, message } from "antd";
 import styles from "@/styles/page.module.css";
 import { useRouter } from "next/navigation";
@@ -42,9 +42,18 @@ const MainPage: React.FC = () => {
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   // Add a state for user rank if not in top 5
   const [userRankInfo, setUserRankInfo] = useState<{ rank: number } | null>(null);
+  // Add states for music player
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentStation, setCurrentStation] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleLogout = async () => {
     try {
+      // Stop any playing music before logout
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       localStorage.clear();
       router.push("/login");
     } catch (error) {
@@ -54,23 +63,22 @@ const MainPage: React.FC = () => {
 
   const handleSingleplayer = async () => {
     try {
-// Get token from localStorage for authentication
+      // Get token from localStorage for authentication
       const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
       
       // Connect to WebSocket server if not already connected
-      // if (!isConnected) {
       const socket = await connect({ token });
 
-// Set up message handler for WebSocket events
+      // Set up message handler for WebSocket events
       socket.onmessage = (event) => {
         try {
-console.log("Raw message:", event.data);
+          console.log("Raw message:", event.data);
             
-            // Parse the message data
+          // Parse the message data
           const data = JSON.parse(event.data);
-console.log('Parsed JSON message:', data);
+          console.log('Parsed JSON message:', data);
             
-            // Handle lobby creation response
+          // Handle lobby creation response
           if (data.type === 'lobby_created' && data.lobbyId) {
             router.push(`/lobby/${data.lobbyId}`);
           }
@@ -84,6 +92,147 @@ console.log('Parsed JSON message:', data);
       });
     } catch (error) {
       console.error("Error creating lobby:", error);
+    }
+  };
+
+  // Improved music player function
+  const handlePlayMusic = async () => {
+    // If music is already playing, stop it
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlaying(false);
+      setCurrentStation(null);
+      message.info('Music stopped');
+      return;
+    }
+
+    try {
+      message.loading({ content: 'Finding radio stations...', key: 'musicLoader' });
+      
+      // Use a more reliable API endpoint
+      const response = await fetch('https://nl1.api.radio-browser.info/json/stations/bycountry/United%20States', {
+        headers: {
+          'User-Agent': 'GameMusicPlayer/1.0.0',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const stations = await response.json();
+      
+      // Handle the case of no stations
+      if (!stations || stations.length === 0) {
+        message.error({ content: 'No stations found. Try again later.', key: 'musicLoader' });
+        return playFallbackStation();
+      }
+      
+      // Filter for stations more likely to work
+      const viableStations = stations.filter(station => 
+        station.url_resolved && 
+        station.codec && 
+        station.bitrate > 0 && 
+        !station.url_resolved.includes('.m3u') && 
+        station.votes > 10
+      );
+      
+      // Choose a station to play
+      const stationToPlay = viableStations.length > 0 
+        ? viableStations[Math.floor(Math.random() * Math.min(viableStations.length, 5))] 
+        : stations[0];
+      
+      playStation(stationToPlay);
+      
+    } catch (error) {
+      console.error('Error fetching radio stations:', error);
+      message.error({ content: 'Failed to fetch stations. Trying backup source...', key: 'musicLoader' });
+      playFallbackStation();
+    }
+  };
+
+  // Helper function to play a specific station
+  const playStation = (station) => {
+    try {
+      // Stop any currently playing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      
+      // Create new audio element
+      const audio = new Audio();
+      audioRef.current = audio;
+      
+      // Set up event listeners
+      audio.addEventListener('playing', () => {
+        setIsPlaying(true);
+        setCurrentStation(station.name);
+        message.success({ content: `Now playing: ${station.name}`, key: 'musicLoader' });
+      });
+      
+      audio.addEventListener('error', (e) => {
+        console.error('Audio playback error:', e);
+        message.warning('Playback failed. Trying another station...');
+        playFallbackStation();
+      });
+      
+      // Try to play with crossOrigin setting for CORS
+      audio.crossOrigin = "anonymous";
+      audio.src = station.url_resolved;
+      
+      const playPromise = audio.play();
+      
+      // Handle autoplay restrictions
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error('Autoplay prevented:', error);
+          message.info('Click Play Music again to start audio (browser autoplay restriction)');
+          setIsPlaying(false);
+        });
+      }
+    } catch (error) {
+      console.error('Error playing station:', error);
+      message.error('Failed to play station.');
+      playFallbackStation();
+    }
+  };
+
+  // Function to play fallback stations when API fails
+  const playFallbackStation = () => {
+    try {
+      // Stop any currently playing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      
+      // List of reliable radio streams that typically work well in browsers
+      const reliableStreams = [
+        {
+          name: "NPR News",
+          url_resolved: "https://npr-ice.streamguys1.com/live.mp3"
+        },
+        {
+          name: "Classic Rock",
+          url_resolved: "https://streaming.live365.com/a31769"
+        },
+        {
+          name: "Smooth Jazz",
+          url_resolved: "https://streaming.live365.com/a18690"
+        }
+      ];
+      
+      // Pick a random reliable stream
+      const fallbackStation = reliableStreams[Math.floor(Math.random() * reliableStreams.length)];
+      
+      // Play the fallback station
+      playStation(fallbackStation);
+    } catch (error) {
+      console.error('Error with fallback playback:', error);
+      message.error('All playback attempts failed. Please try again later.');
+      setIsPlaying(false);
+      setCurrentStation(null);
     }
   };
 
@@ -161,7 +310,13 @@ console.log('Parsed JSON message:', data);
     checkToken();
     fetchLeaderboard();
 
-    return () => {};
+    // Cleanup function to stop audio when component unmounts
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
   }, [apiService, router]);
 
   const handleCreateLobby = async () => {
@@ -439,6 +594,19 @@ console.log('Parsed JSON message:', data);
                   style={{ marginTop: "0px", justifyContent: "center" }}
                 >
                   Logout
+                </Button>
+                <Button
+                  type="primary"
+                  variant="solid"
+                  className={`${styles.musicButton} ${isPlaying ? styles.musicButtonPlaying : ''}`}
+                  onClick={handlePlayMusic}
+                  style={{ 
+                    marginTop: '20px', 
+                    justifyContent: 'center',
+                    backgroundColor: isPlaying ? '#4caf50' : undefined
+                  }}
+                >
+                  {isPlaying ? `Stop Music (${currentStation})` : 'Play Music'}
                 </Button>
               </div>
             ) : (
