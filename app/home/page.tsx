@@ -46,6 +46,8 @@ const MainPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStation, setCurrentStation] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [showGenreSearch, setShowGenreSearch] = useState(false);
+  const [genreSearchTerm, setGenreSearchTerm] = useState('');
 
   const handleLogout = async () => {
     try {
@@ -92,6 +94,87 @@ const MainPage: React.FC = () => {
       });
     } catch (error) {
       console.error("Error creating lobby:", error);
+    }
+  };
+
+  // Toggle genre search bar
+  const toggleGenreSearch = () => {
+    setShowGenreSearch(!showGenreSearch);
+    if (!showGenreSearch) {
+      setGenreSearchTerm('');
+    }
+  };
+
+  // Handle genre search term changes
+  const handleGenreSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGenreSearchTerm(e.target.value);
+  };
+
+  // Handle genre search submission
+  const handleGenreSearch = async () => {
+    if (!genreSearchTerm.trim()) {
+      message.warning('Please enter a genre to search');
+      return;
+    }
+    
+    // Stop any currently playing music
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+    }
+    
+    try {
+      message.loading({ content: `Finding ${genreSearchTerm} stations...`, key: 'musicLoader' });
+      
+      // Use a more reliable API endpoint with genre filter
+      const response = await fetch(`https://nl1.api.radio-browser.info/json/stations/bytagexact/${encodeURIComponent(genreSearchTerm.trim())}`, {
+        headers: {
+          'User-Agent': 'GameMusicPlayer/1.0.0',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const stations = await response.json();
+      
+      // Handle the case of no stations
+      if (!stations || stations.length === 0) {
+        message.error({ content: `No stations found for "${genreSearchTerm}". Trying general stations...`, key: 'musicLoader' });
+        // Fall back to general search
+        handlePlayMusic();
+        return;
+      }
+      
+      // Filter for stations more likely to work
+      const viableStations = stations.filter(station => 
+        station.url_resolved && 
+        station.codec && 
+        station.bitrate > 0 && 
+        !station.url_resolved.includes('.m3u') && 
+        station.votes > 5
+      );
+      
+      // Choose a station to play
+      const stationToPlay = viableStations.length > 0 
+        ? viableStations[Math.floor(Math.random() * Math.min(viableStations.length, 5))] 
+        : stations[0];
+      
+      playStation(stationToPlay);
+      setShowGenreSearch(false); // Hide search bar after successful search
+      
+    } catch (error) {
+      console.error('Error fetching genre stations:', error);
+      message.error({ content: 'Failed to find genre. Trying general stations...', key: 'musicLoader' });
+      handlePlayMusic();
+    }
+  };
+
+  // Handle Enter key in search input
+  const handleGenreSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleGenreSearch();
     }
   };
 
@@ -595,19 +678,63 @@ const MainPage: React.FC = () => {
                 >
                   Logout
                 </Button>
-                <Button
-                  type="primary"
-                  variant="solid"
-                  className={`${styles.musicButton} ${isPlaying ? styles.musicButtonPlaying : ''}`}
-                  onClick={handlePlayMusic}
-                  style={{ 
-                    marginTop: '20px', 
-                    justifyContent: 'center',
-                    backgroundColor: isPlaying ? '#4caf50' : undefined
-                  }}
-                >
-                  {isPlaying ? `Stop Music (${currentStation})` : 'Play Music'}
-                </Button>
+                <div style={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "center" }}>
+                  <Button
+                    type="primary"
+                    variant="solid"
+                    className={`${styles.musicButton} ${isPlaying ? styles.musicButtonPlaying : ''}`}
+                    onClick={handlePlayMusic}
+                    style={{ 
+                      marginTop: '20px', 
+                      justifyContent: 'center',
+                      backgroundColor: isPlaying ? '#4caf50' : undefined,
+                      width: showGenreSearch ? 'auto' : undefined
+                    }}
+                  >
+                    {isPlaying ? `Stop Music (${currentStation})` : 'Play Music'}
+                  </Button>
+                  
+                  <Button
+                    type="primary"
+                    variant="solid"
+                    onClick={toggleGenreSearch}
+                    style={{ 
+                      marginTop: '10px',
+                      justifyContent: 'center',
+                      fontSize: '0.9rem',
+                      padding: '0 15px',
+                      height: '30px'
+                    }}
+                  >
+                    {showGenreSearch ? 'Hide Genre Search' : 'Search By Genre'}
+                  </Button>
+                  
+                  {showGenreSearch && (
+                    <div style={{ 
+                      display: "flex", 
+                      marginTop: '10px',
+                      width: '100%', 
+                      justifyContent: 'center'
+                    }}>
+                      <Input
+                        placeholder="Enter genre (e.g. rock, jazz, pop)"
+                        value={genreSearchTerm}
+                        onChange={handleGenreSearchChange}
+                        onKeyDown={handleGenreSearchKeyDown}
+                        style={{
+                          maxWidth: '200px',
+                          marginRight: '5px'
+                        }}
+                      />
+                      <Button 
+                        type="primary"
+                        onClick={handleGenreSearch}
+                      >
+                        Play
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <div className={styles.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column",  gap: "30px" }}>
