@@ -16,7 +16,8 @@ interface LobbyData {
   players: Player[];
   settings: {
     spawnRate: "Slow" | "Medium" | "Fast";
-    includePowerUps: boolean;
+    powerupsWanted: boolean;
+    sugarRush: boolean;
   };
   adminId?: number | string;
 }
@@ -31,6 +32,7 @@ const LobbyPage: React.FC = () => {
   const { set: setAdminStorage } = useLocalStorage<boolean>("isAdmin", false);
   const { set: setLobbySettingsStorage } = useLocalStorage<string>("lobbySettings", "medium");
   const { set: setSugarRushStorage } = useLocalStorage<boolean>("sugarRush", false);
+  const { set: setIncludePowerUpsStorage } = useLocalStorage<boolean>("includePowerUps", false);
   
   const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,7 @@ const LobbyPage: React.FC = () => {
     // Save spawnRate to localStorage
     setLobbySettingsStorage(spawnRate);
     setSugarRushStorage(sugarRush); // Save sugarRush to localStorage
+    setIncludePowerUpsStorage(includePowerUps); // Save powerUps to localStorage
     
     // Send start game message
     send({
@@ -63,7 +66,8 @@ const LobbyPage: React.FC = () => {
       lobbyId: lobbyCode,
       settings: {
         spawnRate: spawnRate,
-        sugarRush: sugarRush
+        sugarRush: sugarRush,
+        powerupsWanted: includePowerUps
       }
     });
     console.log("Start game message sent:", {
@@ -71,7 +75,9 @@ const LobbyPage: React.FC = () => {
       lobbyId: lobbyCode,
       settings: {
         spawnRate: spawnRate,
-        sugarRush: sugarRush
+        sugarRush: sugarRush,
+        powerupsWanted: includePowerUps
+
       }
     });
   };
@@ -213,10 +219,11 @@ const LobbyPage: React.FC = () => {
                   if (data.lobby.settings) {
                     setSpawnRate(data.lobby.settings.spawnRate);
                     setIncludePowerUps(data.lobby.settings.includePowerUps);
+                    setSugarRush(data.lobby.settings.sugarRush);
                   }
-
                   setLoading(false);
                   setConnectionError(false);
+
                 } else if (data.adminId) {
                   // If there's no lobby property but there is an adminId,
                   // create a simplified structure with the available data
@@ -230,7 +237,8 @@ const LobbyPage: React.FC = () => {
                     players: players,
                     settings: {
                       spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
-                      includePowerUps: includePowerUps
+                      powerupsWanted: includePowerUps,
+                      sugarRush: sugarRush
                     },
                     adminId: data.adminId
                   };
@@ -274,6 +282,7 @@ const LobbyPage: React.FC = () => {
                   if (data.lobby.settings) {
                     setSpawnRate(data.lobby.settings.spawnRate);
                     setIncludePowerUps(data.lobby.settings.includePowerUps);
+                    setSugarRush(data.lobby.settings.sugarRush);
                   }
                   
                   setLoading(false);
@@ -290,7 +299,8 @@ const LobbyPage: React.FC = () => {
                     players: players,
                     settings: {
                       spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
-                      includePowerUps: includePowerUps
+                      powerupsWanted: includePowerUps,
+                      sugarRush: sugarRush
                     },
                     adminId: data.adminId
                   };
@@ -315,7 +325,8 @@ const LobbyPage: React.FC = () => {
             ],
             settings: {
               spawnRate: "Medium",
-              includePowerUps: false
+              sugarRush: false,
+              powerupsWanted: false
             }
           });
           setLoading(false);
@@ -351,21 +362,6 @@ const LobbyPage: React.FC = () => {
    // eslint-disable-next-line react-hooks/exhaustive-deps
   , []); 
 
-
-  // const updateSettings = () => {
-  //   if (!isAdmin) return; // Only allow admin to update settings
-    
-  //   // Send updated settings to server
-  //   send({
-  //     type: 'update_lobby_settings',
-  //     lobbyCode: lobbyCode,
-  //     userId: localStorage.getItem("userId") || '',
-  //     settings: {
-  //       spawnRate: spawnRate,
-  //       includePowerUps: includePowerUps
-  //     }
-  //   });
-  // };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -406,24 +402,21 @@ const LobbyPage: React.FC = () => {
     const newSpawnRate = value === "0" ? "Slow" : value === "1" ? "Medium" : "Fast";
     setSpawnRate(newSpawnRate);
     
-    // Update the setting via WebSocket after a short delay
-    // setTimeout(() => updateSettings(), 100);
   };
 
-  // const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (!isAdmin) return; // Only allow admin to change includePowerUps
-
-  //   setIncludePowerUps(event.target.checked);
-    
-  //   // Update the setting via WebSocket after a short delay
-  //   // setTimeout(() => updateSettings(), 100);
-  // };
-  
+ 
   const handleSugarRushChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!isAdmin) return; // Only allow admin to change sugarRush
 
     setSugarRush(event.target.checked);
     setSugarRushStorage(event.target.checked); // Save to localStorage
+  };
+  
+  const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAdmin) return; // Only allow admin to change includePowerUps
+
+    setIncludePowerUps(event.target.checked);
+    setIncludePowerUpsStorage(event.target.checked); // Save to localStorage
   };
   
 
@@ -481,7 +474,7 @@ const LobbyPage: React.FC = () => {
             </div>
           </div>
           
-          {/* <div className={styles.checkboxContainer}>
+          <div className={styles.checkboxContainer}>
             <input
               type="checkbox"
               id="includePowerUps"
@@ -491,7 +484,7 @@ const LobbyPage: React.FC = () => {
               className={!isAdmin ? styles.disabledControl : ''}
             />
             <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
-          </div> */}
+          </div>
           
           <div className={styles.checkboxContainer}>
             <input
