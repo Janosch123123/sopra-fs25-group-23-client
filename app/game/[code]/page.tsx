@@ -728,6 +728,9 @@ useEffect(() => {
                 setGameLive(false);
                 setCountdown(data.countdown);
                 
+                // Clear all cells before rendering anything
+                clearAllCells();
+                
                 // Convert data to our internal format if needed
                 if (data.snakes) {
                   setSnakes(data.snakes);
@@ -753,8 +756,20 @@ useEffect(() => {
                   cookiePositions = data.cookies.map((index: number) => indexToColRow(index));
                 }
                 
-                // Render cookies immediately
-                renderItems(cookiePositions, goldenCookies, multipliers, reverseControls, dividers);
+                // Update all item states
+                if (data.goldenCookies) setGoldenCookies(data.goldenCookies);
+                if (data.multipliers) setMultipliers(data.multipliers);
+                if (data.reverseControls) setReverseControls(data.reverseControls);
+                if (data.dividers) setDividers(data.dividers);
+                
+                // Render all item types immediately
+                renderItems(
+                  cookiePositions, 
+                  data.goldenCookies || [], 
+                  data.multipliers || [], 
+                  data.reverseControls || [],
+                  data.dividers || []
+                );
 
                 // Reset player death state when game is restarting
                 setPlayerIsDead(false);
