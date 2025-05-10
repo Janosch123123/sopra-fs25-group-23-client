@@ -29,6 +29,10 @@ const GamePage: React.FC = () => {
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
   const [showSpectatorOverlay, setShowSpectatorOverlay] = useState(false); // Add state for spectator overlay
   
+  // State for tracking active effects and their durations
+  type Effect = { type: string; baseType: string; duration: number; maxDuration: number; };
+  const [activeEffects, setActiveEffects] = useState<Effect[]>([]);
+  
   // Game end states
   const [gameEnded, setGameEnded] = useState(false);
   const [finalRankings, setFinalRankings] = useState<string[]>([]); // Store player rankings
@@ -780,6 +784,9 @@ useEffect(() => {
                 setCollidedSnakes({});
                 setAnimatingCells([]);
                 setAnimationStartTime(null);
+                
+                // Clear any active effects
+                setActiveEffects([]);
               }
               
               // Handle gameState updates with the new expected format
@@ -807,6 +814,43 @@ useEffect(() => {
                   data.reverseControls || [],
                   data.dividers || [] // Pass dividers to renderItems
                 );
+                
+                // Parse and update active effects
+                if (data.effects) {
+                  const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+                  const userEffects = data.effects[currentUsername] || [];
+                  
+                  // Transform the effects into a more usable format
+                  const parsedEffects: Effect[] = userEffects.map((effectString: string) => {
+                    // Parse the effect string to extract type and duration
+                    const effectMatch = effectString.match(/^([a-zA-Z]+)([0-9.]+)$/);
+                    if (effectMatch) {
+                      const effectType = effectMatch[1];
+                      const duration = parseFloat(effectMatch[2]);
+                      
+                      // Set max duration based on effect type
+                      let maxDuration = 10; // Default
+                      if (effectType.includes('Multiplier')) {
+                        maxDuration = 10;
+                      } else if (effectType.includes('ReverseControl')) {
+                        maxDuration = 4;
+                      }
+                      
+                      return {
+                        type: effectString, // Store full effect string to preserve the numeric part
+                        baseType: effectType, // Store the base type without numbers
+                        duration: duration,
+                        maxDuration: maxDuration
+                      };
+                    }
+                    return null;
+                  }).filter((effect: unknown): effect is Effect => effect !== null);
+                  
+                  setActiveEffects(parsedEffects);
+                } else {
+                  // Clear effects if none are provided
+                  setActiveEffects([]);
+                }
                 
                 // Update timestamp if available
                 if (data.timestamp !== undefined) {
@@ -1064,6 +1108,76 @@ useEffect(() => {
     });
   };
 
+  // Function to render progress bars for active effects
+  const renderEffectsProgressBars = () => {
+    if (!activeEffects || activeEffects.length === 0) return null;
+
+    // Filter effects to only include multiplier and reverse control effects
+    const filteredEffects = activeEffects.filter(effect => 
+      effect.baseType.includes('Multiplier') || effect.baseType.includes('ReverseControl')
+    );
+    
+    if (filteredEffects.length === 0) return null;
+
+    // Group effects by base type and find the highest duration for each type
+    const effectsMap = new Map<string, Effect>();
+    
+    filteredEffects.forEach(effect => {
+      // Check if we already have this effect type, and if so, keep the one with higher duration
+      if (!effectsMap.has(effect.baseType) || effect.duration > effectsMap.get(effect.baseType)!.duration) {
+        effectsMap.set(effect.baseType, effect);
+      }
+    });
+
+    return (
+      <div className={styles.effectsContainer}>
+        <h3 className={styles.effectsTitle}>Active Effects</h3>
+        {Array.from(effectsMap.values()).map((effect, index) => {
+          const progressPercent = (effect.duration / effect.maxDuration) * 100;
+          
+          // Determine effect name and color based on effect type
+          const effectName = effect.baseType.includes('Multiplier') 
+            ? 'Multiplier' 
+            : 'Reverse Controls';
+          
+          const backgroundColor = effect.baseType.includes('Multiplier') 
+            ? '#ffd700' // Gold color for multiplier
+            : '#ff00ff'; // Purple color for reverse controls
+          
+          return (
+            <div 
+              key={`${effect.baseType}-${index}`} 
+              className={styles.ProgressWrapper}
+            >
+              <div className={styles.effectLabel}>
+                <img 
+                  src={effect.baseType.includes('Multiplier') 
+                    ? '/assets/2x.png' 
+                    : '/assets/reverse.png'} 
+                  alt={effectName}
+                  className={styles.effectIcon}
+                />
+                {effectName}: {effect.duration.toFixed(1)}s
+              </div>
+              <div className={styles.progressBarContainer}>
+                <div 
+                  className={styles.progressBar}
+                  style={{
+                    marginLeft: '-3px',
+                    width: `${progressPercent}%`,
+                    backgroundColor: backgroundColor,
+                    height: '10px',
+                    borderRadius: '10px',
+                  }}
+                ></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   // Effect to handle showing and hiding the death screen
   useEffect(() => {
     if (playerIsDead && !deathAnimationInProgress) {
@@ -1199,13 +1313,15 @@ useEffect(() => {
           {renderGrid()}
         </div>
         
+        {/* Active effects progress bars - only show when game is live and there are active effects */}
+        {gameLive && activeEffects.length > 0 && renderEffectsProgressBars()}
+        
         {/* Countdown display - only show during pregame phase (when gameLive is false) */}
         {countdown !== null && countdown > 0 && !gameLive && (
           <div className={styles.countdownCircle}>
             <span>{countdown}</span>
           </div>
         )}
-        
         
         {/* Death overlay */}
         {showDeathScreen && (

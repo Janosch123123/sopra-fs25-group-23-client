@@ -2090,3 +2090,108 @@ a.secondary {
   display: flex;
   flex-direction: row;
 }
+
+.effectsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  background-color: rgba(66, 127, 167, 0.8); /* Match leaderboard style with some transparency */
+  border: 4px solid #345a97; /* Match leaderboard border */
+  border-radius: 20px; /* Match leaderboard border-radius */
+  padding: 15px;
+  min-width: 250px;
+}
+
+.ProgressWrapper{
+  position: relative;
+  width: 240px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.ProgressWrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.progressBarContainer{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 2px;
+  margin-bottom: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.effectsTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: white;
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.effectLabel {
+  color: white;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.2rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.effectIcon {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  object-fit: contain;
+  border-radius: 30%;
+  padding: 4px;
+  animation: pulseIcon 1s infinite ease-in-out;
+}
+
+@keyframes pulseIcon {
+  0% {
+    transform: scale(1);
+    filter: brightness(1.3);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: brightness(1.3);
+  }
+  100%{
+    transform: scale(1);
+    filter: brightness(1.3);
+  }
+}
+
+.progressBar {
+  background-color: #fff;
+  height: 12px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  transition: width 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
