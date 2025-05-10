@@ -112,6 +112,7 @@ const MainPage: React.FC = () => {
 
   // Handle genre search submission
   const handleGenreSearch = async () => {
+    
     if (!genreSearchTerm.trim()) {
       message.warning('Please enter a genre to search');
       return;
@@ -124,9 +125,10 @@ const MainPage: React.FC = () => {
     
     try {
       message.loading({ content: `Finding ${genreSearchTerm} stations...`, key: 'musicLoader' });
-      
-      // Use a more reliable API endpoint with genre filter
-      const response = await fetch(`https://nl1.api.radio-browser.info/json/stations/bytagexact/${encodeURIComponent(genreSearchTerm.trim())}`, {
+      const searchTerm = encodeURIComponent(genreSearchTerm.trim().toLowerCase());
+    
+    // Try searching by name first (broader search)
+    let response = await fetch(`https://de1.api.radio-browser.info/json/stations/byname/${searchTerm}?limit=15&hidebroken=true`, {
         headers: {
           'User-Agent': 'GameMusicPlayer/1.0.0',
           'Content-Type': 'application/json'
@@ -137,8 +139,42 @@ const MainPage: React.FC = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       
-      const stations = await response.json();
+      let stations = await response.json();
       
+      if (stations.length < 3) {
+        response = await fetch(`https://de1.api.radio-browser.info/json/stations/bytag/${searchTerm}?limit=15&hidebroken=true`, {
+          headers: {
+            'User-Agent': 'GameMusicPlayer/1.0.0',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const tagStations = await response.json();
+          // Combine results, removing duplicates by stationuuid
+          const existingIds = new Set(stations.map(s => s.stationuuid));
+          const uniqueTagStations = tagStations.filter(s => !existingIds.has(s.stationuuid));
+          stations = [...stations, ...uniqueTagStations];
+        }
+      }
+      
+      // Also try searching by genre as a fallback
+      response = await fetch(`https://de1.api.radio-browser.info/json/stations/bytagexact/genre:${searchTerm}?limit=10&hidebroken=true`, {
+        headers: {
+          'User-Agent': 'GameMusicPlayer/1.0.0',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const genreStations = await response.json();
+        // Combine results, removing duplicates
+        const existingIds = new Set(stations.map(s => s.stationuuid));
+        const uniqueGenreStations = genreStations.filter(s => !existingIds.has(s.stationuuid));
+        stations = [...stations, ...uniqueGenreStations];
+      }
+
+
       // Handle the case of no stations
       if (!stations || stations.length === 0) {
         message.error({ content: `No stations found for "${genreSearchTerm}". Trying general stations...`, key: 'musicLoader' });
@@ -148,17 +184,32 @@ const MainPage: React.FC = () => {
       }
       
       // Filter for stations more likely to work
-      const viableStations = stations.filter(station => 
+      let stationsToConsider = stations.filter(station => 
         station.url_resolved && 
         station.codec && 
-        station.bitrate > 0 && 
-        !station.url_resolved.includes('.m3u') && 
-        station.votes > 5
+        !station.url_resolved.includes('.m3u') &&
+        station.votes > 0
       );
       
+      if (stationsToConsider.length < 3) {
+        const additionalStations = stations.filter(station => 
+          station.url_resolved && 
+          station.codec && 
+          !station.url_resolved.includes('.m3u')
+        ).slice(0, 5);
+        
+        // Add stations without votes
+        const existingIds = new Set(stationsToConsider.map(s => s.stationuuid));
+        const uniqueAdditionalStations = additionalStations.filter(s => !existingIds.has(s.stationuuid));
+        stationsToConsider = [...stationsToConsider, ...uniqueAdditionalStations];
+      }
+      
+      // Sort stations by relevance (votes), higher votes first
+      stationsToConsider.sort((a, b) => b.votes - a.votes);
+
       // Choose a station to play
-      const stationToPlay = viableStations.length > 0 
-        ? viableStations[Math.floor(Math.random() * Math.min(viableStations.length, 5))] 
+      const stationToPlay = stationsToConsider.length > 0 
+        ? stationsToConsider[Math.floor(Math.random() * Math.min(stationsToConsider.length, 5))] 
         : stations[0];
       
       playStation(stationToPlay);
@@ -193,8 +244,12 @@ const MainPage: React.FC = () => {
     try {
       message.loading({ content: 'Finding radio stations...', key: 'musicLoader' });
       
+      const server = 'de1'; // or test which one is currently reliable
+
+    
+
       // Use a more reliable API endpoint
-      const response = await fetch('https://nl1.api.radio-browser.info/json/stations/bycountry/United%20States', {
+      const response = await fetch(`https://${server}.api.radio-browser.info/json/stations/topvote?limit=30&hidebroken=true`, {
         headers: {
           'User-Agent': 'GameMusicPlayer/1.0.0',
           'Content-Type': 'application/json'
@@ -218,8 +273,7 @@ const MainPage: React.FC = () => {
         station.url_resolved && 
         station.codec && 
         station.bitrate > 0 && 
-        !station.url_resolved.includes('.m3u') && 
-        station.votes > 10
+        !station.url_resolved.includes('.m3u')
       );
       
       // Choose a station to play
@@ -252,7 +306,11 @@ const MainPage: React.FC = () => {
       audio.addEventListener('playing', () => {
         setIsPlaying(true);
         setCurrentStation(station.name);
-        message.success({ content: `Now playing: ${station.name}`, key: 'musicLoader' });
+        message.success({ 
+          content: `Now playing: ${station.name}${station.tags ? ` (${station.tags})` : ''}`, 
+          key: 'musicLoader',
+          duration: 5 
+        });
       });
       
       audio.addEventListener('error', (e) => {
@@ -271,13 +329,16 @@ const MainPage: React.FC = () => {
       if (playPromise !== undefined) {
         playPromise.catch((error) => {
           console.error('Autoplay prevented:', error);
-          message.info('Click Play Music again to start audio (browser autoplay restriction)');
+          message.info({ 
+            content: 'Click Play Music again to start audio (browser autoplay restriction)', 
+            key: 'musicLoader' 
+          });
           setIsPlaying(false);
         });
       }
     } catch (error) {
       console.error('Error playing station:', error);
-      message.error('Failed to play station.');
+      message.error({ content: 'Failed to play station.', key: 'musicLoader' });
       playFallbackStation();
     }
   };
@@ -294,18 +355,44 @@ const MainPage: React.FC = () => {
       const reliableStreams = [
         {
           name: "NPR News",
-          url_resolved: "https://npr-ice.streamguys1.com/live.mp3"
+          url_resolved: "https://npr-ice.streamguys1.com/live.mp3",
+          tags: "news, talk"
         },
         {
           name: "Classic Rock",
-          url_resolved: "https://streaming.live365.com/a31769"
+          url_resolved: "https://streaming.live365.com/a31769",
+          tags: "rock, classic"
         },
         {
           name: "Smooth Jazz",
-          url_resolved: "https://streaming.live365.com/a18690"
+          url_resolved: "https://streaming.live365.com/a18690",
+          tags: "jazz, smooth"
+        },
+        {
+          name: "Classical Music",
+          url_resolved: "https://stream.wqxr.org/wqxr-web",
+          tags: "classical"
+        },
+        {
+          name: "Hip Hop",
+          url_resolved: "https://streaming.live365.com/a45469",
+          tags: "hiphop, rap"
         }
       ];
+      const searchTerm = genreSearchTerm.trim().toLowerCase();
+    
+      // Try to find a matching station if we have a search term
+      if (searchTerm) {
+      const matchingStations = reliableStreams.filter(station => 
+        station.tags && station.tags.toLowerCase().includes(searchTerm)
+      );
       
+      if (matchingStations.length > 0) {
+        // Play a random matching station
+        playStation(matchingStations[Math.floor(Math.random() * matchingStations.length)]);
+        return;
+      }
+    }
       // Pick a random reliable stream
       const fallbackStation = reliableStreams[Math.floor(Math.random() * reliableStreams.length)];
       
