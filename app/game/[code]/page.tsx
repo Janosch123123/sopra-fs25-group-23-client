@@ -1133,16 +1133,10 @@ useEffect(() => {
       <div className={styles.effectsContainer}>
         <h3 className={styles.effectsTitle}>Active Effects</h3>
         {Array.from(effectsMap.values()).map((effect, index) => {
-          const progressPercent = (effect.duration / effect.maxDuration) * 100;
-          
           // Determine effect name and color based on effect type
-          const effectName = effect.baseType.includes('Multiplier') 
-            ? 'Multiplier' 
-            : 'Reverse Controls';
-          
-          const backgroundColor = effect.baseType.includes('Multiplier') 
-            ? '#ffd700' // Gold color for multiplier
-            : '#ff00ff'; // Purple color for reverse controls
+          const isMultiplier = effect.baseType.includes('Multiplier');
+          const effectName = isMultiplier ? 'Multiplier' : 'Reverse Controls';
+          const backgroundColor = isMultiplier ? '#ffd700' : '#ff00ff'; // Gold for multiplier, Purple for reverse
           
           return (
             <div 
@@ -1151,26 +1145,44 @@ useEffect(() => {
             >
               <div className={styles.effectLabel}>
                 <img 
-                  src={effect.baseType.includes('Multiplier') 
-                    ? '/assets/2x.png' 
-                    : '/assets/reverse.png'} 
+                  src={isMultiplier ? '/assets/2x.png' : '/assets/reverse.png'} 
                   alt={effectName}
                   className={styles.effectIcon}
                 />
-                {effectName}: {effect.duration.toFixed(1)}s
+                {isMultiplier 
+                  ? `${effectName}: ${Math.ceil(effect.duration)}s` 
+                  : `${effectName}: ${Math.ceil(effect.duration)} moves`}
               </div>
-              <div className={styles.progressBarContainer}>
-                <div 
-                  className={styles.progressBar}
-                  style={{
-                    marginLeft: '-3px',
-                    width: `${progressPercent}%`,
-                    backgroundColor: backgroundColor,
-                    height: '10px',
-                    borderRadius: '10px',
-                  }}
-                ></div>
-              </div>
+              
+              {isMultiplier ? (
+                // For multiplier, show progress bar
+                <div className={styles.progressBarContainer}>
+                  <div 
+                    className={styles.progressBar}
+                    style={{
+                      marginLeft: '-3px',
+                      width: `${(effect.duration / effect.maxDuration) * 100}%`,
+                      backgroundColor: backgroundColor,
+                      height: '10px',
+                      borderRadius: '10px',
+                    }}
+                  ></div>
+                </div>
+              ) : (
+                // For reverse controls, show blocks representing moves
+                <div className={styles.movesBlockContainer}>
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={styles.moveBlock}
+                      style={{
+                        backgroundColor: i < Math.ceil(effect.duration) ? backgroundColor : 'rgba(0, 0, 0, 0.2)',
+                        opacity: i < Math.ceil(effect.duration) ? 1 : 0.5
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}

@@ -1264,7 +1264,7 @@ a.secondary {
   width: 210%;
   height: 210%;
   transform: translate(-50%, -50%);
-  background-image: url('../styles/items/reverse2.png');
+  background-image: url('../styles/items/reverse.png');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -2119,12 +2119,7 @@ a.secondary {
   padding: 8px;
   border-radius: 10px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.ProgressWrapper:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background-color: #345a97;
 }
 
 .progressBarContainer{
@@ -2137,6 +2132,25 @@ a.secondary {
   margin-bottom: 5px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
+
+.movesBlockContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 2px;
+  margin-bottom: 5px;
+  gap: 5px;
+}
+
+.moveBlock {
+  width: 25%;
+  height: 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+
 
 .effectsTitle {
   font-family: "Oswald", sans-serif;
@@ -2162,8 +2176,8 @@ a.secondary {
 }
 
 .effectIcon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   margin-right: 8px;
   object-fit: contain;
   border-radius: 30%;
