@@ -1293,7 +1293,7 @@ useEffect(() => {
                   style={{'--player-row-color': playerColor} as React.CSSProperties}
                 >
                   <td>{index + 1}</td>
-                  <td>{player.username}</td>
+                  <td>{player.username.length > 9 ? `${player.username.slice(0, 7)}...` : player.username}</td>
                   <td>{player.length}</td>
                 </tr>
               );

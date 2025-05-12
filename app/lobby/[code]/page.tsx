@@ -429,7 +429,6 @@ const LobbyPage: React.FC = () => {
       <div className={styles.lobbyContainer}>
         <h1>Lobby</h1>
         <h3>({lobbyData?.code})</h3>
-        {isAdmin && <div className={styles.adminBadge}>Admin</div>}
         {connectionError && <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may not work.</div>}
         <br></br>
         <table className={styles.lobbyTable}>
@@ -453,7 +452,7 @@ const LobbyPage: React.FC = () => {
         
         <div className={styles.settingsContainer}>
           <h3>Game Settings {!isAdmin && <span className={styles.adminOnlyText}>(Admin Only)</span>}</h3>
-          
+          <br></br>
           <div className={styles.sliderContainer}>
             <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
             <input
