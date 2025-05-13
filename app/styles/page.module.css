@@ -851,66 +851,11 @@ a.secondary {
   font-weight: bold;
 }
 
-/* Leaderboard styling */
-.leaderboard {
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #427fa7; /* Match dashboardContainer color */
-  color: white;
-  padding: 30px; /* Match dashboardContainer padding */
-  border-radius: 20px; /* Match dashboardContainer border-radius */
-  border: 4px solid #345a97; /* Match dashboardContainer border */
-  z-index: 2;
-  min-width: 300px; /* Increased minimum width */
-  max-width: 400px; /* Increased maximum width */
-}
-
-.leaderboard h3 {
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 2.5rem; /* Match dashboardContainer h2 */
-  text-decoration: underline; /* Match dashboardContainer h2 */
-  font-weight: 600; /* Match dashboardContainer h2 */
-  font-family: "Oswald", sans-serif;
-  padding-bottom: 10px;
-}
-
-.leaderboardTable {
-  width: 270px;
-  font-size: 1.5rem; /* Match statisticsTable */
-  font-weight: 500; /* Match statisticsTable */
-  border-collapse: collapse;
-  border-radius: 40px; /* Match statisticsTable */
-  font-family: "Oswald", sans-serif;
-}
-
-.leaderboardTable th,
-.leaderboardTable td {
-  padding: 10px; /* Match statisticsTable td */
-  text-align: center;
-  border-bottom: 1px solid #345a97; /* Match statisticsTable td */
-  border-radius: 30px; /* Match statisticsTable td */
-}
-
-.leaderboardTable th {
-  font-weight: bold;
-  font-size: 1rem; /* Match rest of table */
-}
 
 /* Highlight the current player in the leaderboard */
 .currentPlayerRow {
   background-color: rgba(255, 255, 255, 0.2); /* Slightly lighter background */
   font-weight: bold;
-}
-
-/* Use player color for rank indicator */
-.leaderboardTable tr td:first-child {
-  color: var(--player-row-color);
-  font-weight: bold;
-  font-size: 1.6rem; /* Slightly larger font size for rank */
 }
 
 /* Highlight the user's row in the leaderboard */
@@ -919,32 +864,6 @@ a.secondary {
   font-weight: bold;
 }
 
-/* Make sure the leaderboard remains visible in different screen sizes */
-@media (max-width: 1200px) {
-  .leaderboard {
-    left: 15px;
-    padding: 20px;
-    min-width: 280px;
-  }
-  
-  .leaderboardTable th,
-  .leaderboardTable td {
-    padding: 8px;
-    font-size: 1rem;
-  }
-  
-  .leaderboard h3 {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 900px) {
-  .leaderboard {
-    top: 15px;
-    transform: none;
-    min-width: 300px;
-  }
-}
 
 .controls {
   margin-top: 20px;

@@ -21,10 +21,6 @@ const GamePage: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
   // Store item locations in state
-  const [goldenCookies, setGoldenCookies] = useState<[number, number][]>([]);
-  const [multipliers, setMultipliers] = useState<[number, number][]>([]);
-  const [reverseControls, setReverseControls] = useState<[number, number][]>([]);
-  const [dividers, setDividers] = useState<[number, number][]>([]); // Add state for divider items
   const [timestamp, setTimestamp] = useState<number>(0);
   const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
@@ -729,12 +725,6 @@ useEffect(() => {
                   cookiePositions = data.cookies.map((index: number) => indexToColRow(index));
                 }
                 
-                // Update all item states
-                if (data.goldenCookies) setGoldenCookies(data.goldenCookies);
-                if (data.multipliers) setMultipliers(data.multipliers);
-                if (data.reverseControls) setReverseControls(data.reverseControls);
-                if (data.dividers) setDividers(data.dividers);
-                
                 // Render all item types immediately
                 renderItems(
                   cookiePositions, 
@@ -769,11 +759,6 @@ useEffect(() => {
                 // Update snake positions immediately without waiting for state update
                 renderPlayerSnakes(data.snakes || {});
                 
-                // Set all item positions from the message
-                setGoldenCookies(data.goldenCookies || []);
-                setMultipliers(data.multipliers || []);
-                setReverseControls(data.reverseControls || []);
-                setDividers(data.dividers || []); // Update dividers state
                 
                 // Render all items immediately
                 renderItems(
@@ -1232,9 +1217,9 @@ useEffect(() => {
       )}
       
       {/* Leaderboard */}
-      <div className={styles.leaderboard}>
+      <div className={stylesSpecific.leaderboard}>
         <h3>Leaderboard</h3>
-        <table className={styles.leaderboardTable}>
+        <table className={stylesSpecific.leaderboardTable}>
           <thead>
             <tr>
               <th>#</th>
