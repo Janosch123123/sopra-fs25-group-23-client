@@ -1,3 +1,36 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;600;700&display=swap");
+body {
+  font-family: 'oswald', sans-serif;
+}
+/* Oswald font utility classes */
+.oswald-light {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.oswald-regular {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.oswald-bold {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.oswald-heavy {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
 .page {
   --gray-rgb: 0, 0, 0;
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
@@ -284,8 +317,8 @@ a.secondary {
 
 .logoImage {
   position: relative;
-  width: 350px;
-  height: 350px;
+  width: 450px;
+  height: 450px;
 }
 
 .logoImage::after {
@@ -382,6 +415,7 @@ a.secondary {
 
 .playButtonContainer {
   margin-top: 0px;
+  margin-left: 0px;
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -486,10 +520,10 @@ a.secondary {
 .mainButton {
   composes: lobbyButtons;
   --color:#1c4d96;
-  font-size: 4rem !important; /* Smaller font size */
+  font-size: 4.5rem !important; /* Smaller font size */
   padding: 0 20px !important; /* Reduced horizontal padding */
-  min-width: 300px !important; /* Smaller width */
-  min-height: 120px !important; /* Match input field height */
+  min-width: 350px !important; /* Smaller width */
+  min-height: 130px !important; /* Match input field height */
   border: 6px solid #ffffff !important; /* Thinner border */
   border-radius: 20px !important; /* Smaller border radius */
   background-color: #1858b8 !important; /* Volcano color */
@@ -497,6 +531,7 @@ a.secondary {
   margin-left: 20px !important; /* Remove margin for closer positioning */
   font-family: "Oswald", sans-serif; /* Updated to Oswald font */
   font-weight: bold !important; /* Bold weight from Oswald */
+  margin-top: -50px !important; /* Space between testButton and this */
 }
 
 .backButton {
@@ -739,20 +774,9 @@ a.secondary {
   position: relative !important; /* Position absolutely */
   letter-spacing: normal !important; /* Normal letter spacing */
 }
-.loginContent {
-  background-color: #66bb6a; /* Darker medium green background */
-  padding: 40px;
-  border-radius: 8px;
-  border: 2px solid #66bb6a; /* Darker dark green border */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
-  font-family: "Oswald", sans-serif; /* Added Oswald font */
-}
 
 /* Form title styling */
 .loginTitle, .registerTitle {
-  font-family: "Oswald", sans-serif;
   font-size: 2rem;
   font-weight: 600;
   color: white;
@@ -788,8 +812,8 @@ a.secondary {
 .loginContent {
   background-color: #66bb6a; /* Darker medium green background */
   padding: 40px;
-  border-radius: 8px;
-  border: 2px solid #66bb6a; /* Darker dark green border */
+  border-radius: 15px;
+  border: 8px solid #43a047; /* Darker dark green border */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;

@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Button, Form, Input } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
+import Head from "next/head";
 
 interface FormFieldProps {
   username: string;
@@ -50,59 +51,67 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className={styles.mainPage}>
-      <div className={styles.loginContainer}>
-        <div className={styles.loginContent}>
-          <h1 className={styles.title}>Snake with Friends</h1>
-          <div className={styles.greenContainer}>
-            <Form
-              form={form}
-              name="login"
-              size="large"
-              variant="outlined"
-              onFinish={handleLogin}
-              layout="vertical"
-            >
-              <Form.Item>
-                <h1 className={styles.loginTitle}>Login with existing User</h1>
-              </Form.Item>
-              <Form.Item
-                name="username"
-                label="Username"
-                rules={[{ required: true, message: "Please input your username!" }]}
+    <>
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+      <div className={styles.mainPage}>
+        <div className={styles.loginContainer}>
+          <div className={styles.loginContent}>
+            <h1 className={styles.title}>Snake with Friends</h1>
+            <div className={styles.greenContainer}>
+              <Form
+                form={form}
+                name="login"
+                size="large"
+                variant="outlined"
+                onFinish={handleLogin}
+                layout="vertical"
               >
-                <Input placeholder="Enter username" />
-              </Form.Item>
-              <Form.Item
-                name="password"
-                label="Password"
-                rules={[{ required: true, message: "Please enter your password!" }]}
-              >
-                <Input.Password placeholder="Enter password" />
-              </Form.Item>
-              <Form.Item>
-                <Button 
-                  type="primary"
-                  variant="solid"
-                  htmlType="submit"
-                  className={styles["login-button"]}>
-                  Login
-                </Button>
-              </Form.Item>
-              <h3 className={styles.loginTitle}>Or</h3>
-              <Button
-                  type="primary"
-                  variant="solid"
-                  className={styles["login-button"]}
-                  onClick={() => router.push("/register")}
+                <Form.Item>
+                  <h1 className={styles.loginTitle} style={{ fontFamily: 'Oswald, sans-serif' }}>Login with existing User</h1>
+                </Form.Item>
+                <Form.Item
+                  name="username"
+                  label="Username"
+                  rules={[{ required: true, message: "Please input your username!" }]}
                 >
-                  Register a new User
-              </Button>
-            </Form>
+                  <Input placeholder="Enter username" />
+                </Form.Item>
+                <Form.Item
+                  name="password"
+                  label="Password"
+                  rules={[{ required: true, message: "Please enter your password!" }]}
+                >
+                  <Input.Password placeholder="Enter password" />
+                </Form.Item>
+                <Form.Item>
+                  <Button 
+                    type="primary"
+                    variant="solid"
+                    htmlType="submit"
+                    className={styles["login-button"]}>
+                    Login
+                  </Button>
+                </Form.Item>
+                <h3 className={styles.loginTitle}>Or</h3>
+                <Button
+                    type="primary"
+                    variant="solid"
+                    className={styles["login-button"]}
+                    onClick={() => router.push("/register")}
+                  >
+                    Register a new User
+                </Button>
+              </Form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
