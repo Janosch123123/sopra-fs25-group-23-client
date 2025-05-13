@@ -1,6 +1,7 @@
 "use client"
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import styles from "@/styles/page.module.css";
+import stylesSpecific from "@/game/game.module.css";
 import { useParams, useRouter } from "next/navigation";
 import { useLobbySocket } from "@/hooks/useLobbySocket";
 import useLocalStorage from '@/hooks/useLocalStorage';
@@ -101,29 +102,25 @@ const GamePage: React.FC = () => {
     gridCellsRef.current.forEach(cell => {
       if (cell) {
         cell.classList.remove(
-          styles.circle,
-          styles.firstSquare,
-          styles.lastSquare,
-          styles.curveBody,
-          styles.playerCell,
-          styles.cookieCell,
-          styles.goldenCookieCell,
-          styles.multiplierCell,
-          styles.reverseControlsCell,
-          styles.currentPlayerCell,
-          styles.playerRed,
-          styles.playerBlue,
-          styles.playerGreen,
-          styles.playerPurple,
-          styles.playerOrange,
-          styles.playerPink,
-          styles.playerTeal,
-          styles.playerBrown,
+          stylesSpecific.circle,
+          stylesSpecific.firstSquare,
+          stylesSpecific.lastSquare,
+          stylesSpecific.curveBody,
+          stylesSpecific.playerCell,
+          stylesSpecific.cookieCell,
+          stylesSpecific.goldenCookieCell,
+          stylesSpecific.multiplierCell,
+          stylesSpecific.reverseControlsCell,
+          stylesSpecific.dividerCell,
+          stylesSpecific.currentPlayerCell,
+          stylesSpecific.playerRed,
+          stylesSpecific.playerBlue,
+          stylesSpecific.playerGreen,
+          stylesSpecific.playerPurple,
           // Add these new classes for collision animation
-          styles.collidedSnake,
-          styles.dyingSnake,
-          styles.collisionPoint,
-          styles.dividerCell
+          stylesSpecific.collidedSnake,
+          stylesSpecific.dyingSnake,
+          stylesSpecific.collisionPoint,
         );
         // Remove any inline styles for player colors
         cell.style.setProperty('--player-color', '');
@@ -155,10 +152,10 @@ const GamePage: React.FC = () => {
     
     // Define color classes based on player index - expanded with more color options
     const playerColorClasses = [
-      styles.playerRed,     // Red (1st player)
-      styles.playerBlue,    // Blue (2nd player) 
-      styles.playerGreen,   // Green (3rd player)
-      styles.playerPurple,  // Purple (4th player)
+      stylesSpecific.playerRed,     // Red (1st player)
+      stylesSpecific.playerBlue,    // Blue (2nd player) 
+      stylesSpecific.playerGreen,   // Green (3rd player)
+      stylesSpecific.playerPurple,  // Purple (4th player)
     ];
     
     // Get the appropriate color class for this player
@@ -168,36 +165,12 @@ const GamePage: React.FC = () => {
     } else {
       // For any additional players beyond our predefined colors, use a color based on their username
       // This is a fallback that shouldn't normally be needed with 8 color options
-      playerColorClass = styles.playerRed; // Default to red but apply custom filter
+      playerColorClass = stylesSpecific.playerRed; // Default to red but apply custom filter
     }
     
     // Get current username for highlighting the current player's snake
     const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
 
-    // IMPROVED IMPLEMENTATION: Process positions in two passes
-    // First pass: Add all glow elements for the current player's snake
-    if (username === currentUsername) {
-      positions.forEach((position) => {
-        const index = colRowToIndex(position[0], position[1]);
-        const cell = getCell(index);
-        
-        if (cell) {
-          // Create and add the glow element as a separate DOM element
-          // This ensures it's rendered before any snake parts
-          const glowElement = document.createElement('div');
-          glowElement.className = styles.currentPlayerGlow;
-          
-          // Clear any existing glow to prevent duplicates
-          const existingGlow = cell.querySelector(`.${styles.currentPlayerGlow}`);
-          if (existingGlow) {
-            cell.removeChild(existingGlow);
-          }
-          
-          // Insert the glow as the first child to ensure lowest z-index
-          cell.insertBefore(glowElement, cell.firstChild);
-        }
-      });
-    }
     
     // Second pass: Add all snake elements
     positions.forEach((position, i) => {
@@ -206,7 +179,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.playerCell);
+        cell.classList.add(stylesSpecific.playerCell);
         
         // Add color class to apply the correct hue-rotate filter
         if (playerColorClass) {
@@ -215,11 +188,11 @@ const GamePage: React.FC = () => {
         
         // Add collision animation class if this snake has collided
         if (collidedSnakes[username]) {
-          cell.classList.add(styles.collidedSnake);
+          cell.classList.add(stylesSpecific.collidedSnake);
           
           // Add dying effect to the current player's snake
           if (username === currentUsername) {
-            cell.classList.add(styles.dyingSnake);
+            cell.classList.add(stylesSpecific.dyingSnake);
           }
         }
         
@@ -227,12 +200,12 @@ const GamePage: React.FC = () => {
         if (collisionPoint && 
             position[0] === collisionPoint[0] && 
             position[1] === collisionPoint[1]) {
-          cell.classList.add(styles.collisionPoint);
+          cell.classList.add(stylesSpecific.collisionPoint);
         }
         
         // Mark head (first element)
         if (i === 0) {
-          cell.classList.add(styles.firstSquare);
+          cell.classList.add(stylesSpecific.firstSquare);
           
           // Calculate head rotation based on the next segment (if it exists)
           if (positions.length > 1) {
@@ -253,7 +226,7 @@ const GamePage: React.FC = () => {
         
         // Mark tail (last element)
         else if (i === positions.length - 1) {
-          cell.classList.add(styles.lastSquare);
+          cell.classList.add(stylesSpecific.lastSquare);
           
           // Calculate tail rotation based on the previous segment
           if (positions.length > 1) {
@@ -284,7 +257,7 @@ const GamePage: React.FC = () => {
           
           if (isCurve) {
             // This is a curved segment
-            cell.classList.add(styles.curveBody);
+            cell.classList.add(stylesSpecific.curveBody);
             
             // Define curve types based on movement direction
             // Bottom-Right curve (coming from down, going left OR coming from left, going down)
@@ -324,7 +297,7 @@ const GamePage: React.FC = () => {
         
         // Add indicator if this is the current player's snake
         if (username === currentUsername) {
-          cell.classList.add(styles.currentPlayerCell);
+          cell.classList.add(stylesSpecific.currentPlayerCell);
         }
       }
     });
@@ -360,7 +333,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.cookieCell);
+        cell.classList.add(stylesSpecific.cookieCell);
       }
     });
     
@@ -374,7 +347,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.goldenCookieCell);
+        cell.classList.add(stylesSpecific.goldenCookieCell);
       }
     });
     
@@ -388,7 +361,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.multiplierCell);
+        cell.classList.add(stylesSpecific.multiplierCell);
       }
     });
     
@@ -402,7 +375,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.reverseControlsCell);
+        cell.classList.add(stylesSpecific.reverseControlsCell);
       }
     });
 
@@ -416,7 +389,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.dividerCell);
+        cell.classList.add(stylesSpecific.dividerCell);
       }
     });
   }, [colRowToIndex, getCell, snakes]);
@@ -598,7 +571,7 @@ useEffect(() => {
       if (collisionCell) {
         cellsToAnimate.push({
           index: collisionPointIdx,
-          classes: [styles.collisionPoint],
+          classes: [stylesSpecific.collisionPoint],
           style: {},
           timestamp: Date.now()
         });
@@ -610,11 +583,11 @@ useEffect(() => {
           const idx = colRowToIndex(pos[0], pos[1]);
           const cell = gridCellsRef.current[idx];
           if (cell) {
-            const classes = [styles.playerCell, styles.collidedSnake];
+            const classes = [stylesSpecific.playerCell, stylesSpecific.collidedSnake];
             
             // Add special class for the current player's snake
             if (deadSnake.username === currentUsername) {
-              classes.push(styles.dyingSnake);
+              classes.push(stylesSpecific.dyingSnake);
             }
             
             // Get the current styles
@@ -1068,7 +1041,7 @@ useEffect(() => {
         grid.push(
           <div 
             key={`${row}-${col}`} 
-            className={styles.gridCell}
+            className={stylesSpecific.gridCell}
             data-row={row}
             data-col={col}
             data-index={index}
@@ -1130,8 +1103,8 @@ useEffect(() => {
     });
 
     return (
-      <div className={styles.effectsContainer}>
-        <h3 className={styles.effectsTitle}>Active Effects</h3>
+      <div className={stylesSpecific.effectsContainer}>
+        <h3 className={stylesSpecific.effectsTitle}>Active Effects</h3>
         {Array.from(effectsMap.values()).map((effect, index) => {
           // Determine effect name and color based on effect type
           const isMultiplier = effect.baseType.includes('Multiplier');
@@ -1141,13 +1114,13 @@ useEffect(() => {
           return (
             <div 
               key={`${effect.baseType}-${index}`} 
-              className={styles.ProgressWrapper}
+              className={stylesSpecific.ProgressWrapper}
             >
-              <div className={styles.effectLabel}>
+              <div className={stylesSpecific.effectLabel}>
                 <img 
                   src={isMultiplier ? '/assets/2x.png' : '/assets/reverse.png'} 
                   alt={effectName}
-                  className={styles.effectIcon}
+                  className={stylesSpecific.effectIcon}
                 />
                 {isMultiplier 
                   ? `${effectName}: ${Math.ceil(effect.duration)}s` 
@@ -1156,9 +1129,9 @@ useEffect(() => {
               
               {isMultiplier ? (
                 // For multiplier, show progress bar
-                <div className={styles.progressBarContainer}>
+                <div className={stylesSpecific.progressBarContainer}>
                   <div 
-                    className={styles.progressBar}
+                    className={stylesSpecific.progressBar}
                     style={{
                       marginLeft: '-3px',
                       width: `${(effect.duration / effect.maxDuration) * 100}%`,
@@ -1170,11 +1143,11 @@ useEffect(() => {
                 </div>
               ) : (
                 // For reverse controls, show blocks representing moves
-                <div className={styles.movesBlockContainer}>
+                <div className={stylesSpecific.movesBlockContainer}>
                   {[...Array(4)].map((_, i) => (
                     <div
                       key={i}
-                      className={styles.moveBlock}
+                      className={stylesSpecific.moveBlock}
                       style={{
                         backgroundColor: i < Math.ceil(effect.duration) ? backgroundColor : 'rgba(0, 0, 0, 0.2)',
                         opacity: i < Math.ceil(effect.duration) ? 1 : 0.5
@@ -1200,9 +1173,9 @@ useEffect(() => {
       // Hide only the death message after 2 seconds with fade-out animation
       const deathTimeout = setTimeout(() => {
         // Get the death overlay element and add the fade-out class
-        const deathOverlay = document.querySelector(`.${styles.deathOverlay}`);
+        const deathOverlay = document.querySelector(`.${stylesSpecific.deathOverlay}`);
         if (deathOverlay) {
-          deathOverlay.classList.add(styles.fadeOut);
+          deathOverlay.classList.add(stylesSpecific.fadeOut);
           
           // Wait for the animation to complete before hiding the element
           setTimeout(() => {
@@ -1230,16 +1203,16 @@ useEffect(() => {
       Object.keys(snakes).forEach((username, index) => {
         // Use the same color class mapping logic as in renderPlayerSnake
         const playerColorClasses = [
-          styles.playerRed,     // Red (1st player)
-          styles.playerBlue,    // Blue (2nd player) 
-          styles.playerGreen,   // Green (3rd player)
-          styles.playerPurple,  // Purple (4th player)
+          stylesSpecific.playerRed,     // Red (1st player)
+          stylesSpecific.playerBlue,    // Blue (2nd player) 
+          stylesSpecific.playerGreen,   // Green (3rd player)
+          stylesSpecific.playerPurple,  // Purple (4th player)
         ];
         
         if (index < playerColorClasses.length) {
           newColorMapping[username] = playerColorClasses[index];
         } else {
-          newColorMapping[username] = styles.playerRed; // Fallback
+          newColorMapping[username] = stylesSpecific.playerRed; // Fallback
         }
       });
       
@@ -1252,14 +1225,14 @@ useEffect(() => {
     <div className={styles.mainPage}>
       {/* Timer display */}
       {gameLive && (
-        <div className={styles.timer}>
+        <div className={stylesSpecific.timer}>
           Time: {formatTime(timestamp)}
         </div>
       )}
       
       {/* Final Countdown Overlay when time is ≤ 5 seconds and game is not ended */}
       {gameLive && timestamp <= 5 && !gameEnded && (
-        <div className={styles.finalCountdownOverlay}>
+        <div className={stylesSpecific.finalCountdownOverlay}>
           <span>{timestamp}</span>
         </div>
       )}
@@ -1320,8 +1293,8 @@ useEffect(() => {
       </div>
       
       {/* Main game grid */}
-      <div className={styles.gameContainer}>
-        <div className={styles.gameGrid}>
+      <div className={stylesSpecific.gameContainer}>
+        <div className={stylesSpecific.gameGrid}>
           {renderGrid()}
         </div>
         
@@ -1330,15 +1303,15 @@ useEffect(() => {
         
         {/* Countdown display - only show during pregame phase (when gameLive is false) */}
         {countdown !== null && countdown > 0 && !gameLive && (
-          <div className={styles.countdownCircle}>
+          <div className={stylesSpecific.countdownCircle}>
             <span>{countdown}</span>
           </div>
         )}
         
         {/* Death overlay */}
         {showDeathScreen && (
-          <div className={styles.deathOverlay}>
-            <div className={styles.deathMessage}>
+          <div className={stylesSpecific.deathOverlay}>
+            <div className={stylesSpecific.deathMessage}>
               <h2>You were eliminated!</h2>
               <h3>Spectating the rest of the match...</h3>
             </div>
@@ -1347,8 +1320,8 @@ useEffect(() => {
         
         {/* Spectator overlay */}
         {showSpectatorOverlay && gameLive &&(
-          <div className={styles.spectatorOverlay}>
-            <div className={styles.spectatorMessage}>
+          <div className={stylesSpecific.spectatorOverlay}>
+            <div className={stylesSpecific.spectatorMessage}>
               <h2>SPECTATING</h2>
             </div>
           </div>
@@ -1357,36 +1330,36 @@ useEffect(() => {
       
       {/* Podium display for game end */}
       {gameEnded && finalRankings.length > 0 && (
-        <div className={styles.podiumContainer}>
-          <div className={styles.podiumLayout}>
+        <div className={stylesSpecific.podiumContainer}>
+          <div className={stylesSpecific.podiumLayout}>
             {/* 2nd place - left position */}
             {finalRankings.length > 1 && (
-              <div className={`${styles.podiumPlayer} ${styles.podiumSecond}`}>
-                <div className={styles.podiumUsername}>{finalRankings[1]}</div>
-                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[1]] || ''}`}></div>
-                <div className={styles.podiumRank}>2nd</div>
+              <div className={`${stylesSpecific.podiumPlayer} ${stylesSpecific.podiumSecond}`}>
+                <div className={stylesSpecific.podiumUsername}>{finalRankings[1]}</div>
+                <div className={`${stylesSpecific.podiumBase} ${playerColorMapping[finalRankings[1]] || ''}`}></div>
+                <div className={stylesSpecific.podiumRank}>2nd</div>
               </div>
             )}
             
             {/* 1st place - center position */}
             {finalRankings.length > 0 && (
-              <div className={`${styles.podiumPlayer} ${styles.podiumFirst}`}>
-                <div className={styles.podiumUsername}>{finalRankings[0]}</div>
-                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[0]] || ''}`}></div>
-                <div className={styles.podiumRank}>1st</div>
+              <div className={`${stylesSpecific.podiumPlayer} ${stylesSpecific.podiumFirst}`}>
+                <div className={stylesSpecific.podiumUsername}>{finalRankings[0]}</div>
+                <div className={`${stylesSpecific.podiumBase} ${playerColorMapping[finalRankings[0]] || ''}`}></div>
+                <div className={stylesSpecific.podiumRank}>1st</div>
               </div>
             )}
             
             {/* 3rd place - right position */}
             {finalRankings.length > 2 && (
-              <div className={`${styles.podiumPlayer} ${styles.podiumThird}`}>
-                <div className={styles.podiumUsername}>{finalRankings[2]}</div>
-                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[2]] || ''}`}></div>
-                <div className={styles.podiumRank}>3rd</div>
+              <div className={`${stylesSpecific.podiumPlayer} ${stylesSpecific.podiumThird}`}>
+                <div className={stylesSpecific.podiumUsername}>{finalRankings[2]}</div>
+                <div className={`${stylesSpecific.podiumBase} ${playerColorMapping[finalRankings[2]] || ''}`}></div>
+                <div className={stylesSpecific.podiumRank}>3rd</div>
               </div>
             )}
           </div>
-          <div className={styles.endGameContainer}>
+          <div className={stylesSpecific.endGameContainer}>
             <button 
               className={`${styles.restartGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
               onClick={handleRestartGame}
