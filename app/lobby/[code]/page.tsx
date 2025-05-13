@@ -451,7 +451,7 @@ const LobbyPage: React.FC = () => {
         </table>
         
         <div className={styles.settingsContainer}>
-          <h3>Game Settings {!isAdmin && <span className={styles.adminOnlyText}>(Admin Only)</span>}</h3>
+          <h2>Game Settings {!isAdmin && <span className={styles.adminOnlyText}>(Admin Only)</span>}</h2>
           <br></br>
           <div className={styles.sliderContainer}>
             <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
@@ -497,23 +497,24 @@ const LobbyPage: React.FC = () => {
             <label htmlFor="sugarRush" className={styles.optionTitle}>Sugar Rush</label>
           </div>
         </div>
-        
-        <button 
-          className={`${styles.startGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
-          onClick={() => {
-            console.log("Start Game button clicked");
-            handleStartGame();
-          }}
-          disabled={!isAdmin} // Disable button if not admin
-        >
-          {isAdmin ? "Start Game" : "Only Admin Can Start Game"}
-        </button>
-        <button 
-          className={styles.leaveLobbyButton} 
-          onClick={handleLeaveLobby}
-        >
-          Leave Lobby
-        </button>
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center"}}>
+          <button 
+            className={`${styles.startGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
+            onClick={() => {
+              console.log("Start Game button clicked");
+              handleStartGame();
+            }}
+            disabled={!isAdmin} // Disable button if not admin
+          >
+            {isAdmin ? "Start Game" : "Only Admin Can Start Game"}
+          </button>
+          <button 
+            className={styles.leaveLobbyButton} 
+            onClick={handleLeaveLobby}
+          >
+            Leave Lobby
+          </button>
+        </div>
       </div>
     </div>
   );
