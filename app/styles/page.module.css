@@ -408,7 +408,7 @@ a.secondary {
 }
 
 .lobbyButtons {
-  background-color: #1c52c5; 
+  background-color: #1c52c5 !important; 
   position: relative;
   overflow: hidden;
   z-index: 1;

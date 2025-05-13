@@ -463,7 +463,7 @@ const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
                               lastGameState.snakes[username].length > 0;
                               
       if (isEmptyOrMissingInCurrent && existsInLastState) {
-        console.log(`Adding collided snake ${username} from last state`);
+        // console.log(`Adding collided snake ${username} from last state`);
         
         // Find original player index
         const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
@@ -514,7 +514,7 @@ useEffect(() => {
     const isNowEmpty = snakes[username] && snakes[username].length === 0;
     
     if (wasAlive && (isNowMissing || isNowEmpty)) {
-      console.log(`⚠️Snake died: ${username}`);
+      // console.log(`⚠️Snake died: ${username}`);
       deadSnakes.push({
         username,
         lastPosition: lastGameState.snakes[username][0] // The head position from last state
@@ -524,7 +524,7 @@ useEffect(() => {
   
   // If we found any dead snakes, trigger the collision animation
   if (deadSnakes.length > 0 && !deathAnimationInProgress && timestamp == 5000) {
-    console.log("⚠️ Dead snakes detected:", deadSnakes);
+    // console.log("⚠️ Dead snakes detected:", deadSnakes);
     
     // Handle only the first dead snake if multiple died in the same frame
     // (prioritize the current player if they died)
@@ -532,10 +532,10 @@ useEffect(() => {
     
     if (deadSnake && deadSnake.lastPosition) {
       setAnimationStartTime(Date.now());
-      console.log("⚠️Collision detected at:", deadSnake.lastPosition);
+      // console.log("⚠️Collision detected at:", deadSnake.lastPosition);
       if (deadSnake.username === currentUsername) {
         setDeathAnimationInProgress(true);
-        console.log(`⚠️ Death animation started for player ${currentUsername}`);
+        // console.log(`⚠️ Death animation started for player ${currentUsername}`);
       }
       const lastStateSnakes = JSON.parse(JSON.stringify(lastGameState.snakes));
       // Set collision point for explosion effect
@@ -552,7 +552,7 @@ useEffect(() => {
       if (lastStateSnakes[deadSnake.username] && lastStateSnakes[deadSnake.username].length > 0) {
         combinedState[deadSnake.username] = lastStateSnakes[deadSnake.username];
       }
-      console.log(`⚠️ Rendering combined state for animation:`, combinedState);
+      // console.log(`⚠️ Rendering combined state for animation:`, combinedState);
       // Force render the current state with the dead snake added back in
       // This is key: we render the current snakes plus the dead snake
       renderPlayerSnakes(combinedState);
@@ -617,7 +617,7 @@ useEffect(() => {
         
         // Wait for fadeaway animation to complete before clearing collision state
         setTimeout(() => {
-          console.log(`⚠️ Animation completed, cleaning up`);
+          // console.log(`⚠️ Animation completed, cleaning up`);
           // Update to current state
           
           setCollidedSnakes({}); // Clear collision state
@@ -646,14 +646,14 @@ useEffect(() => {
   useEffect(() => {
     // Handle browser close or refresh
     const handleBeforeUnload = () => {
-      console.log("Browser closing, disconnecting WebSocket");
+      // console.log("Browser closing, disconnecting WebSocket");
       intentionalDisconnect.current = true;
       disconnect();
     };
     
     // Handle browser back button
     const handlePopState = () => {
-      console.log("Browser back button pressed, disconnecting WebSocket");
+      // console.log("Browser back button pressed, disconnecting WebSocket");
       intentionalDisconnect.current = true;
       disconnect();
     };
@@ -669,11 +669,7 @@ useEffect(() => {
     };
   }, [disconnect]);
 
-  // Log the current username from localStorage
-  useEffect(() => {
-    const currentUsername = localStorage.getItem("username");
-    console.log("Current user playing the game:", currentUsername);
-  }, []);
+
   
   // Establish WebSocket connection on component mount - now this comes after all the functions are defined
   useEffect(() => {
@@ -697,7 +693,7 @@ useEffect(() => {
           currentSocket.onmessage = (event: MessageEvent) => {
             try {
               const data = JSON.parse(event.data);
-              console.log("Received message:", data);
+              // console.log("Received message:", data);
               
               // Handle pre-game countdown messages
               if (data.type === 'preGame') {
@@ -844,7 +840,7 @@ useEffect(() => {
               
               // Handle game end message
               else if (data.type === 'gameEnd') {
-                console.log("Game ended, winner:", data.winner);
+                // console.log("Game ended, winner:", data.winner);
                 
                 // Set game end state and save the rankings
                 setGameEnded(true);
@@ -852,7 +848,7 @@ useEffect(() => {
                   setFinalRankings(data.rank);
                 } else {
                   // Fallback if rank array isn't provided
-                  console.log("No rank array provided, using winner as fallback");
+                  // console.log("No rank array provided, using winner as fallback");
                   setFinalRankings(data.winner ? [data.winner] : []);
                 }
                 
@@ -863,7 +859,7 @@ useEffect(() => {
                   
                   // If current player lost, animate their last position
                   if (currentUsername !== data.winner && lastHeadPositions[currentUsername]) {
-                    console.log(`⚠️ Current player ${currentUsername} died in gameEnd`);
+                    // console.log(`⚠️ Current player ${currentUsername} died in gameEnd`);
                     setDeathAnimationInProgress(true);
                     // Set collision point
                     setCollisionPoint(lastHeadPositions[currentUsername]);
@@ -886,7 +882,7 @@ useEffect(() => {
                         combinedState[currentUsername] = lastGameState.snakes[currentUsername];
                       }
                       
-                      console.log(`⚠️ Rendering combined state for gameEnd animation:`, combinedState);
+                      // console.log(`⚠️ Rendering combined state for gameEnd animation:`, combinedState);
 
                       // Force render with this mixed state
                       renderPlayerSnakes(combinedState);
@@ -896,7 +892,7 @@ useEffect(() => {
                         setCollisionPoint(null);
                         
                         setTimeout(() => {
-                          console.log(`⚠️ gameEnd animation completed, cleaning up`);
+                          // console.log(`⚠️ gameEnd animation completed, cleaning up`);
                           renderPlayerSnakes(data.snakes || {});
                           setCollidedSnakes({}); // Clear collision state
                           setDeathAnimationInProgress(false); // Reset death animation state
@@ -942,8 +938,6 @@ useEffect(() => {
       if (intentionalDisconnect.current) {
         console.log("Disconnecting WebSocket on unmount");
         disconnect();
-      }else {
-        console.log("Not disconnecting WebSocket on unmount");
       }
     };
   }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderItems, indexToColRow, gameLive, lastHeadPositions, deathAnimationInProgress, lastGameState]);
@@ -999,8 +993,8 @@ useEffect(() => {
       
       // Send movement direction to the server if game is live and player is alive
       if (direction && gameLive && isAlive) {
-        const allPlayerUsernames = Object.keys(snakes).join(", ");
-        console.log(`Player '${currentUsername}' sending direction: ${direction}. All players: ${allPlayerUsernames}. Player alive: ${isAlive}`);
+        // const allPlayerUsernames = Object.keys(snakes).join(", ");
+        // console.log(`Player '${currentUsername}' sending direction: ${direction}. All players: ${allPlayerUsernames}. Player alive: ${isAlive}`);
         
         send({
           type: 'playerMove',
@@ -1217,7 +1211,7 @@ useEffect(() => {
       });
       
       setPlayerColorMapping(newColorMapping);
-      console.log("Set player color mapping during countdown phase:", newColorMapping);
+      // console.log("Set player color mapping during countdown phase:", newColorMapping);
     }
   }, [snakes, playerColorMapping, countdown]);
 
