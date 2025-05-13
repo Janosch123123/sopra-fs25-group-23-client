@@ -739,16 +739,6 @@ a.secondary {
   position: relative !important; /* Position absolutely */
   letter-spacing: normal !important; /* Normal letter spacing */
 }
-.loginContent {
-  background-color: #66bb6a; /* Darker medium green background */
-  padding: 40px;
-  border-radius: 8px;
-  border: 2px solid #66bb6a; /* Darker dark green border */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
-  font-family: "Oswald", sans-serif; /* Added Oswald font */
-}
 
 /* Form title styling */
 .loginTitle, .registerTitle {
@@ -788,11 +778,13 @@ a.secondary {
 .loginContent {
   background-color: #66bb6a; /* Darker medium green background */
   padding: 40px;
-  border-radius: 8px;
-  border: 2px solid #66bb6a; /* Darker dark green border */
+  border-radius: 15px;
+  border: 8px solid #43a047; /* Darker dark green border */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 
 
