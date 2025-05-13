@@ -133,3 +133,21 @@ reason).
 |                    | [02.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/ee9c5d3b8a3cb893017c81ed5cff887f218cc603] | [add singleplayer button] | [to be able to play singleplayer] |
 | **[@StalyTV]** | [05.05.2025]   | [[🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/30c5bebe45cb643e2cb8c4936ad566e1cf49beb0)] | [Implemented the display of a Leaderboard of the top 5 Players (based on their Level) with their Username, Level and winrate dispalyed. Currently logged in User will see his own rank below the leaderboard. This also needed a lot of restructuring of the page, mainly consisting of adding a Logo and aligning the Buttons for Quickplay and Singleplay.] | [This will make all other players see the best ranked/leveled players of all time and hopefully give the game a more competitive vibe] |
 |                    | [03.06.2025]   | [[🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/4fb75179a84b38d4b7209ee6c03ca74597f84a03)] | [Designed Icons for Power-Ups/Downs for multiplier (2x), golden cookie and reverse controls items. Added items in CSS file and implementing logic for display in /game/[id] page.tsx] | [Needed to be done to display an Icon for items the different items.] |
+---
+
+## Contributions Week 7 - 08.05.25 to 14.05.2025
+
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@Janosch123123/@JanoschBeck]** | [13.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/76183340e45387e9811a1fc03f2f8930cd9d0667] | [Bots should not circle themselves too often] | [makes the bot smarter, more human like] |
+|                    | [13.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/e75bf8e31220adba2f2380cf55b41bdd79bc4286] | [Bot should avoid PowerDowns] | [makes the bot smarter, more human like] |
+|                    | [13.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/4fcaf19ba8ed57610cb1abce95ad51ac5ca719d1] | [Bot should behave diffrently / betetr in SugerRush] | [In sugerrush, it should not focus on cookies since the whole map is cookies] |
+| **[@MarcMahler]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@LuckyLuke637]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@jojo2-8902]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@StalyTV]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+---
