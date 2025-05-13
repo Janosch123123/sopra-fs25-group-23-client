@@ -1,6 +1,7 @@
 "use client"
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import styles from "@/styles/page.module.css";
+import stylesSpecific from "@/game/game.module.css";
 import { useParams, useRouter } from "next/navigation";
 import { useLobbySocket } from "@/hooks/useLobbySocket";
 import useLocalStorage from '@/hooks/useLocalStorage';
@@ -20,14 +21,14 @@ const GamePage: React.FC = () => {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
   // Store item locations in state
-  const [goldenCookies, setGoldenCookies] = useState<[number, number][]>([]);
-  const [multipliers, setMultipliers] = useState<[number, number][]>([]);
-  const [reverseControls, setReverseControls] = useState<[number, number][]>([]);
-  const [dividers, setDividers] = useState<[number, number][]>([]); // Add state for divider items
   const [timestamp, setTimestamp] = useState<number>(0);
   const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
   const [showSpectatorOverlay, setShowSpectatorOverlay] = useState(false); // Add state for spectator overlay
+  
+  // State for tracking active effects and their durations
+  type Effect = { type: string; baseType: string; duration: number; maxDuration: number; };
+  const [activeEffects, setActiveEffects] = useState<Effect[]>([]);
   
   // Game end states
   const [gameEnded, setGameEnded] = useState(false);
@@ -97,29 +98,25 @@ const GamePage: React.FC = () => {
     gridCellsRef.current.forEach(cell => {
       if (cell) {
         cell.classList.remove(
-          styles.circle,
-          styles.firstSquare,
-          styles.lastSquare,
-          styles.curveBody,
-          styles.playerCell,
-          styles.cookieCell,
-          styles.goldenCookieCell,
-          styles.multiplierCell,
-          styles.reverseControlsCell,
-          styles.currentPlayerCell,
-          styles.playerRed,
-          styles.playerBlue,
-          styles.playerGreen,
-          styles.playerPurple,
-          styles.playerOrange,
-          styles.playerPink,
-          styles.playerTeal,
-          styles.playerBrown,
+          stylesSpecific.circle,
+          stylesSpecific.firstSquare,
+          stylesSpecific.lastSquare,
+          stylesSpecific.curveBody,
+          stylesSpecific.playerCell,
+          stylesSpecific.cookieCell,
+          stylesSpecific.goldenCookieCell,
+          stylesSpecific.multiplierCell,
+          stylesSpecific.reverseControlsCell,
+          stylesSpecific.dividerCell,
+          stylesSpecific.currentPlayerCell,
+          stylesSpecific.playerRed,
+          stylesSpecific.playerBlue,
+          stylesSpecific.playerGreen,
+          stylesSpecific.playerPurple,
           // Add these new classes for collision animation
-          styles.collidedSnake,
-          styles.dyingSnake,
-          styles.collisionPoint,
-          styles.dividerCell
+          stylesSpecific.collidedSnake,
+          stylesSpecific.dyingSnake,
+          stylesSpecific.collisionPoint,
         );
         // Remove any inline styles for player colors
         cell.style.setProperty('--player-color', '');
@@ -151,10 +148,10 @@ const GamePage: React.FC = () => {
     
     // Define color classes based on player index - expanded with more color options
     const playerColorClasses = [
-      styles.playerRed,     // Red (1st player)
-      styles.playerBlue,    // Blue (2nd player) 
-      styles.playerGreen,   // Green (3rd player)
-      styles.playerPurple,  // Purple (4th player)
+      stylesSpecific.playerRed,     // Red (1st player)
+      stylesSpecific.playerBlue,    // Blue (2nd player) 
+      stylesSpecific.playerGreen,   // Green (3rd player)
+      stylesSpecific.playerPurple,  // Purple (4th player)
     ];
     
     // Get the appropriate color class for this player
@@ -164,36 +161,12 @@ const GamePage: React.FC = () => {
     } else {
       // For any additional players beyond our predefined colors, use a color based on their username
       // This is a fallback that shouldn't normally be needed with 8 color options
-      playerColorClass = styles.playerRed; // Default to red but apply custom filter
+      playerColorClass = stylesSpecific.playerRed; // Default to red but apply custom filter
     }
     
     // Get current username for highlighting the current player's snake
     const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
 
-    // IMPROVED IMPLEMENTATION: Process positions in two passes
-    // First pass: Add all glow elements for the current player's snake
-    if (username === currentUsername) {
-      positions.forEach((position) => {
-        const index = colRowToIndex(position[0], position[1]);
-        const cell = getCell(index);
-        
-        if (cell) {
-          // Create and add the glow element as a separate DOM element
-          // This ensures it's rendered before any snake parts
-          const glowElement = document.createElement('div');
-          glowElement.className = styles.currentPlayerGlow;
-          
-          // Clear any existing glow to prevent duplicates
-          const existingGlow = cell.querySelector(`.${styles.currentPlayerGlow}`);
-          if (existingGlow) {
-            cell.removeChild(existingGlow);
-          }
-          
-          // Insert the glow as the first child to ensure lowest z-index
-          cell.insertBefore(glowElement, cell.firstChild);
-        }
-      });
-    }
     
     // Second pass: Add all snake elements
     positions.forEach((position, i) => {
@@ -202,7 +175,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.playerCell);
+        cell.classList.add(stylesSpecific.playerCell);
         
         // Add color class to apply the correct hue-rotate filter
         if (playerColorClass) {
@@ -211,11 +184,11 @@ const GamePage: React.FC = () => {
         
         // Add collision animation class if this snake has collided
         if (collidedSnakes[username]) {
-          cell.classList.add(styles.collidedSnake);
+          cell.classList.add(stylesSpecific.collidedSnake);
           
           // Add dying effect to the current player's snake
           if (username === currentUsername) {
-            cell.classList.add(styles.dyingSnake);
+            cell.classList.add(stylesSpecific.dyingSnake);
           }
         }
         
@@ -223,12 +196,12 @@ const GamePage: React.FC = () => {
         if (collisionPoint && 
             position[0] === collisionPoint[0] && 
             position[1] === collisionPoint[1]) {
-          cell.classList.add(styles.collisionPoint);
+          cell.classList.add(stylesSpecific.collisionPoint);
         }
         
         // Mark head (first element)
         if (i === 0) {
-          cell.classList.add(styles.firstSquare);
+          cell.classList.add(stylesSpecific.firstSquare);
           
           // Calculate head rotation based on the next segment (if it exists)
           if (positions.length > 1) {
@@ -249,7 +222,7 @@ const GamePage: React.FC = () => {
         
         // Mark tail (last element)
         else if (i === positions.length - 1) {
-          cell.classList.add(styles.lastSquare);
+          cell.classList.add(stylesSpecific.lastSquare);
           
           // Calculate tail rotation based on the previous segment
           if (positions.length > 1) {
@@ -280,7 +253,7 @@ const GamePage: React.FC = () => {
           
           if (isCurve) {
             // This is a curved segment
-            cell.classList.add(styles.curveBody);
+            cell.classList.add(stylesSpecific.curveBody);
             
             // Define curve types based on movement direction
             // Bottom-Right curve (coming from down, going left OR coming from left, going down)
@@ -320,7 +293,7 @@ const GamePage: React.FC = () => {
         
         // Add indicator if this is the current player's snake
         if (username === currentUsername) {
-          cell.classList.add(styles.currentPlayerCell);
+          cell.classList.add(stylesSpecific.currentPlayerCell);
         }
       }
     });
@@ -356,7 +329,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.cookieCell);
+        cell.classList.add(stylesSpecific.cookieCell);
       }
     });
     
@@ -370,7 +343,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.goldenCookieCell);
+        cell.classList.add(stylesSpecific.goldenCookieCell);
       }
     });
     
@@ -384,7 +357,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.multiplierCell);
+        cell.classList.add(stylesSpecific.multiplierCell);
       }
     });
     
@@ -398,7 +371,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.reverseControlsCell);
+        cell.classList.add(stylesSpecific.reverseControlsCell);
       }
     });
 
@@ -412,7 +385,7 @@ const GamePage: React.FC = () => {
       const cell = getCell(index);
       
       if (cell) {
-        cell.classList.add(styles.dividerCell);
+        cell.classList.add(stylesSpecific.dividerCell);
       }
     });
   }, [colRowToIndex, getCell, snakes]);
@@ -486,7 +459,7 @@ const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
                               lastGameState.snakes[username].length > 0;
                               
       if (isEmptyOrMissingInCurrent && existsInLastState) {
-        console.log(`Adding collided snake ${username} from last state`);
+        // console.log(`Adding collided snake ${username} from last state`);
         
         // Find original player index
         const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
@@ -537,7 +510,7 @@ useEffect(() => {
     const isNowEmpty = snakes[username] && snakes[username].length === 0;
     
     if (wasAlive && (isNowMissing || isNowEmpty)) {
-      console.log(`⚠️Snake died: ${username}`);
+      // console.log(`⚠️Snake died: ${username}`);
       deadSnakes.push({
         username,
         lastPosition: lastGameState.snakes[username][0] // The head position from last state
@@ -547,7 +520,7 @@ useEffect(() => {
   
   // If we found any dead snakes, trigger the collision animation
   if (deadSnakes.length > 0 && !deathAnimationInProgress && timestamp == 5000) {
-    console.log("⚠️ Dead snakes detected:", deadSnakes);
+    // console.log("⚠️ Dead snakes detected:", deadSnakes);
     
     // Handle only the first dead snake if multiple died in the same frame
     // (prioritize the current player if they died)
@@ -555,10 +528,10 @@ useEffect(() => {
     
     if (deadSnake && deadSnake.lastPosition) {
       setAnimationStartTime(Date.now());
-      console.log("⚠️Collision detected at:", deadSnake.lastPosition);
+      // console.log("⚠️Collision detected at:", deadSnake.lastPosition);
       if (deadSnake.username === currentUsername) {
         setDeathAnimationInProgress(true);
-        console.log(`⚠️ Death animation started for player ${currentUsername}`);
+        // console.log(`⚠️ Death animation started for player ${currentUsername}`);
       }
       const lastStateSnakes = JSON.parse(JSON.stringify(lastGameState.snakes));
       // Set collision point for explosion effect
@@ -575,7 +548,7 @@ useEffect(() => {
       if (lastStateSnakes[deadSnake.username] && lastStateSnakes[deadSnake.username].length > 0) {
         combinedState[deadSnake.username] = lastStateSnakes[deadSnake.username];
       }
-      console.log(`⚠️ Rendering combined state for animation:`, combinedState);
+      // console.log(`⚠️ Rendering combined state for animation:`, combinedState);
       // Force render the current state with the dead snake added back in
       // This is key: we render the current snakes plus the dead snake
       renderPlayerSnakes(combinedState);
@@ -594,7 +567,7 @@ useEffect(() => {
       if (collisionCell) {
         cellsToAnimate.push({
           index: collisionPointIdx,
-          classes: [styles.collisionPoint],
+          classes: [stylesSpecific.collisionPoint],
           style: {},
           timestamp: Date.now()
         });
@@ -606,11 +579,11 @@ useEffect(() => {
           const idx = colRowToIndex(pos[0], pos[1]);
           const cell = gridCellsRef.current[idx];
           if (cell) {
-            const classes = [styles.playerCell, styles.collidedSnake];
+            const classes = [stylesSpecific.playerCell, stylesSpecific.collidedSnake];
             
             // Add special class for the current player's snake
             if (deadSnake.username === currentUsername) {
-              classes.push(styles.dyingSnake);
+              classes.push(stylesSpecific.dyingSnake);
             }
             
             // Get the current styles
@@ -640,7 +613,7 @@ useEffect(() => {
         
         // Wait for fadeaway animation to complete before clearing collision state
         setTimeout(() => {
-          console.log(`⚠️ Animation completed, cleaning up`);
+          // console.log(`⚠️ Animation completed, cleaning up`);
           // Update to current state
           
           setCollidedSnakes({}); // Clear collision state
@@ -669,14 +642,14 @@ useEffect(() => {
   useEffect(() => {
     // Handle browser close or refresh
     const handleBeforeUnload = () => {
-      console.log("Browser closing, disconnecting WebSocket");
+      // console.log("Browser closing, disconnecting WebSocket");
       intentionalDisconnect.current = true;
       disconnect();
     };
     
     // Handle browser back button
     const handlePopState = () => {
-      console.log("Browser back button pressed, disconnecting WebSocket");
+      // console.log("Browser back button pressed, disconnecting WebSocket");
       intentionalDisconnect.current = true;
       disconnect();
     };
@@ -692,11 +665,7 @@ useEffect(() => {
     };
   }, [disconnect]);
 
-  // Log the current username from localStorage
-  useEffect(() => {
-    const currentUsername = localStorage.getItem("username");
-    console.log("Current user playing the game:", currentUsername);
-  }, []);
+
   
   // Establish WebSocket connection on component mount - now this comes after all the functions are defined
   useEffect(() => {
@@ -720,13 +689,16 @@ useEffect(() => {
           currentSocket.onmessage = (event: MessageEvent) => {
             try {
               const data = JSON.parse(event.data);
-              console.log("Received message:", data);
+              // console.log("Received message:", data);
               
               // Handle pre-game countdown messages
               if (data.type === 'preGame') {
                 setShowSpectatorOverlay(false);
                 setGameLive(false);
                 setCountdown(data.countdown);
+                
+                // Clear all cells before rendering anything
+                clearAllCells();
                 
                 // Convert data to our internal format if needed
                 if (data.snakes) {
@@ -753,8 +725,14 @@ useEffect(() => {
                   cookiePositions = data.cookies.map((index: number) => indexToColRow(index));
                 }
                 
-                // Render cookies immediately
-                renderItems(cookiePositions, goldenCookies, multipliers, reverseControls, dividers);
+                // Render all item types immediately
+                renderItems(
+                  cookiePositions, 
+                  data.goldenCookies || [], 
+                  data.multipliers || [], 
+                  data.reverseControls || [],
+                  data.dividers || []
+                );
 
                 // Reset player death state when game is restarting
                 setPlayerIsDead(false);
@@ -765,6 +743,9 @@ useEffect(() => {
                 setCollidedSnakes({});
                 setAnimatingCells([]);
                 setAnimationStartTime(null);
+                
+                // Clear any active effects
+                setActiveEffects([]);
               }
               
               // Handle gameState updates with the new expected format
@@ -778,11 +759,6 @@ useEffect(() => {
                 // Update snake positions immediately without waiting for state update
                 renderPlayerSnakes(data.snakes || {});
                 
-                // Set all item positions from the message
-                setGoldenCookies(data.goldenCookies || []);
-                setMultipliers(data.multipliers || []);
-                setReverseControls(data.reverseControls || []);
-                setDividers(data.dividers || []); // Update dividers state
                 
                 // Render all items immediately
                 renderItems(
@@ -792,6 +768,43 @@ useEffect(() => {
                   data.reverseControls || [],
                   data.dividers || [] // Pass dividers to renderItems
                 );
+                
+                // Parse and update active effects
+                if (data.effects) {
+                  const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
+                  const userEffects = data.effects[currentUsername] || [];
+                  
+                  // Transform the effects into a more usable format
+                  const parsedEffects: Effect[] = userEffects.map((effectString: string) => {
+                    // Parse the effect string to extract type and duration
+                    const effectMatch = effectString.match(/^([a-zA-Z]+)([0-9.]+)$/);
+                    if (effectMatch) {
+                      const effectType = effectMatch[1];
+                      const duration = parseFloat(effectMatch[2]);
+                      
+                      // Set max duration based on effect type
+                      let maxDuration = 10; // Default
+                      if (effectType.includes('Multiplier')) {
+                        maxDuration = 10;
+                      } else if (effectType.includes('ReverseControl')) {
+                        maxDuration = 4;
+                      }
+                      
+                      return {
+                        type: effectString, // Store full effect string to preserve the numeric part
+                        baseType: effectType, // Store the base type without numbers
+                        duration: duration,
+                        maxDuration: maxDuration
+                      };
+                    }
+                    return null;
+                  }).filter((effect: unknown): effect is Effect => effect !== null);
+                  
+                  setActiveEffects(parsedEffects);
+                } else {
+                  // Clear effects if none are provided
+                  setActiveEffects([]);
+                }
                 
                 // Update timestamp if available
                 if (data.timestamp !== undefined) {
@@ -812,7 +825,7 @@ useEffect(() => {
               
               // Handle game end message
               else if (data.type === 'gameEnd') {
-                console.log("Game ended, winner:", data.winner);
+                // console.log("Game ended, winner:", data.winner);
                 
                 // Set game end state and save the rankings
                 setGameEnded(true);
@@ -820,7 +833,7 @@ useEffect(() => {
                   setFinalRankings(data.rank);
                 } else {
                   // Fallback if rank array isn't provided
-                  console.log("No rank array provided, using winner as fallback");
+                  // console.log("No rank array provided, using winner as fallback");
                   setFinalRankings(data.winner ? [data.winner] : []);
                 }
                 
@@ -831,7 +844,7 @@ useEffect(() => {
                   
                   // If current player lost, animate their last position
                   if (currentUsername !== data.winner && lastHeadPositions[currentUsername]) {
-                    console.log(`⚠️ Current player ${currentUsername} died in gameEnd`);
+                    // console.log(`⚠️ Current player ${currentUsername} died in gameEnd`);
                     setDeathAnimationInProgress(true);
                     // Set collision point
                     setCollisionPoint(lastHeadPositions[currentUsername]);
@@ -854,7 +867,7 @@ useEffect(() => {
                         combinedState[currentUsername] = lastGameState.snakes[currentUsername];
                       }
                       
-                      console.log(`⚠️ Rendering combined state for gameEnd animation:`, combinedState);
+                      // console.log(`⚠️ Rendering combined state for gameEnd animation:`, combinedState);
 
                       // Force render with this mixed state
                       renderPlayerSnakes(combinedState);
@@ -864,7 +877,7 @@ useEffect(() => {
                         setCollisionPoint(null);
                         
                         setTimeout(() => {
-                          console.log(`⚠️ gameEnd animation completed, cleaning up`);
+                          // console.log(`⚠️ gameEnd animation completed, cleaning up`);
                           renderPlayerSnakes(data.snakes || {});
                           setCollidedSnakes({}); // Clear collision state
                           setDeathAnimationInProgress(false); // Reset death animation state
@@ -910,8 +923,6 @@ useEffect(() => {
       if (intentionalDisconnect.current) {
         console.log("Disconnecting WebSocket on unmount");
         disconnect();
-      }else {
-        console.log("Not disconnecting WebSocket on unmount");
       }
     };
   }, [connect, disconnect, getSocket, isConnected, lobbyCode, renderPlayerSnakes, renderItems, indexToColRow, gameLive, lastHeadPositions, deathAnimationInProgress, lastGameState]);
@@ -967,8 +978,8 @@ useEffect(() => {
       
       // Send movement direction to the server if game is live and player is alive
       if (direction && gameLive && isAlive) {
-        const allPlayerUsernames = Object.keys(snakes).join(", ");
-        console.log(`Player '${currentUsername}' sending direction: ${direction}. All players: ${allPlayerUsernames}. Player alive: ${isAlive}`);
+        // const allPlayerUsernames = Object.keys(snakes).join(", ");
+        // console.log(`Player '${currentUsername}' sending direction: ${direction}. All players: ${allPlayerUsernames}. Player alive: ${isAlive}`);
         
         send({
           type: 'playerMove',
@@ -1009,7 +1020,7 @@ useEffect(() => {
         grid.push(
           <div 
             key={`${row}-${col}`} 
-            className={styles.gridCell}
+            className={stylesSpecific.gridCell}
             data-row={row}
             data-col={col}
             data-index={index}
@@ -1049,6 +1060,88 @@ useEffect(() => {
     });
   };
 
+  // Function to render progress bars for active effects
+  const renderEffectsProgressBars = () => {
+    if (!activeEffects || activeEffects.length === 0) return null;
+
+    // Filter effects to only include multiplier and reverse control effects
+    const filteredEffects = activeEffects.filter(effect => 
+      effect.baseType.includes('Multiplier') || effect.baseType.includes('ReverseControl')
+    );
+    
+    if (filteredEffects.length === 0) return null;
+
+    // Group effects by base type and find the highest duration for each type
+    const effectsMap = new Map<string, Effect>();
+    
+    filteredEffects.forEach(effect => {
+      // Check if we already have this effect type, and if so, keep the one with higher duration
+      if (!effectsMap.has(effect.baseType) || effect.duration > effectsMap.get(effect.baseType)!.duration) {
+        effectsMap.set(effect.baseType, effect);
+      }
+    });
+
+    return (
+      <div className={stylesSpecific.effectsContainer}>
+        <h3 className={stylesSpecific.effectsTitle}>Active Effects</h3>
+        {Array.from(effectsMap.values()).map((effect, index) => {
+          // Determine effect name and color based on effect type
+          const isMultiplier = effect.baseType.includes('Multiplier');
+          const effectName = isMultiplier ? 'Multiplier' : 'Reverse Controls';
+          const backgroundColor = isMultiplier ? '#ffd700' : '#ff00ff'; // Gold for multiplier, Purple for reverse
+          
+          return (
+            <div 
+              key={`${effect.baseType}-${index}`} 
+              className={stylesSpecific.ProgressWrapper}
+            >
+              <div className={stylesSpecific.effectLabel}>
+                <img 
+                  src={isMultiplier ? '/assets/2x.png' : '/assets/reverse.png'} 
+                  alt={effectName}
+                  className={stylesSpecific.effectIcon}
+                />
+                {isMultiplier 
+                  ? `${effectName}: ${Math.ceil(effect.duration)}s` 
+                  : `${effectName}: ${Math.ceil(effect.duration)} moves`}
+              </div>
+              
+              {isMultiplier ? (
+                // For multiplier, show progress bar
+                <div className={stylesSpecific.progressBarContainer}>
+                  <div 
+                    className={stylesSpecific.progressBar}
+                    style={{
+                      marginLeft: '-3px',
+                      width: `${(effect.duration / effect.maxDuration) * 100}%`,
+                      backgroundColor: backgroundColor,
+                      height: '10px',
+                      borderRadius: '10px',
+                    }}
+                  ></div>
+                </div>
+              ) : (
+                // For reverse controls, show blocks representing moves
+                <div className={stylesSpecific.movesBlockContainer}>
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={stylesSpecific.moveBlock}
+                      style={{
+                        backgroundColor: i < Math.ceil(effect.duration) ? backgroundColor : 'rgba(0, 0, 0, 0.2)',
+                        opacity: i < Math.ceil(effect.duration) ? 1 : 0.5
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   // Effect to handle showing and hiding the death screen
   useEffect(() => {
     if (playerIsDead && !deathAnimationInProgress) {
@@ -1059,9 +1152,9 @@ useEffect(() => {
       // Hide only the death message after 2 seconds with fade-out animation
       const deathTimeout = setTimeout(() => {
         // Get the death overlay element and add the fade-out class
-        const deathOverlay = document.querySelector(`.${styles.deathOverlay}`);
+        const deathOverlay = document.querySelector(`.${stylesSpecific.deathOverlay}`);
         if (deathOverlay) {
-          deathOverlay.classList.add(styles.fadeOut);
+          deathOverlay.classList.add(stylesSpecific.fadeOut);
           
           // Wait for the animation to complete before hiding the element
           setTimeout(() => {
@@ -1089,21 +1182,21 @@ useEffect(() => {
       Object.keys(snakes).forEach((username, index) => {
         // Use the same color class mapping logic as in renderPlayerSnake
         const playerColorClasses = [
-          styles.playerRed,     // Red (1st player)
-          styles.playerBlue,    // Blue (2nd player) 
-          styles.playerGreen,   // Green (3rd player)
-          styles.playerPurple,  // Purple (4th player)
+          stylesSpecific.playerRed,     // Red (1st player)
+          stylesSpecific.playerBlue,    // Blue (2nd player) 
+          stylesSpecific.playerGreen,   // Green (3rd player)
+          stylesSpecific.playerPurple,  // Purple (4th player)
         ];
         
         if (index < playerColorClasses.length) {
           newColorMapping[username] = playerColorClasses[index];
         } else {
-          newColorMapping[username] = styles.playerRed; // Fallback
+          newColorMapping[username] = stylesSpecific.playerRed; // Fallback
         }
       });
       
       setPlayerColorMapping(newColorMapping);
-      console.log("Set player color mapping during countdown phase:", newColorMapping);
+      // console.log("Set player color mapping during countdown phase:", newColorMapping);
     }
   }, [snakes, playerColorMapping, countdown]);
 
@@ -1111,22 +1204,22 @@ useEffect(() => {
     <div className={styles.mainPage}>
       {/* Timer display */}
       {gameLive && (
-        <div className={styles.timer}>
+        <div className={stylesSpecific.timer}>
           Time: {formatTime(timestamp)}
         </div>
       )}
       
       {/* Final Countdown Overlay when time is ≤ 5 seconds and game is not ended */}
       {gameLive && timestamp <= 5 && !gameEnded && (
-        <div className={styles.finalCountdownOverlay}>
+        <div className={stylesSpecific.finalCountdownOverlay}>
           <span>{timestamp}</span>
         </div>
       )}
       
       {/* Leaderboard */}
-      <div className={styles.leaderboard}>
+      <div className={stylesSpecific.leaderboard}>
         <h3>Leaderboard</h3>
-        <table className={styles.leaderboardTable}>
+        <table className={stylesSpecific.leaderboardTable}>
           <thead>
             <tr>
               <th>#</th>
@@ -1152,7 +1245,7 @@ useEffect(() => {
                   style={{'--player-row-color': playerColor} as React.CSSProperties}
                 >
                   <td>{index + 1}</td>
-                  <td>{player.username}</td>
+                  <td>{player.username.length > 9 ? `${player.username.slice(0, 7)}...` : player.username}</td>
                   <td>{player.length}</td>
                 </tr>
               );
@@ -1179,23 +1272,25 @@ useEffect(() => {
       </div>
       
       {/* Main game grid */}
-      <div className={styles.gameContainer}>
-        <div className={styles.gameGrid}>
+      <div className={stylesSpecific.gameContainer}>
+        <div className={stylesSpecific.gameGrid}>
           {renderGrid()}
         </div>
         
+        {/* Active effects progress bars - only show when game is live and there are active effects */}
+        {gameLive && activeEffects.length > 0 && renderEffectsProgressBars()}
+        
         {/* Countdown display - only show during pregame phase (when gameLive is false) */}
         {countdown !== null && countdown > 0 && !gameLive && (
-          <div className={styles.countdownCircle}>
+          <div className={stylesSpecific.countdownCircle}>
             <span>{countdown}</span>
           </div>
         )}
         
-        
         {/* Death overlay */}
         {showDeathScreen && (
-          <div className={styles.deathOverlay}>
-            <div className={styles.deathMessage}>
+          <div className={stylesSpecific.deathOverlay}>
+            <div className={stylesSpecific.deathMessage}>
               <h2>You were eliminated!</h2>
               <h3>Spectating the rest of the match...</h3>
             </div>
@@ -1204,8 +1299,8 @@ useEffect(() => {
         
         {/* Spectator overlay */}
         {showSpectatorOverlay && gameLive &&(
-          <div className={styles.spectatorOverlay}>
-            <div className={styles.spectatorMessage}>
+          <div className={stylesSpecific.spectatorOverlay}>
+            <div className={stylesSpecific.spectatorMessage}>
               <h2>SPECTATING</h2>
             </div>
           </div>
@@ -1214,36 +1309,36 @@ useEffect(() => {
       
       {/* Podium display for game end */}
       {gameEnded && finalRankings.length > 0 && (
-        <div className={styles.podiumContainer}>
-          <div className={styles.podiumLayout}>
+        <div className={stylesSpecific.podiumContainer}>
+          <div className={stylesSpecific.podiumLayout}>
             {/* 2nd place - left position */}
             {finalRankings.length > 1 && (
-              <div className={`${styles.podiumPlayer} ${styles.podiumSecond}`}>
-                <div className={styles.podiumUsername}>{finalRankings[1]}</div>
-                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[1]] || ''}`}></div>
-                <div className={styles.podiumRank}>2nd</div>
+              <div className={`${stylesSpecific.podiumPlayer} ${stylesSpecific.podiumSecond}`}>
+                <div className={stylesSpecific.podiumUsername}>{finalRankings[1]}</div>
+                <div className={`${stylesSpecific.podiumBase} ${playerColorMapping[finalRankings[1]] || ''}`}></div>
+                <div className={stylesSpecific.podiumRank}>2nd</div>
               </div>
             )}
             
             {/* 1st place - center position */}
             {finalRankings.length > 0 && (
-              <div className={`${styles.podiumPlayer} ${styles.podiumFirst}`}>
-                <div className={styles.podiumUsername}>{finalRankings[0]}</div>
-                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[0]] || ''}`}></div>
-                <div className={styles.podiumRank}>1st</div>
+              <div className={`${stylesSpecific.podiumPlayer} ${stylesSpecific.podiumFirst}`}>
+                <div className={stylesSpecific.podiumUsername}>{finalRankings[0]}</div>
+                <div className={`${stylesSpecific.podiumBase} ${playerColorMapping[finalRankings[0]] || ''}`}></div>
+                <div className={stylesSpecific.podiumRank}>1st</div>
               </div>
             )}
             
             {/* 3rd place - right position */}
             {finalRankings.length > 2 && (
-              <div className={`${styles.podiumPlayer} ${styles.podiumThird}`}>
-                <div className={styles.podiumUsername}>{finalRankings[2]}</div>
-                <div className={`${styles.podiumBase} ${playerColorMapping[finalRankings[2]] || ''}`}></div>
-                <div className={styles.podiumRank}>3rd</div>
+              <div className={`${stylesSpecific.podiumPlayer} ${stylesSpecific.podiumThird}`}>
+                <div className={stylesSpecific.podiumUsername}>{finalRankings[2]}</div>
+                <div className={`${stylesSpecific.podiumBase} ${playerColorMapping[finalRankings[2]] || ''}`}></div>
+                <div className={stylesSpecific.podiumRank}>3rd</div>
               </div>
             )}
           </div>
-          <div className={styles.endGameContainer}>
+          <div className={stylesSpecific.endGameContainer}>
             <button 
               className={`${styles.restartGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
               onClick={handleRestartGame}

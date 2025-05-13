@@ -311,7 +311,7 @@ console.log('Parsed JSON message:', data);
             <tbody>
               <tr>
                 <td>Username:</td>
-                <td>{userStats.username}</td>
+                <td>{userStats.username.length > 9 ? `${userStats.username.slice(0, 7)}...` : userStats.username}</td>
               </tr>
               <tr>
                 <td>#Wins:</td>
@@ -512,7 +512,7 @@ console.log('Parsed JSON message:', data);
                       return (
                         <tr key={index} className={isCurrentUser ? styles.userRank : ''}>
                           <td>{index + 1}</td>
-                          <td>{player.username}{isCurrentUser}</td>
+                          <td>{player.username.length > 9 ? `${player.username.slice(0, 7)}...` : player.username}</td>
                           <td>{Math.floor(player.level)}</td>
                           <td>{Math.round(player.winRate * 100)}%</td>
                         </tr>

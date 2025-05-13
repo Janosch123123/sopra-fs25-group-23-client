@@ -1,0 +1,1088 @@
+/*__________________________________________ Game Grid CSS ___________________________________________*/
+/* Add the following gameGrid related classes */
+.gameGrid {
+  display: grid;
+  grid-template-columns: repeat(30, 1fr);
+  grid-template-rows: repeat(25, 1fr);
+  gap: 0; /* Remove gap between cells */
+  width: 100vmin;
+  height: 83.33vmin;
+  background-color: #004d00;
+  border: 4px solid #004d00;
+}
+
+/*__________________________________________ Leaderboard ___________________________________________*/
+/* Leaderboard styling */
+.leaderboard {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #427fa7; /* Match dashboardContainer color */
+  color: white;
+  padding: 30px; /* Match dashboardContainer padding */
+  border-radius: 20px; /* Match dashboardContainer border-radius */
+  border: 4px solid #345a97; /* Match dashboardContainer border */
+  z-index: 2;
+  min-width: 300px; /* Increased minimum width */
+  max-width: 400px; /* Increased maximum width */
+}
+
+.leaderboard h3 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 2.5rem; /* Match dashboardContainer h2 */
+  text-decoration: underline; /* Match dashboardContainer h2 */
+  font-weight: 600; /* Match dashboardContainer h2 */
+  font-family: "Oswald", sans-serif;
+  padding-bottom: 10px;
+}
+
+.leaderboardTable {
+  width: 270px;
+  font-size: 1.5rem; /* Match statisticsTable */
+  font-weight: 500; /* Match statisticsTable */
+  border-collapse: collapse;
+  border-radius: 40px; /* Match statisticsTable */
+  font-family: "Oswald", sans-serif;
+}
+
+.leaderboardTable th,
+.leaderboardTable td {
+  padding: 10px; /* Match statisticsTable td */
+  text-align: center;
+  border-bottom: 1px solid #345a97; /* Match statisticsTable td */
+  border-radius: 30px; /* Match statisticsTable td */
+}
+
+.leaderboardTable th {
+  font-weight: bold;
+  font-size: 1rem; /* Match rest of table */
+}
+/* Use player color for rank indicator */
+.leaderboardTable tr td:first-child {
+  color: var(--player-row-color);
+  font-weight: bold;
+  font-size: 1.6rem; /* Slightly larger font size for rank */
+}
+/* M
+ake sure the leaderboard remains visible in different screen sizes */
+@media (max-width: 1200px) {
+  .leaderboard {
+    left: 15px;
+    padding: 20px;
+    min-width: 280px;
+  }
+  
+  .leaderboardTable th,
+  .leaderboardTable td {
+    padding: 8px;
+    font-size: 1rem;
+  }
+  
+  .leaderboard h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .leaderboard {
+    top: 15px;
+    transform: none;
+    min-width: 300px;
+  }
+}
+/*___________________________________________ Timer ___________________________________________*/
+.timer {
+  position: absolute;
+  margin-left: 50px;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 5, 5, 0.561);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 1.4rem;
+  z-index: 2; /* Increased z-index to display above the overlay */
+  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-weight: bolder;
+}
+
+/*__________________________________________ Game Grid Cells ___________________________________________*/
+
+.gridCell {
+  width: 100%;
+  height: 100%;
+  border-radius: 0; /* Remove rounded corners */
+  position: relative;
+}
+
+/* Create a chessboard pattern using odd/even alternating colors */
+.gridCell:nth-child(odd) {
+  background-color: #47c64d; /* Lighter green */
+}
+
+.gridCell:nth-child(even) {
+  background-color: #3db442; /* Darker green */
+}
+
+/* Fix the chessboard pattern by adjusting for grid width (30 columns) */
+.gridCell:nth-child(60n+1):nth-child(odd),
+.gridCell:nth-child(60n+3):nth-child(odd),
+.gridCell:nth-child(60n+5):nth-child(odd),
+.gridCell:nth-child(60n+7):nth-child(odd),
+.gridCell:nth-child(60n+9):nth-child(odd),
+.gridCell:nth-child(60n+11):nth-child(odd),
+.gridCell:nth-child(60n+13):nth-child(odd),
+.gridCell:nth-child(60n+15):nth-child(odd),
+.gridCell:nth-child(60n+17):nth-child(odd),
+.gridCell:nth-child(60n+19):nth-child(odd),
+.gridCell:nth-child(60n+21):nth-child(odd),
+.gridCell:nth-child(60n+23):nth-child(odd),
+.gridCell:nth-child(60n+25):nth-child(odd),
+.gridCell:nth-child(60n+27):nth-child(odd),
+.gridCell:nth-child(60n+29):nth-child(odd),
+.gridCell:nth-child(60n+30):nth-child(odd),
+.gridCell:nth-child(60n+32):nth-child(odd),
+.gridCell:nth-child(60n+34):nth-child(odd),
+.gridCell:nth-child(60n+36):nth-child(odd),
+.gridCell:nth-child(60n+38):nth-child(odd),
+.gridCell:nth-child(60n+40):nth-child(odd),
+.gridCell:nth-child(60n+42):nth-child(odd),
+.gridCell:nth-child(60n+44):nth-child(odd),
+.gridCell:nth-child(60n+46):nth-child(odd),
+.gridCell:nth-child(60n+48):nth-child(odd),
+.gridCell:nth-child(60n+50):nth-child(odd),
+.gridCell:nth-child(60n+52):nth-child(odd),
+.gridCell:nth-child(60n+54):nth-child(odd),
+.gridCell:nth-child(60n+56):nth-child(odd),
+.gridCell:nth-child(60n+58):nth-child(odd) {
+  background-color: #3db442; /* Darker green */
+}
+
+.gridCell:nth-child(60n+2):nth-child(even),
+.gridCell:nth-child(60n+4):nth-child(even),
+.gridCell:nth-child(60n+6):nth-child(even),
+.gridCell:nth-child(60n+8):nth-child(even),
+.gridCell:nth-child(60n+10):nth-child(even),
+.gridCell:nth-child(60n+12):nth-child(even),
+.gridCell:nth-child(60n+14):nth-child(even),
+.gridCell:nth-child(60n+16):nth-child(even),
+.gridCell:nth-child(60n+18):nth-child(even),
+.gridCell:nth-child(60n+20):nth-child(even),
+.gridCell:nth-child(60n+22):nth-child(even),
+.gridCell:nth-child(60n+24):nth-child(even),
+.gridCell:nth-child(60n+26):nth-child(even),
+.gridCell:nth-child(60n+28):nth-child(even),
+.gridCell:nth-child(60n+30):nth-child(even),
+.gridCell:nth-child(60n+31):nth-child(even),
+.gridCell:nth-child(60n+33):nth-child(even),
+.gridCell:nth-child(60n+35):nth-child(even),
+.gridCell:nth-child(60n+37):nth-child(even),
+.gridCell:nth-child(60n+39):nth-child(even),
+.gridCell:nth-child(60n+41):nth-child(even),
+.gridCell:nth-child(60n+43):nth-child(even),
+.gridCell:nth-child(60n+45):nth-child(even),
+.gridCell:nth-child(60n+47):nth-child(even),
+.gridCell:nth-child(60n+49):nth-child(even),
+.gridCell:nth-child(60n+51):nth-child(even),
+.gridCell:nth-child(60n+53):nth-child(even),
+.gridCell:nth-child(60n+55):nth-child(even),
+.gridCell:nth-child(60n+57):nth-child(even),
+.gridCell:nth-child(60n+59):nth-child(even) {
+  background-color: #47c64d; /* Lighter green */
+}
+
+/* Player cell styling - updating for correct PNG display */
+.playerCell {
+  position: relative;
+  z-index: 2; /* Ensure player cells are above other elements */
+}
+
+.playerCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 105%; /* Reverted from 105% to 100% */
+  height: 105%; /* Reverted from 105% to 100% */
+  transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) !important; /* Centered with transform and applied rotation */
+  background-color: transparent;
+  background-size: cover; /* Cover the entire area */
+  background-position: center;
+  z-index: 5; /* Higher z-index to ensure it's displayed on top */
+  border: none !important; /* Remove any borders */
+  box-shadow: none !important; /* Remove any shadows */
+}
+
+/*__________________________________________ Player Body Parts ___________________________________________*/
+/* Player Red */
+.playerRed::after {
+  background-image: url('../styles/bodys/red/body_red.png');
+}
+
+.playerRed.firstSquare::after {
+  background-image: url('../styles/bodys/red/head_red.png');
+}
+
+.playerRed.lastSquare::after {
+  background-image: url('../styles/bodys/red/tail_red.png');
+}
+
+.playerRed.curveBody::after {
+  background-image: url('../styles/bodys/red/curve_body_red.png');
+}
+
+/* Current Player Red (_cur version) */
+.currentPlayerCell.playerRed::after {
+  background-image: url('../styles/bodys/red_cur/body_red_cur.png');
+}
+
+.currentPlayerCell.playerRed.firstSquare::after {
+  background-image: url('../styles/bodys/red_cur/head_red_cur.png');
+}
+
+.currentPlayerCell.playerRed.lastSquare::after {
+  background-image: url('../styles/bodys/red_cur/tail_red_cur.png');
+}
+
+.currentPlayerCell.playerRed.curveBody::after {
+  background-image: url('../styles/bodys/red_cur/curve_red_cur.png');
+}
+
+/* Player Blue */
+.playerBlue::after {
+  background-image: url('../styles/bodys/blue/body_blue.png');
+}
+
+.playerBlue.firstSquare::after {
+  background-image: url('../styles/bodys/blue/head_blue.png');
+}
+
+.playerBlue.lastSquare::after {
+  background-image: url('../styles/bodys/blue/tail_blue.png');
+}
+
+.playerBlue.curveBody::after {
+  background-image: url('../styles/bodys/blue/curve_body_blue.png');
+}
+
+/* Current Player Blue (_cur version) */
+.currentPlayerCell.playerBlue::after {
+  background-image: url('../styles/bodys/blue_cur/body_blue_cur.png');
+}
+
+.currentPlayerCell.playerBlue.firstSquare::after {
+  background-image: url('../styles/bodys/blue_cur/head_blue_cur.png');
+}
+
+.currentPlayerCell.playerBlue.lastSquare::after {
+  background-image: url('../styles/bodys/blue_cur/tail_blue_cur.png');
+}
+
+.currentPlayerCell.playerBlue.curveBody::after {
+  background-image: url('../styles/bodys/blue_cur/curve_blue_cur.png');
+}
+
+/* Player Yellow/Green */
+.playerGreen::after {
+  background-image: url('../styles/bodys/yellow/body_yellow.png');
+}
+
+.playerGreen.firstSquare::after {
+  background-image: url('../styles/bodys/yellow/head_yellow.png');
+}
+
+.playerGreen.lastSquare::after {
+  background-image: url('../styles/bodys/yellow/tail_yellow.png');
+}
+
+.playerGreen.curveBody::after {
+  background-image: url('../styles/bodys/yellow/curve_body_yellow.png');
+}
+
+/* Current Player Yellow/Green (_cur version) */
+.currentPlayerCell.playerGreen::after {
+  background-image: url('../styles/bodys/yellow_cur/body_yellow_cur.png');
+}
+
+.currentPlayerCell.playerGreen.firstSquare::after {
+  background-image: url('../styles/bodys/yellow_cur/head_yellow_cur.png');
+}
+
+.currentPlayerCell.playerGreen.lastSquare::after {
+  background-image: url('../styles/bodys/yellow_cur/tail_yellow_cur.png');
+}
+
+.currentPlayerCell.playerGreen.curveBody::after {
+  background-image: url('../styles/bodys/yellow_cur/curve_yellow_cur.png');
+}
+
+/* Player Purple */
+.playerPurple::after {
+  background-image: url('../styles/bodys/purple/body_purple.png');
+}
+
+.playerPurple.firstSquare::after {
+  background-image: url('../styles/bodys/purple/head_purple.png');
+}
+
+.playerPurple.lastSquare::after {
+  background-image: url('../styles/bodys/purple/tail_purple.png');
+}
+
+.playerPurple.curveBody::after {
+  background-image: url('../styles/bodys/purple/curve_body_purple.png');
+}
+
+/* Current Player Purple (_cur version) */
+.currentPlayerCell.playerPurple::after {
+  background-image: url('../styles/bodys/purple_cur/body_purple_cur.png');
+}
+
+.currentPlayerCell.playerPurple.firstSquare::after {
+  background-image: url('../styles/bodys/purple_cur/head_purple_cur.png');
+}
+
+.currentPlayerCell.playerPurple.lastSquare::after {
+  background-image: url('../styles/bodys/purple_cur/tail_purple_cur.png');
+}
+
+.currentPlayerCell.playerPurple.curveBody::after {
+  background-image: url('../styles/bodys/purple_cur/curve_purple_cur.png');
+}
+
+/* Cookie cell styling */
+.cookieCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110%;
+  height: 110%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/cookie.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6;
+}
+
+/* Golden Cookie cell styling */
+.goldenCookieCell {
+  position: relative;
+}
+
+.goldenCookieCell::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130%;
+  height: 130%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/flare.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+  animation: rotate 24s linear infinite;
+}
+.goldenCookieCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 105%;
+  height: 105%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/golden_cookie.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6;
+  animation: sway 2s ease-in-out infinite ;
+}
+
+/* Multiplier cell styling with rotating flare */
+.multiplierCell {
+  position: relative;
+}
+
+.multiplierCell::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/flare2.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+  animation: rotate 12s linear infinite;
+}
+
+.multiplierCell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110%;
+  height: 110%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/2x.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6;
+  animation: pulseate 3s ease-in-out infinite;
+}
+
+/* Reverse Controls cell styling */
+.reverseControlsCell::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  width: 210%;
+  height: 210%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/reverse.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6;
+  animation: pulseate 3s ease-in-out infinite;
+}
+
+/* Divider cell styling */
+.dividerCell::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  width: 210%;
+  height: 210%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/items/divider.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 6; 
+  animation: rotatePulse 4s linear infinite;
+}
+
+@keyframes rotatePulse {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate(-50%, -50%) rotate(90deg) scale(1.05);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1);
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(270deg) scale(1.05);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+  }
+}
+
+
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes pulseate {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes sway {
+  0% {
+    transform: translate(-50%, -50%) rotate(-5deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(5deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-5deg);
+  }
+}
+/* Current player's cell styling for easier visibility */
+.currentPlayerCell {
+  position: relative;
+}
+
+/* Add the shadow effect below all snake elements */
+.currentPlayerCell::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110%; /* Slightly larger than the cell */
+  height: 110%;
+  border-radius: 50%; /* Make it a circle */
+  transform: translate(-50%, -50%);
+  z-index: 0; /* Lower z-index to ensure it's below ALL snake elements */
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Apply to snake cells that have collided */
+.dyingSnake::after {
+  animation: fadeAway 1s forwards;
+  filter: brightness(150%) saturate(200%);
+  z-index: 10;
+}
+
+/* Class to indicate which snake just died */
+.dyingSnake::after {
+  animation: fadeAway 1.5s forwards;
+  filter: brightness(150%) saturate(200%);
+  z-index: 10;
+}
+
+/* Explosion effect for the collision point */
+.collisionPoint::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,200,100,0.8) 30%, rgba(255,0,0,0.4) 60%, rgba(255,255,255,0) 100%);  
+  opacity: 0;
+  animation: explosionEffect 0.8s forwards; /* Reduced from 1.2s to 0.8s */
+  z-index: 20;
+  pointer-events: none;
+  animation-iteration-count: 1; /* Explicitly set to play only once */
+}
+
+@keyframes explosionEffect {
+  0% {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  30% {
+    opacity: 1; /* Full opacity sooner */
+    width: 200%;
+    height: 200%;
+  }
+  70% {
+    opacity: 0.8;
+    width: 350%;
+    height: 350%;
+  }
+  100% {
+    opacity: 0;
+    width: 400%;
+    height: 400%;
+  }
+}
+
+@keyframes fadeAway {
+  0% {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: brightness(1.5);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+    filter: brightness(1.7) saturate(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+
+ /*_____________________________________________ Effects Container _____________________________________________*/
+/* Effects container styling */
+.effectsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  background-color: rgba(66, 127, 167, 0.8); /* Match leaderboard style with some transparency */
+  border: 4px solid #345a97; /* Match leaderboard border */
+  border-radius: 20px; /* Match leaderboard border-radius */
+  padding: 15px;
+  min-width: 250px;
+}
+
+.ProgressWrapper{
+  position: relative;
+  width: 240px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  background-color: #345a97;
+}
+
+.progressBarContainer{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 2px;
+  margin-bottom: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.movesBlockContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 2px;
+  margin-bottom: 5px;
+  gap: 5px;
+}
+
+.moveBlock {
+  width: 25%;
+  height: 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.effectsTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: white;
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.effectLabel {
+  color: white;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.2rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.effectIcon {
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  object-fit: contain;
+  border-radius: 30%;
+  padding: 4px;
+  animation: pulseIcon 1s infinite ease-in-out;
+}
+
+@keyframes pulseIcon {
+  0% {
+    transform: scale(1);
+    filter: brightness(1.3);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: brightness(1.3);
+  }
+  100%{
+    transform: scale(1);
+    filter: brightness(1.3);
+  }
+}
+
+.progressBar {
+  background-color: #fff;
+  height: 12px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  transition: width 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+/*_____________________________________________ Death Overlay _____________________________________________*/
+/* Death screen overlay styling */
+.deathOverlay {
+  color:white;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(255, 255, 255);
+  z-index: 10;
+  animation: fadeToBlack 0.8s forwards;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Animation for death overlay fade in */
+@keyframes fadeToBlack {
+  0% { background-color: rgba(0, 0, 0, 0); }
+  100% { background-color: rgba(0, 0, 0, 0.2); }
+}
+
+/* Animation for death overlay fade out */
+.fadeOut {
+  animation: fadeFromBlack 0.8s forwards !important;
+}
+
+@keyframes fadeFromBlack {
+  0% { background-color: rgba(0, 0, 0, 0.2); }
+  100% { background-color: rgba(0, 0, 0, 0); }
+}
+
+.deathMessage {
+  color: white;
+  background-color: #b70808;
+  border-radius: 12px;
+  padding: 30px 50px;
+  text-align: center;
+  animation: messageAppear 0.5 forwards; /* Changed to 1s as requested */
+  border: 2px solid #920707;
+  opacity: 0; /* Start fully transparent */
+}
+
+/* Animation for death message fade in */
+@keyframes messageAppear {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Animation for death message fade out - matches the fade-in animation */
+.fadeOut .deathMessage {
+  animation: messageDisappear 0.5 forwards !important;
+}
+
+@keyframes messageDisappear {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+/*____________________________________________ Spectator Overlay ___________________________________________*/
+/* Spectator mode overlay for eliminated players */
+.spectatorOverlay {
+  position: absolute;
+  margin-left: 10px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 7; /* Lower z-index than deathOverlay (10) */
+  pointer-events: none;
+  filter: grayscale(70%);
+  opacity: 1; /* Start visible immediately */
+  display: flex; /* Enable flexbox to center the message */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  font-family: 'Oswald', sans-serif; /* Updated to Oswald font */
+}
+
+/* Spectator message styling */
+.spectatorMessage {
+  background-color: transparent;
+  border-radius: 12px;
+  padding: 30px 50px;
+  text-align: center;
+  opacity: 0.8; /* 50% opacity as requested */
+  z-index: 4; /* Above the overlay but below other UI elements */
+}
+
+.spectatorMessage h2 {
+  font-size: 4rem; /* Make text twice as large */
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.gameContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 60px;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  position: relative; /* Added to position the countdown circle */
+}
+
+/*____________________________________________ Starting Countdown ___________________________________________*/
+/* Big countdown circle styling */
+.countdownCircle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 150px;
+  background-color: #ffaa00e4; /* Dark green with higher opacity */
+  border: 6px solid #c63800e6;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10; /* Significantly higher z-index to ensure it's on top */
+  filter: none !important; /* Ensure no filter is applied */
+  pointer-events: none; /* Prevents interaction with the circle */
+}
+
+.countdownCircle span {
+  color: white;
+  font-size: 6rem; /* Larger text */
+  font-weight: bolder;
+  font-family: 'oswald', sans-serif; /* Updated to Oswald font */
+}
+
+/*_________________________________________ Final Countdown Overlay ___________________________________________*/
+/* Final countdown overlay styling - covers the entire game grid */
+.finalCountdownOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-left: 60px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: 5; /* Above the game grid but below other UI elements */
+}
+
+.finalCountdownOverlay span {
+  font-size: 20vw; /* Extra large font size that scales with viewport */
+  font-weight: 900; /* Extra bold */
+  color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+  text-shadow: 
+    0 0 20px rgba(255, 0, 0, 0.7), /* Red glow for urgency */
+    0 0 40px rgba(255, 0, 0, 0.5);
+  animation: pulse 1s infinite alternate; /* Pulsing animation for emphasis */
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+
+/*____________________________________________ Podium Styling ___________________________________________*/
+/* Podium display styling for game end */
+.podiumContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  color: white;
+}
+
+.podiumTitle {
+  font-family: "Oswald", sans-serif;
+  font-size: 4rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 40px;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+.podiumLayout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+  position: relative;
+}
+
+.podiumPlayer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.5s ease-in-out;
+}
+
+.podiumFirst {
+  order: 2;
+  margin: 0 20px;
+  animation: podiumFirstAppear 1s forwards;
+}
+
+.podiumSecond {
+  order: 1;
+  margin-bottom: -40px;
+  animation: podiumSecondAppear 1.2s forwards;
+}
+
+.podiumThird {
+  order: 3;
+  margin-bottom: -40px;
+  animation: podiumThirdAppear 1.4s forwards;
+}
+
+.podiumUsername {
+  font-family: "Oswald", sans-serif;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.podiumFirst .podiumUsername {
+  font-size: 3rem;
+  color: #FFD700; /* Gold */
+}
+
+.podiumSecond .podiumUsername {
+  font-size: 2.3rem;
+  color: #C0C0C0; /* Silver */
+}
+
+.podiumThird .podiumUsername {
+  font-size: 2rem;
+  color: #CD7F32; /* Bronze */
+}
+
+.podiumRank {
+  font-family: "Oswald", sans-serif;
+  font-weight: bold;
+  font-size: 2.5rem;
+  margin-top: 10px;
+}
+
+.podiumBase {
+  position: relative;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.podiumBase::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+}
+
+.podiumBase.playerRed::after {
+  background-image: url('../styles/bodys/red/head_red.png');
+}
+
+.podiumBase.playerBlue::after {
+  background-image: url('../styles/bodys/blue/head_blue.png');
+}
+
+.podiumBase.playerGreen::after {
+  background-image: url('../styles/bodys/yellow/head_yellow.png');
+}
+
+.podiumBase.playerPurple::after {
+  background-image: url('../styles/bodys/purple/head_purple.png');
+}
+
+.podiumFirst .podiumBase {
+  width: 180px;
+  height: 180px;
+  background-color: #FFD700; /* Gold */
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.podiumSecond .podiumBase {
+  width: 150px;
+  height: 140px;
+  background-color: #C0C0C0; /* Silver */
+  box-shadow: 0 0 15px rgba(192, 192, 192, 0.5);
+}
+
+.podiumThird .podiumBase {
+  width: 140px;
+  height: 100px;
+  background-color: #CD7F32; /* Bronze */
+  box-shadow: 0 0 15px rgba(205, 127, 50, 0.5);
+}
+
+@keyframes podiumFirstAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  50% { transform: translateY(-20px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes podiumSecondAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  30% { transform: translateY(50px); opacity: 0; }
+  80% { transform: translateY(-10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes podiumThirdAppear {
+  0% { transform: translateY(50px); opacity: 0; }
+  40% { transform: translateY(50px); opacity: 0; }
+  90% { transform: translateY(-10px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.endGameContainer {
+  display: flex;
+  flex-direction: row;
+}
