@@ -126,11 +126,11 @@
 }
 
 .musicButtonPlaying {
-  background-color: #287cb4 !important; /* Blue when playing */
+  background-color: #b42f28 !important; /* Blue when playing */
 }
 
 .musicButtonPlaying:hover {
-  background-color: #3089c3 !important; /* Slightly lighter blue when hovered while playing */
+  background-color: #aa3d38 !important; /* Slightly lighter blue when hovered while playing */
 }
 
 /* Radio station display field */
