@@ -1,3 +1,4 @@
+// app/layout.tsx - Updated imports after moving folders
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Open_Sans } from "next/font/google";
@@ -5,6 +6,11 @@ import { ConfigProvider, theme } from "antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@/styles/globals.css";
 import React from "react";
+// Updated imports - now pointing to root level
+import { MusicProvider } from "../contexts/MusicContext";
+import GlobalMusicPlayer from "../components/GlobalMusicPlayer";
+
+// Rest of your layout code remains the same...
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,7 +74,12 @@ export default function RootLayout({
             },
           }}
         >
-          <AntdRegistry>{children}</AntdRegistry>
+          <AntdRegistry>
+            <MusicProvider>
+              <GlobalMusicPlayer />
+              {children}
+            </MusicProvider>
+          </AntdRegistry>
         </ConfigProvider>
       </body>
     </html>
