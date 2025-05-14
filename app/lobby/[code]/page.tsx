@@ -97,7 +97,6 @@ const LobbyPage: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState(false); // Track animation state
   const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const [animationPhase, setAnimationPhase] = useState<"out" | "in" | null>(null);
-  const [nextGameMode, setNextGameMode] = useState<string | null>(null);
 
   const handleGameModeChange = (direction: "left" | "right") => {
     if (!isAdmin || isAnimating) return; // Only allow admin to change game mode and prevent rapid clicking
@@ -115,7 +114,6 @@ const LobbyPage: React.FC = () => {
     
     // Calculate the next game mode and store it
     const newGameMode = modes[newIndex];
-    setNextGameMode(newGameMode);
 
     // First phase: slide out current game mode
     setTimeout(() => {
@@ -149,7 +147,6 @@ const LobbyPage: React.FC = () => {
         // Animation complete
         setIsAnimating(false);
         setAnimationPhase(null);
-        setNextGameMode(null);
       }, 150);
     }, 100); // Match the animation duration
   };
@@ -465,22 +462,7 @@ const LobbyPage: React.FC = () => {
     
   };
 
- 
-  const handleSugarRushChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change sugarRush
-
-    setSugarRush(event.target.checked);
-    setSugarRushStorage(event.target.checked); // Save to localStorage
-  };
   
-  const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change includePowerUps
-
-    setIncludePowerUps(event.target.checked);
-    setIncludePowerUpsStorage(event.target.checked); // Save to localStorage
-  };
-  
-
   if (loading) {
     return <div>Loading lobby data... {connectionError ? "(WebSocket connection issue)" : ""}</div>;
   }
