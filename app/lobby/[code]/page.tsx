@@ -5,6 +5,9 @@ import { useApi } from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
 import useLocalStorage from '@/hooks/useLocalStorage';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 
 interface Player {
   username: string;
@@ -44,6 +47,7 @@ const LobbyPage: React.FC = () => {
   const [spawnRate, setSpawnRate] = useState("Medium");
   const [includePowerUps, setIncludePowerUps] = useState(false);
   const [sugarRush, setSugarRush] = useState(false);
+  const [gameMode, setGameMode] = useState("Classic"); // Track the selected game mode
   
   // Initialize WebSocket connection
   const { isConnected, connect, send, getSocket, disconnect} = useLobbySocket();
@@ -90,8 +94,62 @@ const LobbyPage: React.FC = () => {
     router.push("/home");
   };
 
+  const [isAnimating, setIsAnimating] = useState(false); // Track animation state
+  const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
+  const [animationPhase, setAnimationPhase] = useState<"out" | "in" | null>(null);
 
-  
+  const handleGameModeChange = (direction: "left" | "right") => {
+    if (!isAdmin || isAnimating) return; // Only allow admin to change game mode and prevent rapid clicking
+
+    setIsAnimating(true);
+    setSlideDirection(direction);
+    setAnimationPhase("out");
+
+    const modes = ["Classic", "Sugar Rush", "Power-Ups"];
+    const currentIndex = modes.indexOf(gameMode);
+    const newIndex =
+      direction === "left"
+        ? (currentIndex - 1 + modes.length) % modes.length
+        : (currentIndex + 1) % modes.length;
+    
+    // Calculate the next game mode and store it
+    const newGameMode = modes[newIndex];
+
+    // First phase: slide out current game mode
+    setTimeout(() => {
+      // Change the game mode during the transition
+      setGameMode(newGameMode);
+      
+      // Set appropriate values for sugarRush and includePowerUps based on the game mode
+      if (newGameMode === "Sugar Rush") {
+        setSugarRush(true);
+        setIncludePowerUps(false);
+        setSugarRushStorage(true);
+        setIncludePowerUpsStorage(false);
+      } else if (newGameMode === "Power-Ups") {
+        setSugarRush(false);
+        setIncludePowerUps(true);
+        setSugarRushStorage(false);
+        setIncludePowerUpsStorage(true);
+      } else {
+        // Classic mode
+        setSugarRush(false);
+        setIncludePowerUps(false);
+        setSugarRushStorage(false);
+        setIncludePowerUpsStorage(false);
+      }
+      
+      // Start the slide in animation
+      setAnimationPhase("in");
+      
+      // Second phase: slide in new game mode
+      setTimeout(() => {
+        // Animation complete
+        setIsAnimating(false);
+        setAnimationPhase(null);
+      }, 150);
+    }, 100); // Match the animation duration
+  };
 
   // Check localStorage for debugging
   useEffect(() => {
@@ -404,22 +462,7 @@ const LobbyPage: React.FC = () => {
     
   };
 
- 
-  const handleSugarRushChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change sugarRush
-
-    setSugarRush(event.target.checked);
-    setSugarRushStorage(event.target.checked); // Save to localStorage
-  };
   
-  const handleIncludePowerUpsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change includePowerUps
-
-    setIncludePowerUps(event.target.checked);
-    setIncludePowerUpsStorage(event.target.checked); // Save to localStorage
-  };
-  
-
   if (loading) {
     return <div>Loading lobby data... {connectionError ? "(WebSocket connection issue)" : ""}</div>;
   }
@@ -473,28 +516,34 @@ const LobbyPage: React.FC = () => {
             </div>
           </div>
           
-          <div className={styles.checkboxContainer}>
-            <input
-              type="checkbox"
-              id="includePowerUps"
-              checked={includePowerUps}
-              onChange={handleIncludePowerUpsChange}
-              disabled={!isAdmin} // Disable the checkbox for non-admin users
-              className={!isAdmin ? styles.disabledControl : ''}
-            />
-            <label htmlFor="includePowerUps" className={styles.optionTitle}>Include Power-Ups</label>
-          </div>
-          
-          <div className={styles.checkboxContainer}>
-            <input
-              type="checkbox"
-              id="sugarRush"
-              checked={sugarRush}
-              onChange={handleSugarRushChange}
-              disabled={!isAdmin} // Disable the checkbox for non-admin users
-              className={!isAdmin ? styles.disabledControl : ''}
-            />
-            <label htmlFor="sugarRush" className={styles.optionTitle}>Sugar Rush</label>
+          <div className={styles.gameModeContainer}>
+            <button
+              className={`${styles.arrowButton} ${!isAdmin ? styles.disabledButton : ''}`}
+              onClick={() => handleGameModeChange("left")}
+              disabled={!isAdmin}
+            >
+              <FontAwesomeIcon icon={faAngleLeft} />
+            </button>
+            <div className={styles.gameModeTextWrapper}>
+              <span 
+                className={`${styles.gameModeText} ${
+                  isAnimating && animationPhase === "out" 
+                    ? (slideDirection === "left" ? styles.slideOutRight : styles.slideOutLeft) 
+                    : isAnimating && animationPhase === "in"
+                    ? (slideDirection === "left" ? styles.slideInRight : styles.slideInLeft)
+                    : ''
+                }`}
+              >
+                {gameMode}
+              </span>
+            </div>
+            <button
+              className={`${styles.arrowButton} ${!isAdmin ? styles.disabledButton : ''}`}
+              onClick={() => handleGameModeChange("right")}
+              disabled={!isAdmin}
+            >
+              <FontAwesomeIcon icon={faAngleRight} />
+            </button>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center"}}>

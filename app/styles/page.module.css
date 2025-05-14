@@ -567,7 +567,7 @@ a.secondary {
   composes: lobbyButtons;
   --color: #187a00;
   background-color: #209e00!important; 
-  margin-top: 10px;
+  margin-top: 20px;
   padding: 0 20px !important; 
   font-size: 2rem !important; 
   min-width: 160px !important; 
@@ -583,7 +583,7 @@ a.secondary {
   composes: lobbyButtons;
   --color: #9c1f00;
   background-color: #c72800!important; 
-  margin-top: 10px;
+  margin-top: 20px;
   padding: 0 20px !important; 
   font-size: 2rem !important; 
   min-width: 160px !important; 
@@ -954,4 +954,112 @@ a.secondary {
   transition: width 0.3s ease-in-out;
   position: relative;
   overflow: hidden;
+}
+
+.gameModeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  height: 50px;
+}
+
+.gameModeTextWrapper {
+  width: 150px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.arrowButton {
+  background-color: #f9f9f900;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 15px;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.arrowButton:hover:not(:disabled) {
+  transform: scale(1.2);
+  color: #ffd700;
+}
+
+.arrowButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.arrowButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gameModeText {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: 'OswaldBold';
+  color: white;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  opacity: 1;
+}
+
+/* Animation classes */
+.slideOutLeft {
+  animation: slideOutLeft 0.15s forwards;
+}
+
+.slideOutRight {
+  animation: slideOutRight 0.15s forwards;
+}
+
+.slideInLeft {
+  animation: slideInLeft 0.15s forwards;
+}
+
+.slideInRight {
+  animation: slideInRight 0.15s forwards;
+}
+
+@keyframes slideOutLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-150px);
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(150px);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(150px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(-150px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }

@@ -35,7 +35,7 @@
   font-size: 2.5rem; /* Match dashboardContainer h2 */
   text-decoration: underline; /* Match dashboardContainer h2 */
   font-weight: 600; /* Match dashboardContainer h2 */
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold";
   padding-bottom: 10px;
 }
 
@@ -45,7 +45,7 @@
   font-weight: 500; /* Match statisticsTable */
   border-collapse: collapse;
   border-radius: 40px; /* Match statisticsTable */
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold"
 }
 
 .leaderboardTable th,
@@ -106,7 +106,7 @@ ake sure the leaderboard remains visible in different screen sizes */
   border-radius: 5px;
   font-size: 1.4rem;
   z-index: 2; /* Increased z-index to display above the overlay */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-family: "OswaldBold"; /* Updated to Oswald font */
   font-weight: bolder;
 }
 
@@ -682,7 +682,7 @@ ake sure the leaderboard remains visible in different screen sizes */
 }
 
 .effectsTitle {
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold";
   font-size: 1.8rem;
   font-weight: 600;
   color: white;
@@ -696,7 +696,7 @@ ake sure the leaderboard remains visible in different screen sizes */
   color: white;
   font-weight: bold;
   margin-bottom: 5px;
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold";
   font-size: 1.2rem;
   text-align: center;
   display: flex;
@@ -818,7 +818,7 @@ ake sure the leaderboard remains visible in different screen sizes */
   display: flex; /* Enable flexbox to center the message */
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
-  font-family: 'Oswald', sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold';
 }
 
 /* Spectator message styling */
@@ -873,7 +873,7 @@ ake sure the leaderboard remains visible in different screen sizes */
   color: white;
   font-size: 6rem; /* Larger text */
   font-weight: bolder;
-  font-family: 'oswald', sans-serif; /* Updated to Oswald font */
+  font-family: 'oswaldBold';
 }
 
 /*_________________________________________ Final Countdown Overlay ___________________________________________*/
@@ -932,7 +932,7 @@ ake sure the leaderboard remains visible in different screen sizes */
 }
 
 .podiumTitle {
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold";
   font-size: 4rem;
   font-weight: bold;
   color: white;
@@ -976,7 +976,7 @@ ake sure the leaderboard remains visible in different screen sizes */
 }
 
 .podiumUsername {
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold";
   font-weight: bold;
   text-align: center;
   margin-bottom: 10px;
@@ -999,7 +999,7 @@ ake sure the leaderboard remains visible in different screen sizes */
 }
 
 .podiumRank {
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold";
   font-weight: bold;
   font-size: 2.5rem;
   margin-top: 10px;
