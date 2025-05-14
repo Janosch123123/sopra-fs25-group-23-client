@@ -7,7 +7,7 @@ import { isProduction } from "@/utils/environment";
  */
 export function getApiDomain(): string {
   const prodUrl = process.env.NEXT_PUBLIC_PROD_API_URL ||
-    "https://sopra-fs25-group-23-server.oa.r.appspot.com/"; // TODO: update with your production URL as needed.
+    "https://cogent-symbol-459811-c6.oa.r.appspot.com/"; // TODO: update with your production URL as needed.
   const devUrl = "http://localhost:8080";
   return isProduction() ? prodUrl : devUrl;
 }
