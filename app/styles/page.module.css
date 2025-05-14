@@ -250,14 +250,6 @@ a.secondary {
   z-index: 0;
 }
 
-.mainHomePage {
-  position: relative;
-  display: flex;
-  align-items: top;
-  justify-content: center;
-  margin-top: 20px;
-}
-
 /* Adding a new class to handle join lobby mode display */
 .joinLobbyMode {
   justify-content: flex-start;
@@ -302,27 +294,6 @@ a.secondary {
   background-repeat: no-repeat;
   z-index: 5;
 }
- 
-.logoHomeImage {
-  position: relative;
-  width: 370px;
-  height: 300px;
-}
-
-.logoHomeImage::after {
-  content: '';
-  position: absolute;
-  top: 20%; /* Changed from 50% to 40% to move image up */
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  transform: translate(-50%, -50%);
-  background-image: url('../styles/logo/logo.png');
-  background-size: 100% auto; /* Changed from 'contain' to '100% auto' to maintain width */
-  background-position: center top; /* Changed from 'center' to 'center top' to crop from bottom */
-  background-repeat: no-repeat;
-  z-index: 5;
-}
 
 /* Make sure content inside mainPage is positioned above the background */
 .mainPage > * {
@@ -345,40 +316,6 @@ a.secondary {
   z-index: 1;
 }
 
-.dashboardContainer {
-  flex: 0.8; /* Make the container smaller */
-  background-color: #427fa7; /* Darker medium green background */
-  padding: 30px;
-  border-radius: 20px;
-  border: 4px solid #345a97; /* Darker dark green border */
-  margin-right: 20px;
-  margin-left: 120px; /* Added margin-left to move it to the right */
-}
-
-.statisticsTable {
-  min-width: 300px;
-  font-size: 1.7rem; /* Keep existing font size */
-  font-weight: 500; /* Medium weight from Oswald */
-  border-collapse: collapse;
-  border-radius: 40px; /* Keep rounded corners */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
-  /* letter-spacing: -0.02em; Slight letter-spacing adjustment for better readability */
-  color: white; /* Ensure text is always white */
-}
-
-.statisticsTable td {
-  padding: 10px;
-  border-bottom: 1px solid #345a97; /* Darker dark green border */
-  border-radius: 30px; /* Add rounded corners */
-  color: white; /* Ensure text is always white */
-}
-
-.statisticsList {
-  font-size: 1.5rem; /* Keep existing font size */
-  font-weight: 500; /* Medium weight from Oswald */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
-  letter-spacing: -0.02em; /* Slight letter-spacing adjustment */
-}
 
 .playButtonContainer {
   margin-top: 0px;
@@ -399,13 +336,6 @@ a.secondary {
   color: #ffffff; /* White text color */
   margin-left: 25px; /* Add margin to the left */
   font-family: "Oswald", sans-serif; /* Updated to Oswald font */
-}
-
-.lobbyButtonsContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: top;
-  align-items: center;
 }
 
 .lobbyButtons {
@@ -518,53 +448,6 @@ a.secondary {
 }
 
 
-.stretchedInput {
-  border: 4px solid #ffffff !important;
-  border-radius: 20px !important;
-  padding: 18px 0px !important;
-  font-size: 35px !important;
-  height: 70px !important;
-  flex: 1;
-  line-height: 1.5 !important;
-  font-weight: bold !important;
-  letter-spacing: -1px !important;
-  text-transform: uppercase !important;
-  background-color: white !important; /* Ensure background is white */
-  color: #333 !important; /* Ensure text color is visible */
-}
-
-
-
-.joinButtonContainer {
-  display: flex;
-  flex-direction: row;
-  gap: 0; /* Remove gap between input and button */
-  min-width: 603px;
-  align-items: flex-start;
-  background-color: transparent;
-  padding: 30px;
-  border-radius: 20px;
-  background-color: #2e98e4;
-  border: 5px solid #1c77b9;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  margin-top: 150px;
-}
-
-.inputContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.errorMessage {
-  color: #ff4d4f;
-  font-size: 1.6rem;
-  font-weight: 900;
-  padding: 5px 10px;
-  margin-top: 5px;
-  border-color: white;
-}
-
 
 .dashboard {
   position: absolute;
@@ -663,35 +546,6 @@ a.secondary {
   font-weight: bold;
 }
 
-.globalLobbyContainer {
-  display: flex;
-  flex-direction: column;
-  background-color: #a5c118; 
-  padding: 20px;
-  border-radius: 20px;
-  border: 4px solid #72870d; /* White border */
-  margin-left: 20px;
-}
-
-.globalLobbyContainer h1 {
-  font-weight: bold; /* Make the title bold */
-}
-
-.globalLobbyTable {
-  composes: lobbyTable;
-  border-radius: 10px; /* Match statisticsTable */
-  background-color: #a5c118;
-
-}
-
-.globalLobbyTable th, .globalLobbyTable td {
-  padding: 10px;
-  border: none; /* Remove existing border */
-  border-bottom: 1px solid #72870d; /* Match statisticsTable td */
-  text-align: center;
-  border-radius: 0px;
-  color: white; /* Ensure text is always white */
-}
 .startGameButton {
   composes: lobbyButtons;
   --color: #187a00;
@@ -851,13 +705,6 @@ a.secondary {
   background-color: rgba(255, 255, 255, 0.2); /* Slightly lighter background */
   font-weight: bold;
 }
-
-/* Highlight the user's row in the leaderboard */
-.userRank {
-  background-color: rgba(255, 255, 255, 0.5); /* Slightly lighter background */
-  font-weight: bold;
-}
-
 
 .controls {
   margin-top: 20px;

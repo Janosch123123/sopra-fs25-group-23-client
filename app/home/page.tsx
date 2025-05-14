@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from "react";
 import { Button, Input, message } from "antd";
 import styles from "@/styles/page.module.css";
+import stylesSpecific from "@/home/home.module.css";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
@@ -301,13 +302,13 @@ console.log('Parsed JSON message:', data);
 
   return (
     <div className={styles.mainPage}>
-      <div className={styles.mainHomePage}>
-        <div className={styles.dashboardContainer}>
+      <div className={stylesSpecific.mainHomePage}>
+        <div className={stylesSpecific.dashboardContainer}>
           <h2>User Statistics</h2>
           {loading ? (
             <p>Loading statistics...</p>
           ) : userStats ? (
-          <table className={styles.statisticsTable}>
+          <table className={stylesSpecific.statisticsTable}>
             <tbody>
               <tr>
                 <td>Username:</td>
@@ -353,9 +354,9 @@ console.log('Parsed JSON message:', data);
 
                   }}
                   >
-                  <div className={styles.levelProgressContainer} style={{ width: '100%', }}>
+                  <div className={stylesSpecific.levelProgressContainer} style={{ width: '100%', }}>
                     <div
-                      className={styles.levelProgressBar}
+                      className={stylesSpecific.levelProgressBar}
                       style={{
                         marginLeft: '-3px',
                         
@@ -385,8 +386,8 @@ console.log('Parsed JSON message:', data);
             }}
           >
             {showButtons ? (
-              <div className={styles.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
-                <div className={styles.logoHomeImage}>
+              <div className={stylesSpecific.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+                <div className={stylesSpecific.logoHomeImage}>
                   {/* Logo will be displayed via CSS */}
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: "-80px"}}>
@@ -442,19 +443,19 @@ console.log('Parsed JSON message:', data);
                 </Button>
               </div>
             ) : (
-              <div className={styles.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column",  gap: "30px" }}>
-                <div className={styles.logoHomeImage}>
+              <div className={stylesSpecific.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column",  gap: "30px" }}>
+                <div className={stylesSpecific.logoHomeImage}>
                   {/* Logo will be displayed via CSS */}
                 </div>
-                <div className={styles.joinButtonContainer} style={{ marginTop: "-70px",  display: "flex", flexDirection: "column"}}>
+                <div className={stylesSpecific.joinButtonContainer} style={{ marginTop: "-70px",  display: "flex", flexDirection: "column"}}>
                   <div style={{ display: "flex", flexDirection: "row"}}>
-                    <div className={styles.inputContainer}>
+                    <div className={stylesSpecific.inputContainer}>
                       <Input
                         placeholder="Enter Lobby Code"
                         value={lobbyCode}
                         onChange={handleLobbyCodeChange}
                         onKeyDown={handleKeyDown}
-                        className={styles.stretchedInput}
+                        className={stylesSpecific.stretchedInput}
                         style={{
                           flex: "1",
                           borderColor: lobbyCodeError ? "#ff4d4f" : "#ffffff",
@@ -464,7 +465,7 @@ console.log('Parsed JSON message:', data);
                         min={0}
                         status={lobbyCodeError ? "error" : ""}
                       />
-                      {lobbyCodeError && <div className={styles.errorMessage}>{lobbyCodeError}</div>}
+                      {lobbyCodeError && <div className={stylesSpecific.errorMessage}>{lobbyCodeError}</div>}
                     </div>
                     <Button
                       type="primary"
@@ -491,12 +492,12 @@ console.log('Parsed JSON message:', data);
               </div>
             )}
           </div>
-          <div className={styles.globalLobbyContainer} style={{ marginTop: "0px", marginRight:"100px", minWidth: "400px" }}>
+          <div className={stylesSpecific.globalLobbyContainer} style={{ marginTop: "0px", marginRight:"100px", minWidth: "400px" }}>
             <h2>Top 5 Players</h2>
               {leaderboardLoading ? (
                 <p>Loading leaderboard...</p>
               ) : leaderboardPlayers.length > 0 ? (
-                <table className={styles.globalLobbyTable}>
+                <table className={stylesSpecific.globalLobbyTable}>
                   <thead>
                     <tr>
                       <th>Rank</th>
@@ -510,7 +511,7 @@ console.log('Parsed JSON message:', data);
                       const username = localStorage.getItem("username")?.replace(/"/g, '') || '';
                       const isCurrentUser = player.username === username;
                       return (
-                        <tr key={index} className={isCurrentUser ? styles.userRank : ''}>
+                        <tr key={index} className={isCurrentUser ? stylesSpecific.userRank : ''}>
                           <td>{index + 1}</td>
                           <td>{player.username.length > 9 ? `${player.username.slice(0, 7)}...` : player.username}</td>
                           <td>{Math.floor(player.level)}</td>
@@ -527,7 +528,7 @@ console.log('Parsed JSON message:', data);
                             ...
                           </td>
                         </tr>
-                        <tr className={styles.userRank}>
+                        <tr className={stylesSpecific.userRank}>
                           <td>{userRankInfo.rank}</td>
                           <td>{userStats?.username} (You)</td>
                           <td>{userStats ? Math.floor(userStats.level) : '-'}</td>
