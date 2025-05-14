@@ -16,7 +16,7 @@ export function getApiDomain(): string {
 export function getWebSocketDomain(): string {
   if (isProduction()) {
     const prodUrl = process.env.NEXT_PUBLIC_PROD_WS_URL || 
-      "wss://cogent-symbol-459811-c6.oa.r.appspot.com//ws";
+      "wss://cogent-symbol-459811-c6.oa.r.appspot.com/ws";
     return prodUrl;
   } else {
     return "ws://localhost:8080/ws";
