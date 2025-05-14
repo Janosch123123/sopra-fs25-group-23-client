@@ -144,8 +144,8 @@ reason).
 |                    | [13.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/4fcaf19ba8ed57610cb1abce95ad51ac5ca719d1] | [Bot should behave diffrently / betetr in SugerRush] | [In sugerrush, it should not focus on cookies since the whole map is cookies] |
 | **[@MarcMahler]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@LuckyLuke637]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@LuckyLuke637]** | [08.04]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/00d7e761122d52a00a08aa0c6c43f63dc65adfdd] | [Create a button on the home page that makes an API call for music] | [Players can now listen to radio when playing the game] |
+|                    | [14.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/197d78c01000ae44fbf84e93e578161bc834b18d] | [Make the API work from the layout page, allowing it to then run across all pages] | [The music from API call now can run across all pages and doesnt stop after being pushed to another page] |
 | **[@jojo2-8902]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@StalyTV]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
