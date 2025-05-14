@@ -1,18 +1,3 @@
-@font-face {
-  font-family: 'Oswald';
-  src: url('../styles/fonts/Oswald-Regular.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-    font-family: 'OswaldBold';
-    src: url('../styles/fonts/Oswald-SemiBold.woff2') format('woff2');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-
 .page {
   --gray-rgb: 0, 0, 0;
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
@@ -608,7 +593,8 @@ a.secondary {
   border-radius: 15px !important; /* Less rounded corners */
   background-color: #ff0000 !important; /* Slightly different red */
   color: #ffffff !important; /* Keep white text */
-  margin-top: -20px !important; /* Space between testButton and this */
+  margin-top: 20px !important; /* Space between testButton and this */
+  margin-left: 50px !important; /* Space between testButton and this */
   margin-bottom: 0 !important; /* Remove top margin */
   position: relative !important; /* Position absolutely */
   letter-spacing: normal !important; /* Normal letter spacing */

@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
 import React, {useEffect, useState} from "react";
 import { Button, Input, message } from "antd";
@@ -46,12 +46,11 @@ interface UserStats {
     // Add a state for user rank if not in top 5
     const [userRankInfo, setUserRankInfo] = useState<{ rank: number } | null>(null);
     // Add states for music player
-    //const [isPlaying, setIsPlaying] = useState(false);
-    //const [currentStation, setCurrentStation] = useState<string | null>(null);
-    //const audioRef = useRef<HTMLAudioElement | null>(null);
     const [showGenreSearch, setShowGenreSearch] = useState(false);
     const [genreSearchTerm, setGenreSearchTerm] = useState('');
     const { isPlaying, currentStation, playMusic, playGenre } = useMusic();
+    const [displayedValue, setDisplayedValue] = useState('');
+    const [onFocusBool, setOnFocusBool] = useState(false);
 
 
     const handleLogout = async () => {
@@ -202,6 +201,41 @@ interface UserStats {
       checkToken();
       fetchLeaderboard();
     }, [apiService, router]);
+
+
+    useEffect(() => {
+      setDisplayedValue(currentStation || '')
+    }, [currentStation]);
+
+    const handleOnFocus = () => {
+      setDisplayedValue('');
+      setOnFocusBool(true);
+    }
+
+    const handleOffFocus = () =>{
+      setDisplayedValue(currentStation || '*');
+      setOnFocusBool(false);
+    }
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onFocusBool) {
+        setDisplayedValue(e.target.value);
+      }
+    }
+
+    const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && onFocusBool) {
+        // Save the current value as the genre search term
+        setGenreSearchTerm(displayedValue);
+        
+        // Use the handleGenreSearch function to search for the genre
+        if (displayedValue.trim()) {
+          playGenre(displayedValue);
+        } else {
+          message.warning('Please enter a genre to search');
+        }
+      }
+    }
 
     const handleCreateLobby = async () => {
       try {
@@ -412,7 +446,14 @@ interface UserStats {
           ) : (
             <p>No statistics available</p>
           )}
-
+              <Button
+              type="primary"
+              variant="solid"
+              className={styles.logoutButton}
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
         </div>
           <div
             style={{
@@ -425,8 +466,30 @@ interface UserStats {
           >
             {showButtons ? (
               <div className={stylesSpecific.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
-                <div className={stylesSpecific.logoHomeImage}>
-                  {/* Logo will be displayed via CSS */}
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: "10px", position: "relative"}}>
+                  <div className={stylesSpecific.logoHomeImage}>
+                    {/* Logo will be displayed via CSS */}
+                  </div>
+                  <div className={stylesSpecific.radioImage}>
+                    {/* Logo will be displayed via CSS */}
+                     <Input
+                      className={stylesSpecific.stationDisplay}
+                      value={isPlaying ? displayedValue || '' : onFocusBool ? displayedValue : 'No Station playing...'}
+                      onFocus={handleOnFocus}
+                      onBlur={handleOffFocus}
+                      onChange={handleInputChange}
+                      onKeyDown={handleInputKeyDown}
+                    />
+                    <Button
+                      type="primary"
+                      variant="solid"
+                      className={`${stylesSpecific.musicButton} ${isPlaying ? stylesSpecific.musicButtonPlaying : ''}`}
+                      onClick={playMusic}
+                    >
+                      {isPlaying ? `STOP` : 'PLAY'}
+                    </Button>
+                   
+                  </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: "-80px"}}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -470,77 +533,32 @@ interface UserStats {
                     </Button>
                   </div>
                 </div>
-                <Button
-                  type="primary"
-                  variant="solid"
-                  className={styles.logoutButton}
-                  onClick={handleLogout}
-                  style={{ marginTop: "0px", justifyContent: "center" }}
-                >
-                  Logout
-                </Button>
-                <div style={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "center" }}>
-                  <Button
-                      type="primary"
-                      variant="solid"
-                      className={`${styles.musicButton} ${isPlaying ? styles.musicButtonPlaying : ''}`}
-                      onClick={playMusic} // Changed from handlePlayMusic to playMusic
-                      style={{ 
-                        marginTop: '20px', 
-                        justifyContent: 'center',
-                        backgroundColor: isPlaying ? '#4caf50' : undefined,
-                        width: showGenreSearch ? 'auto' : undefined
-                      }}
-                    >
-                      {isPlaying ? `Stop Music (${currentStation})` : 'Play Music'}
-                    </Button>
-                 
-                    <Button
-                      type="primary"
-                      variant="solid"
-                      onClick={toggleGenreSearch}
-                      style={{ 
-                        marginTop: '10px',
-                        justifyContent: 'center',
-                        fontSize: '0.9rem',
-                        padding: '0 15px',
-                        height: '30px'
-                      }}
-                    >
-                      {showGenreSearch ? 'Hide Genre Search' : 'Search By Genre'}
-                    </Button>
-                    
-                    {showGenreSearch && (
-                      <div style={{ 
-                        display: "flex", 
-                        marginTop: '10px',
-                        width: '100%', 
-                        justifyContent: 'center'
-                      }}>
-                        <Input
-                          placeholder="Enter genre (e.g. rock, jazz, pop)"
-                          value={genreSearchTerm}
-                          onChange={handleGenreSearchChange}
-                          onKeyDown={handleGenreSearchKeyDown}
-                          style={{
-                            maxWidth: '200px',
-                            marginRight: '5px'
-                          }}
-                        />
-                        <Button 
-                          type="primary"
-                          onClick={handleGenreSearch}
-                        >
-                          Play
-                        </Button>
-                      </div>
-                    )}
-                  </div>
               </div>
             ) : (
               <div className={stylesSpecific.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column",  gap: "30px" }}>
-                <div className={stylesSpecific.logoHomeImage}>
-                  {/* Logo will be displayed via CSS */}
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: "10px", position: "relative"}}>
+                  <div className={stylesSpecific.logoHomeImage} style={{ position: "relative" }}>
+                    {/* Logo will be displayed via CSS */}
+                  </div>
+                  <div className={stylesSpecific.radioImage}>
+                    {/* Radio will be displayed via CSS */}
+                    <Input
+                        className={stylesSpecific.stationDisplay}
+                        value={isPlaying ? displayedValue || '' : onFocusBool ? displayedValue : 'No Station playing...'}
+                        onFocus={handleOnFocus}
+                        onBlur={handleOffFocus}
+                        onChange={handleInputChange}
+                        onKeyDown={handleInputKeyDown}
+                      />
+                    <Button
+                      type="primary"
+                      variant="solid"
+                      className={`${stylesSpecific.musicButton} ${isPlaying ? stylesSpecific.musicButtonPlaying : ''}`}
+                      onClick={playMusic}
+                    >
+                      {isPlaying ? `STOP` : 'PLAY'}
+                    </Button>
+                  </div>
                 </div>
                 <div className={stylesSpecific.joinButtonContainer} style={{ marginTop: "-70px",  display: "flex", flexDirection: "column"}}>
                   <div style={{ display: "flex", flexDirection: "row"}}>

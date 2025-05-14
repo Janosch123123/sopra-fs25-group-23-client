@@ -17,13 +17,13 @@ const GlobalMusicPlayer: React.FC = () => {
       background: 'rgba(0, 0, 0, 0.9)',
       color: 'white',
       padding: '12px 16px',
-      borderRadius: '30px',
+      borderRadius: '20px',
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
       zIndex: 1000,
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-      border: '1px solid rgba(255, 255, 255, 0.1)'
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+      border: '4px solid rgb(255, 255, 255)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#75bd9d', fontSize: '16px' }}>♪</span>
@@ -41,12 +41,13 @@ const GlobalMusicPlayer: React.FC = () => {
         onClick={stopMusic}
         size="small"
         style={{ 
-          color: 'white',
-          padding: '4px 8px',
+          color: 'red',
+          padding: '8px 8px',
           height: '24px',
           width: '24px',
           minWidth: '24px',
-          fontSize: '18px',
+          fontSize: '30px',
+          fontWeight:"bold",
           lineHeight: 1,
           display: 'flex',
           alignItems: 'center',
@@ -54,7 +55,7 @@ const GlobalMusicPlayer: React.FC = () => {
           borderRadius: '50%'
         }}
       >
-        ×
+        X
       </Button>
     </div>
   );

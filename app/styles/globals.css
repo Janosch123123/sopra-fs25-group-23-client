@@ -1,11 +1,5 @@
 /* Remove the @import statement and use the local Oswald font */
 /* @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap'); */
-@font-face {
-  font-family: 'Oswald';
-  src: url('../styles/fonts/Oswald-Regular.woff2') format('woff2');
-  font-weight: medium;
-  font-style: normal;
-}
 
 @font-face {
     font-family: 'OswaldBold';
@@ -14,6 +8,12 @@
     font-style: normal;
     font-display: swap;
 }
+
+@font-face{
+ font-family:'digital-clock-font';
+ src: url('../styles/fonts/digital-7.ttf');
+}
+
 :root {
   --background: #0c6610;
   --foreground: #ededed;

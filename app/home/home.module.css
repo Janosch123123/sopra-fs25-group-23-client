@@ -54,8 +54,8 @@
 /*__________________________________________ Logo Display ___________________________________________*/
 .logoHomeImage {
   position: relative;
-  width: 370px;
-  height: 300px;
+  width: 330px;
+  height: 270px;
 }
 
 .logoHomeImage::after {
@@ -72,6 +72,108 @@
   background-repeat: no-repeat;
   z-index: 5;
 }
+
+/*__________________________________________ Radio Image and Controls ___________________________________________*/
+.radioImage{
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.radioImage::after {
+  content: '';
+  position: absolute;
+  top: 20%; /* Changed from 50% to 40% to move image up */
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/radio/radio.png');
+  background-size: 100% auto; /* Changed from 'contain' to '100% auto' to maintain width */
+  background-position: center top; /* Changed from 'center' to 'center top' to crop from bottom */
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+
+/* Music button styling */
+.musicButton {
+  position: absolute !important;
+  top: 110px !important; /* Position on top of the radio */
+  left: 48% !important;
+  transform: translateX(-50%) !important;
+  border: 4px solid #000000 !important; /* Black border */
+  background-color: #555555 !important;
+  color: #ffffff !important; /* White text */
+  font-weight: bold !important;
+  z-index: 10 !important; /* Ensure it's above the radio image */
+  padding: 5px 15px !important;
+  min-width: 80px !important;
+  min-height: 30px !important;
+  border-radius: 10px !important;
+  font-family: 'OswaldBold' !important; /* Updated to Oswald font */
+  transition: all 0.3s ease !important; /* Smooth transition for hover effects */
+  cursor: pointer !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important; /* Subtle initial shadow */
+}
+
+.musicButton:hover {
+  background-color: #666666 !important; /* Slightly lighter shade when hovered */
+  transform: translateX(-50%)scale(1.02)!important; /* Slightly larger */
+}
+
+.musicButton:active {
+  transform: translateX(-50%) scale(0.98) !important; /* Slightly smaller when clicked */
+}
+
+.musicButtonPlaying {
+  background-color: #287cb4 !important; /* Blue when playing */
+}
+
+.musicButtonPlaying:hover {
+  background-color: #3089c3 !important; /* Slightly lighter blue when hovered while playing */
+}
+
+/* Radio station display field */
+.stationDisplay {
+  position: absolute !important;
+  top: 41px !important; /* Position below the music button */
+  left: 47.7% !important;
+  transform: translateX(-50%) !important;
+  width: 227px !important;
+  height: 50px !important;
+  text-align: center !important;
+  border: 3px solid #00000000 !important;
+  background-color: #ffffff00 !important;
+  color: #202020 !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  z-index: 10 !important;
+  padding: 4px 8px !important;
+  font-family: 'digital-clock-font' !important;
+  cursor: text !important;
+}
+
+.stationDisplay:focus {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  outline: none !important;
+  border: 5px solid #000000 !important;
+}
+
+.stationDisplay::placeholder {
+  color: #202020 !important;
+  opacity: 1 !important;
+  font-family: 'digital-clock-font' !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+}
+
+.stationDisplay:disabled {
+  background-color: rgba(255, 255, 255, 0) !important;
+  color: #202020 !important;
+  opacity: 1 !important;
+}
+
 
 /*__________________________________________ Join Lobby Input field ___________________________________________*/
 .joinButtonContainer {
