@@ -24,7 +24,7 @@
   font-weight: 500; /* Medium weight from Oswald */
   border-collapse: collapse;
   border-radius: 40px; /* Keep rounded corners */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-family: "OswaldBold"; /* Updated to Oswald font */
   /* letter-spacing: -0.02em; Slight letter-spacing adjustment for better readability */
   color: white; /* Ensure text is always white */
 }
@@ -38,8 +38,8 @@
 
 .statisticsList {
   font-size: 1.5rem; /* Keep existing font size */
-  font-weight: 500; /* Medium weight from Oswald */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-weight: 500; /* Medium weight from OswaldBold */
+  font-family: "OswaldBold"; /* Updated to Oswald font */
   letter-spacing: -0.02em; /* Slight letter-spacing adjustment */
 }
 
@@ -134,7 +134,12 @@
 }
 
 .globalLobbyTable {
-  composes: lobbyTable;
+  width: 300px;
+  font-size: 1.5rem; /* Maintain existing font size */
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-family: 'OswaldBold'; /* Match statisticsTable */
+  color: white; /* Ensure text is always white */
   border-radius: 10px; /* Match statisticsTable */
   background-color: #a5c118;
 
@@ -149,8 +154,29 @@
   color: white; /* Ensure text is always white */
 }
 
+.dashboardContainer h2 {
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
+}
+
+.globalLobbyContainer h2 {
+  color: white;
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
+}
+.globalLeaderboardContainer{
+  margin-top: 20px;
+}
+
 /* Highlight the user's row in the leaderboard */
 .userRank {
   background-color: rgba(255, 255, 255, 0.5); /* Slightly lighter background */
   font-weight: bold;
 }
+

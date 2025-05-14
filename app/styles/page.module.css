@@ -1,3 +1,18 @@
+@font-face {
+  font-family: 'Oswald';
+  src: url('../styles/fonts/Oswald-Regular.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+    font-family: 'OswaldBold';
+    src: url('../styles/fonts/Oswald-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
 .page {
   --gray-rgb: 0, 0, 0;
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
@@ -11,12 +26,12 @@
   justify-content: center;
   min-height: 100vh;
   padding: 80px;
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
   background-color: #2e7d32; /* Dark forest green background */
 }
 
 .title {
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
   font-weight: 700; /* Heavy weight for title */
   font-size: 3rem;
   color: #004d00; /* Very dark shade of green */
@@ -24,6 +39,7 @@
   margin-bottom: 20px;
   text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff; /* White border */
 }
+
 
 @media (prefers-color-scheme: dark) {
   .page {
@@ -322,7 +338,7 @@ a.secondary {
   display: flex;
   flex-direction: row;
   width: 100%;
-  margin-left: 50px;
+  margin-left: 25px;
 }
 
 .playButton {
@@ -335,7 +351,7 @@ a.secondary {
   border: 10px solid #ffffff; /* White border */
   color: #ffffff; /* White text color */
   margin-left: 25px; /* Add margin to the left */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
 }
 
 .lobbyButtons {
@@ -348,13 +364,14 @@ a.secondary {
   font-weight: 600 !important; /* Bold weight from Oswald */
   padding: 50px 100px; /* Increase padding */
   min-width: 290px; /* Ensure width grows */
+  max-width: 290px;
   min-height: 120px; /* Ensure height increases */
   border: 10px solid #ffffff; /* White border */
   color: #ffffff; /* White text color */
   margin-left: 10px; /* Remove margin to the left */
   margin-bottom: 10px;
   border-radius: 400px; /* Add rounded corners */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
   letter-spacing: -0.10rem;
   cursor: pointer; /* Add cursor pointer for all lobbyButtons */
   
@@ -426,7 +443,7 @@ a.secondary {
   background-color: #1858b8 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
   margin-left: 20px !important; /* Remove margin for closer positioning */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
   font-weight: bold !important; /* Bold weight from Oswald */
   margin-top: -50px !important; /* Space between testButton and this */
 }
@@ -532,7 +549,7 @@ a.secondary {
   border-collapse: collapse;
   margin-bottom: 20px;
   border-radius: 20px; /* Match statisticsTable */
-  font-family: "Oswald", sans-serif; /* Match statisticsTable */
+  font-family: 'OswaldBold'; /* Match statisticsTable */
   color: white; /* Ensure text is always white */
 }
 
@@ -598,7 +615,7 @@ a.secondary {
 
 /* Form title styling */
 .loginTitle, .registerTitle {
-  font-family: "Oswald", sans-serif;
+  font-family: 'OswaldBold';
   font-size: 2rem;
   font-weight: 600;
   color: white;
@@ -609,7 +626,7 @@ a.secondary {
 /* Form label styling */
 .loginContent :global(.ant-form-item-label) > label,
 .loginContent :global(.ant-form-item-label) > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
-  font-family: "Oswald", sans-serif;
+  font-family: 'OswaldBold';
   font-size: 1.1rem;
   font-weight: 500;
   color: white;
@@ -618,13 +635,13 @@ a.secondary {
 /* Form input styling */
 .loginContent :global(.ant-input),
 .loginContent :global(.ant-input-password) {
-  font-family: "Oswald", sans-serif;
+  font-family: 'OswaldBold';
   font-size: 1rem;
 }
 
 /* Login/Register Or text */
 .loginContent h3 {
-  font-family: "Oswald", sans-serif;
+  font-family: 'OswaldBold';
   font-size: 1.5rem;
   font-weight: 500;
   color: white;
@@ -661,7 +678,7 @@ a.secondary {
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
-  font-family: 'oswald', sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
   font-weight: bold;
   font-size: 1.2rem;
 }
@@ -679,7 +696,7 @@ a.secondary {
   max-width: 300px;
   font-weight: bold;
   font: 1.2rem;
-  font-family: 'oswald', sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
 }
 
 .checkboxContainer {
@@ -687,7 +704,7 @@ a.secondary {
   align-items: center;
   margin-bottom: 20px;
   font-weight: bold;
-  font-family: 'oswald', sans-serif; /* Updated to Oswald font */
+  font-family: 'OswaldBold'; /* Updated to OswaldBold font */
   font-size: 1.2rem;
 }
 
@@ -798,7 +815,7 @@ a.secondary {
   cursor: pointer; /* Add cursor pointer specifically for this button */
 }
 .loginTitle{
-  font-family: "Oswald", sans-serif;
+  font-family: "OswaldBold";
   font-size: 2rem;
   font-weight: 600;
   color: white;
@@ -817,6 +834,7 @@ a.secondary {
   background-color: #1858b8 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
   margin-left: 0;
+  font-family: 'OswaldBold' !important; /* Updated to Oswald font */
 }
 
 /* Admin badge styling */
@@ -870,7 +888,7 @@ a.secondary {
   font-size: 2rem;
   text-decoration: underline;
   font-weight: 600;
-  font-family: "Oswald", sans-serif;
+  font-family: 'OswaldBold';
 }
 
 /* Connection error styling */
@@ -885,26 +903,6 @@ a.secondary {
   border: 1px solid rgba(255, 0, 0, 0.4);
 }
 
-
-.dashboardContainer h2 {
-  text-align: center; /* Center the title */
-  font-size: 2.5rem; /* Increase font size */
-  text-decoration: underline; /* Underline the title */
-  font-weight: 600; /* Bold weight from Oswald */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
-}
-
-.globalLobbyContainer h2 {
-  color: white;
-  text-align: center; /* Center the title */
-  font-size: 2.5rem; /* Increase font size */
-  text-decoration: underline; /* Underline the title */
-  font-weight: 600; /* Bold weight from Oswald */
-  font-family: "Oswald", sans-serif; /* Updated to Oswald font */
-}
-.globalLeaderboardContainer{
-  margin-top: 20px;
-}
 
 .dashboardContainer h2,
 .dashboardContainer p,
