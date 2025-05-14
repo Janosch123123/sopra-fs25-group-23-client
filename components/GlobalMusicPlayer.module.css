@@ -1,0 +1,81 @@
+/* components/GlobalMusicPlayer.module.css */
+.globalMusicPlayer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.musicInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+}
+
+.musicNote {
+  color: #75bd9d;
+  font-size: 16px;
+  animation: pulse 2s infinite;
+}
+
+.stationName {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.stopButton {
+  color: white !important;
+  padding: 4px 8px !important;
+  height: 24px !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: all 0.2s ease !important;
+}
+
+.stopButton:hover {
+  color: #ff4d4f !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}

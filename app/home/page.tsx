@@ -1,12 +1,14 @@
-"use client";
+  "use client";
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import { Button, Input, message } from "antd";
 import styles from "@/styles/page.module.css";
-import stylesSpecific from "@/home/home.module.css";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import { useLobbySocket } from '@/hooks/useLobbySocket';
+import stylesSpecific from "@/home/home.module.css";
+import { useMusic } from "../../contexts/MusicContext";
+
 
 interface UserStats {
   username: string;
@@ -18,287 +20,328 @@ interface UserStats {
   winRate?: number; // Adding winRate as an optional property
 }
 
-interface LeaderboardPlayer {
-  id: number;
-  username: string;
-  level: number;
-  wins: number;
-  kills: number;
-  playedGames: number;
-  lengthPR: number;
-  winRate: number;
-}
+  interface LeaderboardPlayer {
+    id: number;
+    username: string;
+    level: number;
+    wins: number;
+    kills: number;
+    playedGames: number;
+    lengthPR: number;
+    winRate: number;
+  }
 
-const MainPage: React.FC = () => {
-  const router = useRouter();
-  const apiService = useApi();
-  const { connect, send } = useLobbySocket();
-  const [userStats, setUserStats] = useState<UserStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [validatingLobby, setValidatingLobby] = useState(false);
-  const [showButtons, setShowButtons] = useState(true);
-  const [lobbyCode, setLobbyCode] = useState('');
-  const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
-  const [leaderboardPlayers, setLeaderboardPlayers] = useState<LeaderboardPlayer[]>([]);
-  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
-  // Add a state for user rank if not in top 5
-  const [userRankInfo, setUserRankInfo] = useState<{ rank: number } | null>(null);
+  const MainPage: React.FC = () => {
+    const router = useRouter();
+    const apiService = useApi();
+    const { connect, send } = useLobbySocket();
+    const [userStats, setUserStats] = useState<UserStats | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [validatingLobby, setValidatingLobby] = useState(false);
+    const [showButtons, setShowButtons] = useState(true);
+    const [lobbyCode, setLobbyCode] = useState('');
+    const [lobbyCodeError, setLobbyCodeError] = useState<string | null>(null);
+    const [leaderboardPlayers, setLeaderboardPlayers] = useState<LeaderboardPlayer[]>([]);
+    const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+    // Add a state for user rank if not in top 5
+    const [userRankInfo, setUserRankInfo] = useState<{ rank: number } | null>(null);
+    // Add states for music player
+    //const [isPlaying, setIsPlaying] = useState(false);
+    //const [currentStation, setCurrentStation] = useState<string | null>(null);
+    //const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [showGenreSearch, setShowGenreSearch] = useState(false);
+    const [genreSearchTerm, setGenreSearchTerm] = useState('');
+    const { isPlaying, currentStation, playMusic, playGenre, stopMusic } = useMusic();
 
-  const handleLogout = async () => {
-    try {
-      localStorage.clear();
-      router.push("/login");
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
 
-  const handleSingleplayer = async () => {
-    try {
-// Get token from localStorage for authentication
-      const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
-      
-      // Connect to WebSocket server if not already connected
-      // if (!isConnected) {
-      const socket = await connect({ token });
+    const handleLogout = async () => {
+      try {
+        // Stop any playing music before logout
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+        localStorage.clear();
+        router.push("/login");
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    };
 
-// Set up message handler for WebSocket events
-      socket.onmessage = (event) => {
-        try {
-console.log("Raw message:", event.data);
-            
+    const handleSingleplayer = async () => {
+      try {
+        // Get token from localStorage for authentication
+        const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+        
+        // Connect to WebSocket server if not already connected
+        const socket = await connect({ token });
+
+        // Set up message handler for WebSocket events
+        socket.onmessage = (event) => {
+          try {
+            console.log("Raw message:", event.data);
+              
             // Parse the message data
-          const data = JSON.parse(event.data);
-console.log('Parsed JSON message:', data);
-            
+            const data = JSON.parse(event.data);
+            console.log('Parsed JSON message:', data);
+              
             // Handle lobby creation response
-          if (data.type === 'lobby_created' && data.lobbyId) {
-            router.push(`/lobby/${data.lobbyId}`);
+            if (data.type === 'lobby_created' && data.lobbyId) {
+              router.push(`/lobby/${data.lobbyId}`);
+            }
+          } catch (error) {
+            console.error("Error handling message:", error);
           }
+        };
+
+        send({
+          type: "soloLobby",
+        });
+      } catch (error) {
+        console.error("Error creating lobby:", error);
+      }
+    };
+
+    // Toggle genre search bar
+    const toggleGenreSearch = () => {
+      setShowGenreSearch(!showGenreSearch);
+      if (!showGenreSearch) {
+        setGenreSearchTerm('');
+      }
+    };
+
+    // Handle genre search term changes
+    const handleGenreSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setGenreSearchTerm(e.target.value);
+    };
+
+    // Handle genre search submission
+    const handleGenreSearch = async () => {
+      if (!genreSearchTerm.trim()) {
+        message.warning('Please enter a genre to search');
+        return;
+      }
+      
+      await playGenre(genreSearchTerm);
+      setShowGenreSearch(false);
+    };
+
+    // Handle Enter key in search input
+    const handleGenreSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        handleGenreSearch();
+      }
+    };
+
+    useEffect(() => {
+      const userId = localStorage.getItem("userId");
+
+      const fetchUserStats = async () => {
+        try {
+          setLoading(true);
+
+          if (!userId) {
+            console.error("User ID not available");
+            setLoading(false);
+            return;
+          }
+
+          const response = await apiService.get<UserStats>(`/users/${userId}`);
+          setUserStats(response);
         } catch (error) {
-          console.error("Error handling message:", error);
+          console.error("Error fetching user stats:", error);
+        } finally {
+          setLoading(false);
         }
       };
 
-      send({
-        type: "soloLobby",
-      });
-    } catch (error) {
-      console.error("Error creating lobby:", error);
-    }
-  };
-
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-
-    const fetchUserStats = async () => {
-      try {
-        setLoading(true);
-
-        if (!userId) {
-          console.error("User ID not available");
-          setLoading(false);
-          return;
-        }
-
-        const response = await apiService.get<UserStats>(`/users/${userId}`);
-        setUserStats(response);
-      } catch (error) {
-        console.error("Error fetching user stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchLeaderboard = async () => {
-      try {
-        setLeaderboardLoading(true);
-        const response = await apiService.get<LeaderboardPlayer[]>("/leaderboard");
-        setLeaderboardPlayers(response);
-        
-        // Check if the user needs to fetch their rank
-        const username = localStorage.getItem("username")?.replace(/"/g, '') || '';
-        const userInTop5 = response.slice(0, 5).some(player => player.username === username);
-        
-        if (!userInTop5 && userId) {
-          try {
-            // Fetch user's rank if not in top 5
-            const rankResponse = await apiService.get<{ rank: number }>(`/leaderboard/${userId}`);
-            setUserRankInfo(rankResponse);
-          } catch (err) {
-            console.error("Error fetching user rank:", err);
+      const fetchLeaderboard = async () => {
+        try {
+          setLeaderboardLoading(true);
+          const response = await apiService.get<LeaderboardPlayer[]>("/leaderboard");
+          setLeaderboardPlayers(response);
+          
+          // Check if the user needs to fetch their rank
+          const username = localStorage.getItem("username")?.replace(/"/g, '') || '';
+          const userInTop5 = response.slice(0, 5).some(player => player.username === username);
+          
+          if (!userInTop5 && userId) {
+            try {
+              // Fetch user's rank if not in top 5
+              const rankResponse = await apiService.get<{ rank: number }>(`/leaderboard/${userId}`);
+              setUserRankInfo(rankResponse);
+            } catch (err) {
+              console.error("Error fetching user rank:", err);
+            }
           }
+        } catch (error) {
+          console.error("Error fetching leaderboard:", error);
+        } finally {
+          setLeaderboardLoading(false);
         }
-      } catch (error) {
-        console.error("Error fetching leaderboard:", error);
-      } finally {
-        setLeaderboardLoading(false);
-      }
-    };
+      };
 
-    const checkToken = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
-      try {
-        const formatedToken = token.replace(/"/g, "");
-        const response = await apiService.post<{ authorized: boolean }>("/auth/verify", { formatedToken });
-
-        if (!response.authorized) {
+      const checkToken = async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
           router.push("/login");
           return;
         }
 
-        await fetchUserStats();
+        try {
+          const formatedToken = token.replace(/"/g, "");
+          const response = await apiService.post<{ authorized: boolean }>("/auth/verify", { formatedToken });
+
+          if (!response.authorized) {
+            router.push("/login");
+            return;
+          }
+
+          await fetchUserStats();
+        } catch (error) {
+          console.error("Error verifying user token:", error);
+          router.push("/login");
+        }
+      };
+
+      checkToken();
+      fetchLeaderboard();
+    }, [apiService, router]);
+
+    const handleCreateLobby = async () => {
+      try {
+        const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
+        const socket = await connect({ token });
+
+        socket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === "lobby_created" && data.lobbyId) {
+              router.push(`/lobby/${data.lobbyId}`);
+            }
+          } catch (error) {
+            console.error("Error handling message:", error);
+          }
+        };
+
+        send({
+          type: "create_lobby",
+        });
       } catch (error) {
-        console.error("Error verifying user token:", error);
-        router.push("/login");
+        console.error("Error creating lobby:", error);
       }
     };
 
-    checkToken();
-    fetchLeaderboard();
+    const handleQuickPlay = async () => {
+      try {
+        const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
+        const socket = await connect({ token });
 
-    return () => {};
-  }, [apiService, router]);
-
-  const handleCreateLobby = async () => {
-    try {
-      const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
-      const socket = await connect({ token });
-
-      socket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === "lobby_created" && data.lobbyId) {
-            router.push(`/lobby/${data.lobbyId}`);
+        socket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === "quickPlayResponse" && data.lobbyId) {
+              router.push(`/lobby/${data.lobbyId}`);
+            }
+          } catch (error) {
+            console.error("Error handling message:", error);
           }
-        } catch (error) {
-          console.error("Error handling message:", error);
-        }
-      };
+        };
 
-      send({
-        type: "create_lobby",
-      });
-    } catch (error) {
-      console.error("Error creating lobby:", error);
-    }
-  };
+        send({
+          type: "quickPlay",
+        });
+      } catch (error) {
+        console.error("Error initiating quickplay:", error);
+      }
+    };
 
-  const handleQuickPlay = async () => {
-    try {
-      const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
-      const socket = await connect({ token });
+    const handleJoinLobbyClick = () => {
+      setShowButtons(false);
+    };
 
-      socket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === "quickPlayResponse" && data.lobbyId) {
-            router.push(`/lobby/${data.lobbyId}`);
-          }
-        } catch (error) {
-          console.error("Error handling message:", error);
-        }
-      };
+    const handleBackClick = () => {
+      setShowButtons(true);
+      setLobbyCode("");
+      setLobbyCodeError(null);
+    };
 
-      send({
-        type: "quickPlay",
-      });
-    } catch (error) {
-      console.error("Error initiating quickplay:", error);
-    }
-  };
+    const handleJoinWithCode = async () => {
+      if (!lobbyCode.trim()) {
+        message.error("Please enter a lobby code");
+        return;
+      }
 
-  const handleJoinLobbyClick = () => {
-    setShowButtons(false);
-  };
+      if (!/^\d+$/.test(lobbyCode)) {
+        message.error("Lobby code must be a valid integer number");
+        return;
+      }
 
-  const handleBackClick = () => {
-    setShowButtons(true);
-    setLobbyCode("");
-    setLobbyCodeError(null);
-  };
+      setValidatingLobby(true);
+      setLobbyCodeError(null);
 
-  const handleJoinWithCode = async () => {
-    if (!lobbyCode.trim()) {
-      message.error("Please enter a lobby code");
-      return;
-    }
+      try {
+        const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
+        const socket = await connect({ token });
 
-    if (!/^\d+$/.test(lobbyCode)) {
-      message.error("Lobby code must be a valid integer number");
-      return;
-    }
+        const messageHandler = (event: MessageEvent) => {
+          try {
+            const data = JSON.parse(event.data);
 
-    setValidatingLobby(true);
-    setLobbyCodeError(null);
+            if (data.type === "validateLobbyResponse") {
+              socket.removeEventListener("message", messageHandler);
 
-    try {
-      const token = localStorage.getItem("token")?.replace(/"/g, "") || "";
-      const socket = await connect({ token });
-
-      const messageHandler = (event: MessageEvent) => {
-        try {
-          const data = JSON.parse(event.data);
-
-          if (data.type === "validateLobbyResponse") {
-            socket.removeEventListener("message", messageHandler);
-
-            if (data.valid === true) {
-              router.push(`/lobby/${lobbyCode}`);
-            } else {
-              setValidatingLobby(false);
-
-              if (data.reason === "full") {
-                setLobbyCodeError("The lobby is full");
+              if (data.valid === true) {
+                router.push(`/lobby/${lobbyCode}`);
               } else {
-                setLobbyCodeError("The lobby does not exist");
+                setValidatingLobby(false);
+
+                if (data.reason === "full") {
+                  setLobbyCodeError("The lobby is full");
+                } else {
+                  setLobbyCodeError("The lobby does not exist");
+                }
               }
             }
+          } catch (error) {
+            console.error("Error handling message:", error);
+            setValidatingLobby(false);
           }
-        } catch (error) {
-          console.error("Error handling message:", error);
-          setValidatingLobby(false);
-        }
-      };
+        };
 
-      socket.addEventListener("message", messageHandler);
+        socket.addEventListener("message", messageHandler);
 
-      send({
-        type: "validateLobby",
-        lobbyCode: lobbyCode,
-      });
+        send({
+          type: "validateLobby",
+          lobbyCode: lobbyCode,
+        });
 
-      setTimeout(() => {
-        if (validatingLobby) {
-          socket.removeEventListener("message", messageHandler);
-          setValidatingLobby(false);
-          message.error("Server did not respond. Please try again.");
-        }
-      }, 5000);
-    } catch (error) {
-      console.error("Error validating lobby:", error);
-      setValidatingLobby(false);
-      message.error("Failed to validate lobby code");
-    }
-  };
+        setTimeout(() => {
+          if (validatingLobby) {
+            socket.removeEventListener("message", messageHandler);
+            setValidatingLobby(false);
+            message.error("Server did not respond. Please try again.");
+          }
+        }, 5000);
+      } catch (error) {
+        console.error("Error validating lobby:", error);
+        setValidatingLobby(false);
+        message.error("Failed to validate lobby code");
+      }
+    };
 
-  const handleLobbyCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value === "" || /^\d+$/.test(value)) {
-      setLobbyCode(value);
-    }
-  };
+    const handleLobbyCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value === "" || /^\d+$/.test(value)) {
+        setLobbyCode(value);
+      }
+    };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !showButtons) {
-      handleJoinWithCode();
-    }
-  };
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && !showButtons) {
+        handleJoinWithCode();
+      }
+    };
 
   return (
     <div className={styles.mainPage}>
@@ -441,6 +484,63 @@ console.log('Parsed JSON message:', data);
                 >
                   Logout
                 </Button>
+                <div style={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "center" }}>
+                  <Button
+                      type="primary"
+                      variant="solid"
+                      className={`${styles.musicButton} ${isPlaying ? styles.musicButtonPlaying : ''}`}
+                      onClick={playMusic} // Changed from handlePlayMusic to playMusic
+                      style={{ 
+                        marginTop: '20px', 
+                        justifyContent: 'center',
+                        backgroundColor: isPlaying ? '#4caf50' : undefined,
+                        width: showGenreSearch ? 'auto' : undefined
+                      }}
+                    >
+                      {isPlaying ? `Stop Music (${currentStation})` : 'Play Music'}
+                    </Button>
+                 
+                    <Button
+                      type="primary"
+                      variant="solid"
+                      onClick={toggleGenreSearch}
+                      style={{ 
+                        marginTop: '10px',
+                        justifyContent: 'center',
+                        fontSize: '0.9rem',
+                        padding: '0 15px',
+                        height: '30px'
+                      }}
+                    >
+                      {showGenreSearch ? 'Hide Genre Search' : 'Search By Genre'}
+                    </Button>
+                    
+                    {showGenreSearch && (
+                      <div style={{ 
+                        display: "flex", 
+                        marginTop: '10px',
+                        width: '100%', 
+                        justifyContent: 'center'
+                      }}>
+                        <Input
+                          placeholder="Enter genre (e.g. rock, jazz, pop)"
+                          value={genreSearchTerm}
+                          onChange={handleGenreSearchChange}
+                          onKeyDown={handleGenreSearchKeyDown}
+                          style={{
+                            maxWidth: '200px',
+                            marginRight: '5px'
+                          }}
+                        />
+                        <Button 
+                          type="primary"
+                          onClick={handleGenreSearch}
+                        >
+                          Play
+                        </Button>
+                      </div>
+                    )}
+                  </div>
               </div>
             ) : (
               <div className={stylesSpecific.lobbyButtonsContainer} style={{ display: "flex", flexDirection: "column",  gap: "30px" }}>
@@ -548,4 +648,4 @@ console.log('Parsed JSON message:', data);
   );
 };
 
-export default MainPage;
+  export default MainPage;
