@@ -46,8 +46,6 @@ interface UserStats {
     // Add a state for user rank if not in top 5
     const [userRankInfo, setUserRankInfo] = useState<{ rank: number } | null>(null);
     // Add states for music player
-    const [showGenreSearch, setShowGenreSearch] = useState(false);
-    const [genreSearchTerm, setGenreSearchTerm] = useState('');
     const { isPlaying, currentStation, playMusic, playGenre } = useMusic();
     const [displayedValue, setDisplayedValue] = useState('');
     const [onFocusBool, setOnFocusBool] = useState(false);
@@ -93,37 +91,6 @@ interface UserStats {
         });
       } catch (error) {
         console.error("Error creating lobby:", error);
-      }
-    };
-
-    // Toggle genre search bar
-    const toggleGenreSearch = () => {
-      setShowGenreSearch(!showGenreSearch);
-      if (!showGenreSearch) {
-        setGenreSearchTerm('');
-      }
-    };
-
-    // Handle genre search term changes
-    const handleGenreSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setGenreSearchTerm(e.target.value);
-    };
-
-    // Handle genre search submission
-    const handleGenreSearch = async () => {
-      if (!genreSearchTerm.trim()) {
-        message.warning('Please enter a genre to search');
-        return;
-      }
-      
-      await playGenre(genreSearchTerm);
-      setShowGenreSearch(false);
-    };
-
-    // Handle Enter key in search input
-    const handleGenreSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleGenreSearch();
       }
     };
 
@@ -226,7 +193,6 @@ interface UserStats {
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter" && onFocusBool) {
         // Save the current value as the genre search term
-        setGenreSearchTerm(displayedValue);
         
         // Use the handleGenreSearch function to search for the genre
         if (displayedValue.trim()) {
