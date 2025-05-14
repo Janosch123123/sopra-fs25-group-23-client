@@ -11,6 +11,16 @@ interface MusicContextType {
   stopMusic: () => void;
 }
 
+interface Station {
+  name: string;
+  url_resolved: string;
+  tags?: string;
+  codec?: string;
+  bitrate?: number;
+  stationuuid?: string;
+  votes?: number;
+}
+
 const MusicContext = createContext<MusicContextType | null>(null);
 
 export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -18,7 +28,7 @@ export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [currentStation, setCurrentStation] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const playStation = (station: any) => {
+  const playStation = (station: Station) => {
     try {
       // Stop any currently playing audio
       if (audioRef.current) {
@@ -72,7 +82,7 @@ export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const playFallbackStation = () => {
     try {
-      const reliableStreams = [
+      const reliableStreams: Station[] = [
         {
           name: "NPR News",
           url_resolved: "https://npr-ice.streamguys1.com/live.mp3",
@@ -136,17 +146,17 @@ export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       
-      const stations = await response.json();
+      const stations = await response.json() as Station[];
       
       if (!stations || stations.length === 0) {
         message.error({ content: 'No stations found. Try again later.', key: 'musicLoader' });
         return playFallbackStation();
       }
       
-      const viableStations = stations.filter(station => 
+      const viableStations = stations.filter((station: Station) => 
         station.url_resolved && 
         station.codec && 
-        station.bitrate > 0 && 
+        station.bitrate && station.bitrate > 0 && 
         !station.url_resolved.includes('.m3u')
       );
       
@@ -189,7 +199,7 @@ export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       
-      let stations = await response.json();
+      let stations = await response.json() as Station[];
       
       if (stations.length < 3) {
         response = await fetch(`https://de1.api.radio-browser.info/json/stations/bytag/${searchTerm}?limit=15&hidebroken=true`, {
@@ -200,9 +210,9 @@ export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         });
         
         if (response.ok) {
-          const tagStations = await response.json();
-          const existingIds = new Set(stations.map(s => s.stationuuid));
-          const uniqueTagStations = tagStations.filter(s => !existingIds.has(s.stationuuid));
+          const tagStations = await response.json() as Station[];
+          const existingIds = new Set(stations.map((s: Station) => s.stationuuid));
+          const uniqueTagStations = tagStations.filter((s: Station) => !existingIds.has(s.stationuuid));
           stations = [...stations, ...uniqueTagStations];
         }
       }
@@ -216,9 +226,9 @@ export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
       
       if (response.ok) {
-        const genreStations = await response.json();
-        const existingIds = new Set(stations.map(s => s.stationuuid));
-        const uniqueGenreStations = genreStations.filter(s => !existingIds.has(s.stationuuid));
+        const genreStations = await response.json() as Station[];
+        const existingIds = new Set(stations.map((s: Station) => s.stationuuid));
+        const uniqueGenreStations = genreStations.filter((s: Station) => !existingIds.has(s.stationuuid));
         stations = [...stations, ...uniqueGenreStations];
       }
 
@@ -227,26 +237,26 @@ export const MusicProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         return playMusic();
       }
       
-      let stationsToConsider = stations.filter(station => 
+      let stationsToConsider = stations.filter((station: Station) => 
         station.url_resolved && 
         station.codec && 
         !station.url_resolved.includes('.m3u') &&
-        station.votes > 0
+        station.votes !== undefined && station.votes > 0
       );
       
       if (stationsToConsider.length < 3) {
-        const additionalStations = stations.filter(station => 
+        const additionalStations = stations.filter((station: Station) => 
           station.url_resolved && 
           station.codec && 
           !station.url_resolved.includes('.m3u')
         ).slice(0, 5);
         
-        const existingIds = new Set(stationsToConsider.map(s => s.stationuuid));
-        const uniqueAdditionalStations = additionalStations.filter(s => !existingIds.has(s.stationuuid));
+        const existingIds = new Set(stationsToConsider.map((s: Station) => s.stationuuid as string));
+        const uniqueAdditionalStations = additionalStations.filter((s: Station) => !existingIds.has(s.stationuuid as string));
         stationsToConsider = [...stationsToConsider, ...uniqueAdditionalStations];
       }
       
-      stationsToConsider.sort((a, b) => b.votes - a.votes);
+      stationsToConsider.sort((a: Station, b: Station) => (b.votes || 0) - (a.votes || 0));
 
       const stationToPlay = stationsToConsider.length > 0 
         ? stationsToConsider[Math.floor(Math.random() * Math.min(stationsToConsider.length, 5))] 

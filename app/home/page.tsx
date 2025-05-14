@@ -1,6 +1,6 @@
   "use client";
 
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState} from "react";
 import { Button, Input, message } from "antd";
 import styles from "@/styles/page.module.css";
 import { useRouter } from "next/navigation";
@@ -51,16 +51,11 @@ interface UserStats {
     //const audioRef = useRef<HTMLAudioElement | null>(null);
     const [showGenreSearch, setShowGenreSearch] = useState(false);
     const [genreSearchTerm, setGenreSearchTerm] = useState('');
-    const { isPlaying, currentStation, playMusic, playGenre, stopMusic } = useMusic();
+    const { isPlaying, currentStation, playMusic, playGenre } = useMusic();
 
 
     const handleLogout = async () => {
       try {
-        // Stop any playing music before logout
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
         localStorage.clear();
         router.push("/login");
       } catch (error) {
