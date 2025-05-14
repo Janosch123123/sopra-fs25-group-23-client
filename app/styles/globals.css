@@ -1,14 +1,27 @@
-/* Import Oswald font from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+/* Remove the @import statement and use the local Oswald font */
+/* @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap'); */
+@font-face {
+  font-family: 'Oswald';
+  src: url('../styles/fonts/Oswald-Regular.woff2') format('woff2');
+  font-weight: medium;
+  font-style: normal;
+}
 
+@font-face {
+    font-family: 'OswaldBold';
+    src: url('../styles/fonts/Oswald-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0c6610;
+  --foreground: #ededed;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0c6610;
     --foreground: #ededed;
   }
 }
@@ -53,31 +66,3 @@ a {
   background-color: rgb(41, 44, 59);
 }
 
-/* Oswald font utility classes */
-.oswald-light {
-  font-family: "Oswald", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.oswald-regular {
-  font-family: "Oswald", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.oswald-bold {
-  font-family: "Oswald", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.oswald-heavy {
-  font-family: "Oswald", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 700;
-  font-style: normal;
-}

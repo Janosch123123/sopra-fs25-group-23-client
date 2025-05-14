@@ -1,0 +1,182 @@
+/*__________________________________________ Home Page CSS ___________________________________________*/
+.mainHomePage {
+  position: relative;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/*__________________________________________ User Statistics Table_____________________________________*/
+.dashboardContainer {
+  flex: 0.8; /* Make the container smaller */
+  background-color: #427fa7; /* Darker medium green background */
+  padding: 30px;
+  border-radius: 20px;
+  border: 4px solid #345a97; /* Darker dark green border */
+  margin-right: 20px;
+  margin-left: 120px; /* Added margin-left to move it to the right */
+}
+
+.statisticsTable {
+  min-width: 300px;
+  font-size: 1.7rem; /* Keep existing font size */
+  font-weight: 500; /* Medium weight from Oswald */
+  border-collapse: collapse;
+  border-radius: 40px; /* Keep rounded corners */
+  font-family: "OswaldBold"; /* Updated to Oswald font */
+  /* letter-spacing: -0.02em; Slight letter-spacing adjustment for better readability */
+  color: white; /* Ensure text is always white */
+}
+
+.statisticsTable td {
+  padding: 10px;
+  border-bottom: 1px solid #345a97; /* Darker dark green border */
+  border-radius: 30px; /* Add rounded corners */
+  color: white; /* Ensure text is always white */
+}
+
+.statisticsList {
+  font-size: 1.5rem; /* Keep existing font size */
+  font-weight: 500; /* Medium weight from OswaldBold */
+  font-family: "OswaldBold"; /* Updated to Oswald font */
+  letter-spacing: -0.02em; /* Slight letter-spacing adjustment */
+}
+
+/*__________________________________________ Lobby Buttons ___________________________________________*/
+.lobbyButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+}
+
+/*__________________________________________ Logo Display ___________________________________________*/
+.logoHomeImage {
+  position: relative;
+  width: 370px;
+  height: 300px;
+}
+
+.logoHomeImage::after {
+  content: '';
+  position: absolute;
+  top: 20%; /* Changed from 50% to 40% to move image up */
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/logo/logo.png');
+  background-size: 100% auto; /* Changed from 'contain' to '100% auto' to maintain width */
+  background-position: center top; /* Changed from 'center' to 'center top' to crop from bottom */
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+
+/*__________________________________________ Join Lobby Input field ___________________________________________*/
+.joinButtonContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 0; /* Remove gap between input and button */
+  min-width: 603px;
+  align-items: flex-start;
+  background-color: transparent;
+  padding: 30px;
+  border-radius: 20px;
+  background-color: #2e98e4;
+  border: 5px solid #1c77b9;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  margin-top: 150px;
+}
+
+.inputContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.stretchedInput {
+  border: 4px solid #ffffff !important;
+  border-radius: 20px !important;
+  padding: 18px 0px !important;
+  font-size: 35px !important;
+  height: 70px !important;
+  flex: 1;
+  line-height: 1.5 !important;
+  font-weight: bold !important;
+  letter-spacing: -1px !important;
+  text-transform: uppercase !important;
+  background-color: white !important; /* Ensure background is white */
+  color: #333 !important; /* Ensure text color is visible */
+}
+
+.errorMessage {
+  color: #ff4d4f;
+  font-size: 1.6rem;
+  font-weight: 900;
+  padding: 5px 10px;
+  margin-top: 5px;
+  border-color: white;
+}
+
+/*__________________________________________ Global Leaderboard Table ___________________________________________*/
+.globalLobbyContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: #a5c118; 
+  padding: 20px;
+  border-radius: 20px;
+  border: 4px solid #72870d; /* White border */
+  margin-left: 20px;
+}
+
+.globalLobbyContainer h1 {
+  font-weight: bold; /* Make the title bold */
+}
+
+.globalLobbyTable {
+  width: 300px;
+  font-size: 1.5rem; /* Maintain existing font size */
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-family: 'OswaldBold'; /* Match statisticsTable */
+  color: white; /* Ensure text is always white */
+  border-radius: 10px; /* Match statisticsTable */
+  background-color: #a5c118;
+
+}
+
+.globalLobbyTable th, .globalLobbyTable td {
+  padding: 10px;
+  border: none; /* Remove existing border */
+  border-bottom: 1px solid #72870d; /* Match statisticsTable td */
+  text-align: center;
+  border-radius: 0px;
+  color: white; /* Ensure text is always white */
+}
+
+.dashboardContainer h2 {
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
+}
+
+.globalLobbyContainer h2 {
+  color: white;
+  text-align: center; /* Center the title */
+  font-size: 2.5rem; /* Increase font size */
+  text-decoration: underline; /* Underline the title */
+  font-weight: 600; /* Bold weight from Oswald */
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
+}
+.globalLeaderboardContainer{
+  margin-top: 20px;
+}
+
+/* Highlight the user's row in the leaderboard */
+.userRank {
+  background-color: rgba(255, 255, 255, 0.5); /* Slightly lighter background */
+  font-weight: bold;
+}
+
