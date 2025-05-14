@@ -536,6 +536,7 @@ a.secondary {
   border-color: #345a97;
   padding: 20px;
   border-radius: 15px;
+  min-width: 420px;
   border: 4px solid #345a97; /* White border */
 }
 
@@ -865,6 +866,13 @@ a.secondary {
   opacity: 0.6;
   cursor: not-allowed;
   filter: grayscale(30%);
+}
+
+/* Disabled settings container styling */
+.disabledSettingContainer {
+  opacity: 0.8;
+  filter: grayscale(40%);
+  pointer-events: none;
 }
 
 /* Disabled button styling */

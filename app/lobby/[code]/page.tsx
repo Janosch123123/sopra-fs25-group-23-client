@@ -493,8 +493,8 @@ const LobbyPage: React.FC = () => {
           </tbody>
         </table>
         
-        <div className={styles.settingsContainer}>
-          <h2>Game Settings {!isAdmin && <span className={styles.adminOnlyText}>(Admin Only)</span>}</h2>
+        <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
+          <h2>Game Settings</h2>
           <br></br>
           <div className={styles.sliderContainer}>
             <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
@@ -517,13 +517,14 @@ const LobbyPage: React.FC = () => {
           </div>
           
           <div className={styles.gameModeContainer}>
-            <button
-              className={`${styles.arrowButton} ${!isAdmin ? styles.disabledButton : ''}`}
-              onClick={() => handleGameModeChange("left")}
-              disabled={!isAdmin}
-            >
-              <FontAwesomeIcon icon={faAngleLeft} />
-            </button>
+            {isAdmin && (
+              <button
+                className={styles.arrowButton}
+                onClick={() => handleGameModeChange("left")}
+              >
+                <FontAwesomeIcon icon={faAngleLeft} />
+              </button>
+            )}
             <div className={styles.gameModeTextWrapper}>
               <span 
                 className={`${styles.gameModeText} ${
@@ -537,26 +538,28 @@ const LobbyPage: React.FC = () => {
                 {gameMode}
               </span>
             </div>
-            <button
-              className={`${styles.arrowButton} ${!isAdmin ? styles.disabledButton : ''}`}
-              onClick={() => handleGameModeChange("right")}
-              disabled={!isAdmin}
-            >
-              <FontAwesomeIcon icon={faAngleRight} />
-            </button>
+            {isAdmin && (
+              <button
+                className={styles.arrowButton}
+                onClick={() => handleGameModeChange("right")}
+              >
+                <FontAwesomeIcon icon={faAngleRight} />
+              </button>
+            )}
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center"}}>
-          <button 
-            className={`${styles.startGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
-            onClick={() => {
-              console.log("Start Game button clicked");
-              handleStartGame();
-            }}
-            disabled={!isAdmin} // Disable button if not admin
-          >
-            {isAdmin ? "Start Game" : "Only Admin Can Start Game"}
-          </button>
+          {isAdmin && (
+            <button 
+              className={styles.startGameButton}
+              onClick={() => {
+                console.log("Start Game button clicked");
+                handleStartGame();
+              }}
+            >
+              Start Game
+            </button>
+          )}
           <button 
             className={styles.leaveLobbyButton} 
             onClick={handleLeaveLobby}

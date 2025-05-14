@@ -1335,24 +1335,24 @@ useEffect(() => {
                 <div className={stylesSpecific.podiumUsername}>{finalRankings[2]}</div>
                 <div className={`${stylesSpecific.podiumBase} ${playerColorMapping[finalRankings[2]] || ''}`}></div>
                 <div className={stylesSpecific.podiumRank}>3rd</div>
-              </div>
-            )}
+              </div>             )}
           </div>
           <div className={stylesSpecific.endGameContainer}>
-            <button 
-              className={`${styles.restartGameButton} ${!isAdmin ? styles.disabledButton : ''}`}
-              onClick={handleRestartGame}
-              disabled={!isAdmin}
-            >
-              {isAdmin ? "Restart Game" : "Only Admin Can Restart Game"}
-            </button>
+            {isAdmin && (
               <button 
-                className={styles.returnToHomeButton}
-                onClick={handleLeaveLobby}
+                className={styles.restartGameButton}
+                onClick={handleRestartGame}
               >
-                Return to Home
+                Restart Game
               </button>
-            </div>
+            )}
+            <button 
+              className={styles.returnToHomeButton}
+              onClick={handleLeaveLobby}
+            >
+              Return to Home
+            </button>
+          </div>
         </div>
       )}
     </div>
