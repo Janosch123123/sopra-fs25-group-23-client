@@ -148,6 +148,6 @@ reason).
 |                    | [14.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/197d78c01000ae44fbf84e93e578161bc834b18d] | [Make the API work from the layout page, allowing it to then run across all pages] | [The music from API call now can run across all pages and doesnt stop after being pushed to another page] |
 | **[@jojo2-8902]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@StalyTV]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@StalyTV]** | [14.05.]   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/65d5694452aa21a0209804c2d84d978ae8a221fa) | [Created page specific CSS files to decentralize the CSS Classes. Also downloaded and integrated/referenced the Oswald font, which was displayed locally but not on deployed Version on Vercel] | [Made CSS Classes and Styling more Clear and understandable with structure and comments] |
+|                    | [10.05.]   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/9ea01463c5dd5f0cf370d5d80079949064bd38c1) | [Added Progressbars and move-blocks for active effects of current player for Multiplier and reverseControls effect] | [Makes it clear for Users if an effect is currently active on your snake and for how long it is still active] |
 ---
