@@ -94,9 +94,65 @@ const LobbyPage: React.FC = () => {
     router.push("/home");
   };
 
+  // Function to send updated settings to all users via WebSocket
+  const sendUpdatedSettings = (
+    customSpawnRate?: "Slow" | "Medium" | "Fast",
+    customSugarRush?: boolean,
+    customPowerupsWanted?: boolean
+  ) => {
+    if (!isAdmin) return;
+
+    // Build settings object with only changed keys
+    const settings: Record<string, any> = {};
+    if (customSpawnRate !== undefined && customSpawnRate !== spawnRate) {
+      settings.spawnRate = customSpawnRate;
+    }
+    if (customPowerupsWanted !== undefined && customPowerupsWanted !== includePowerUps) {
+      settings.powerupsWanted = customPowerupsWanted;
+    }
+    if (customSugarRush !== undefined && customSugarRush !== sugarRush) {
+      settings.sugarRush = customSugarRush;
+    }
+
+    // If nothing changed, do not send
+    if (Object.keys(settings).length === 0) {
+      console.log("No settings changed, not sending update.");
+      return;
+    }
+
+    const settingsMessage = {
+      type: "lobbySettings",
+      settings
+    };
+
+    console.log("Sending updated settings:", settingsMessage);
+    send(settingsMessage);
+  };
+
   const [isAnimating, setIsAnimating] = useState(false); // Track animation state
   const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const [animationPhase, setAnimationPhase] = useState<"out" | "in" | null>(null);
+
+  // Helper to set game mode and booleans in sync
+  const setGameModeAndBooleans = (mode: "Classic" | "Sugar Rush" | "Power-Ups") => {
+    setGameMode(mode);
+    if (mode === "Classic") {
+      setSugarRush(false);
+      setIncludePowerUps(false);
+      setSugarRushStorage(false);
+      setIncludePowerUpsStorage(false);
+    } else if (mode === "Sugar Rush") {
+      setSugarRush(true);
+      setIncludePowerUps(false);
+      setSugarRushStorage(true);
+      setIncludePowerUpsStorage(false);
+    } else if (mode === "Power-Ups") {
+      setSugarRush(false);
+      setIncludePowerUps(true);
+      setSugarRushStorage(false);
+      setIncludePowerUpsStorage(true);
+    }
+  };
 
   const handleGameModeChange = (direction: "left" | "right") => {
     if (!isAdmin || isAnimating) return; // Only allow admin to change game mode and prevent rapid clicking
@@ -111,44 +167,29 @@ const LobbyPage: React.FC = () => {
       direction === "left"
         ? (currentIndex - 1 + modes.length) % modes.length
         : (currentIndex + 1) % modes.length;
-    
-    // Calculate the next game mode and store it
-    const newGameMode = modes[newIndex];
 
-    // First phase: slide out current game mode
+    const newGameMode = modes[newIndex] as "Classic" | "Sugar Rush" | "Power-Ups";
+
+    // Compute the new booleans for the selected mode
+    let newSugarRush = false;
+    let newPowerupsWanted = false;
+    if (newGameMode === "Sugar Rush") {
+      newSugarRush = true;
+    } else if (newGameMode === "Power-Ups") {
+      newPowerupsWanted = true;
+    }
+
     setTimeout(() => {
-      // Change the game mode during the transition
-      setGameMode(newGameMode);
-      
-      // Set appropriate values for sugarRush and includePowerUps based on the game mode
-      if (newGameMode === "Sugar Rush") {
-        setSugarRush(true);
-        setIncludePowerUps(false);
-        setSugarRushStorage(true);
-        setIncludePowerUpsStorage(false);
-      } else if (newGameMode === "Power-Ups") {
-        setSugarRush(false);
-        setIncludePowerUps(true);
-        setSugarRushStorage(false);
-        setIncludePowerUpsStorage(true);
-      } else {
-        // Classic mode
-        setSugarRush(false);
-        setIncludePowerUps(false);
-        setSugarRushStorage(false);
-        setIncludePowerUpsStorage(false);
-      }
-      
-      // Start the slide in animation
-      setAnimationPhase("in");
-      
-      // Second phase: slide in new game mode
+      setGameModeAndBooleans(newGameMode);
       setTimeout(() => {
-        // Animation complete
+        sendUpdatedSettings(spawnRate as "Slow" | "Medium" | "Fast", newSugarRush, newPowerupsWanted);
+      }, 0);
+      setAnimationPhase("in");
+      setTimeout(() => {
         setIsAnimating(false);
         setAnimationPhase(null);
       }, 150);
-    }, 100); // Match the animation duration
+    }, 100);
   };
 
   // Check localStorage for debugging
@@ -276,7 +317,7 @@ const LobbyPage: React.FC = () => {
                   // Only update settings if they exist in the data
                   if (data.lobby.settings) {
                     setSpawnRate(data.lobby.settings.spawnRate);
-                    setIncludePowerUps(data.lobby.settings.includePowerUps);
+                    setIncludePowerUps(data.lobby.settings.powerupsWanted);
                     setSugarRush(data.lobby.settings.sugarRush);
                   }
                   setLoading(false);
@@ -305,7 +346,43 @@ const LobbyPage: React.FC = () => {
                   setLobbyData(completeData);
                 }
               } 
-
+              // Handle lobbySettings response from server
+              else if (data.type === 'lobbySettings') {
+                console.log("Received lobbySettings update:", data);
+                // Accept both 'Settings' and 'settings' for compatibility
+                const settings = data.Settings || data.settings;
+                if (settings) {
+                  // Only update if the received settings are different from the current state
+                  const isDifferent =
+                    settings.spawnRate !== spawnRate ||
+                    settings.powerupsWanted !== includePowerUps ||
+                    settings.sugarRush !== sugarRush;
+                  if (isDifferent) {
+                    setSpawnRate(settings.spawnRate);
+                    setIncludePowerUps(settings.powerupsWanted);
+                    setSugarRush(settings.sugarRush);
+                    // Set game mode based on booleans
+                    if (settings.sugarRush) {
+                      setGameModeAndBooleans("Sugar Rush");
+                    } else if (settings.powerupsWanted) {
+                      setGameModeAndBooleans("Power-Ups");
+                    } else {
+                      setGameModeAndBooleans("Classic");
+                    }
+                    setLobbySettingsStorage(settings.spawnRate);
+                    setIncludePowerUpsStorage(settings.powerupsWanted);
+                    setSugarRushStorage(settings.sugarRush);
+                    console.log("Updated settings from server:", {
+                      spawnRate: settings.spawnRate,
+                      includePowerUps: settings.powerupsWanted,
+                      sugarRush: settings.sugarRush,
+                      gameMode: settings.sugarRush ? "Sugar Rush" : settings.powerupsWanted ? "Power-Ups" : "Classic"
+                    });
+                  } else {
+                    console.log("Received settings are the same as local state, skipping UI update.");
+                  }
+                }
+              }
               else if (data.type === "gameStarted") {
                 console.log("Game started! Redirecting to game page...");
                 // Redirect to the game page with the same lobby code
@@ -339,7 +416,7 @@ const LobbyPage: React.FC = () => {
                   
                   if (data.lobby.settings) {
                     setSpawnRate(data.lobby.settings.spawnRate);
-                    setIncludePowerUps(data.lobby.settings.includePowerUps);
+                    setIncludePowerUps(data.lobby.settings.powerupsWanted);
                     setSugarRush(data.lobby.settings.sugarRush);
                   }
                   
@@ -459,7 +536,11 @@ const LobbyPage: React.FC = () => {
     const value = event.target.value;
     const newSpawnRate = value === "0" ? "Slow" : value === "1" ? "Medium" : "Fast";
     setSpawnRate(newSpawnRate);
-    
+
+    // Send updated settings to all users after spawn rate change
+    setTimeout(() => {
+      sendUpdatedSettings(newSpawnRate as "Slow" | "Medium" | "Fast");
+    }, 0);
   };
 
   
@@ -493,7 +574,7 @@ const LobbyPage: React.FC = () => {
           </tbody>
         </table>
         
-        <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
+        <div className={styles.settingsContainer}>
           <h2>Game Settings</h2>
           <br></br>
           <div className={styles.sliderContainer}>
