@@ -543,6 +543,8 @@ const LobbyPage: React.FC = () => {
     }, 0);
   };
 
+  // Compute if Start Game should be disabled
+  const isStartGameDisabled = !isAdmin || (lobbyData?.players?.length ?? 0) < 2;
   
   if (loading) {
     return <div>Loading lobby data... {connectionError ? "(WebSocket connection issue)" : ""}</div>;
@@ -632,11 +634,12 @@ const LobbyPage: React.FC = () => {
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center"}}>
           {isAdmin && (
             <button 
-              className={styles.startGameButton}
+              className={`${styles.startGameButton} ${isStartGameDisabled ? styles.disabledControl : ''}`}
               onClick={() => {
                 console.log("Start Game button clicked");
                 handleStartGame();
               }}
+              disabled={isStartGameDisabled}
             >
               Start Game
             </button>
@@ -648,6 +651,11 @@ const LobbyPage: React.FC = () => {
             Leave Lobby
           </button>
         </div>
+        {isAdmin && isStartGameDisabled && (
+          <div style={{ color: 'white', marginTop: '8px', textAlign: 'center', fontWeight: 500 }}>
+            waiting on other players...
+          </div>
+        )}
       </div>
     </div>
   );
