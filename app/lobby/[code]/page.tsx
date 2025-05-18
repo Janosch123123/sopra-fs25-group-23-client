@@ -464,7 +464,8 @@ const LobbyPage: React.FC = () => {
     }
 
     return (
-        <div className={styles.mainPage}>
+        <div className={styles.mainPage}
+        >
             <Image
                 src="/assets/snakes_2.png"
                 alt="Lobby Logo"
@@ -473,16 +474,13 @@ const LobbyPage: React.FC = () => {
                 height={300} // Passe proportional an
                 quality={100} // Maximale Qualität (Standardwert ist 75)
                 priority
-            />
+                style={{
+                    position: 'absolute',
+                    top: '24vh',  // Feste Position vom oberen Bildschirmrand
+                    left: '18%',
+                    transform: 'translateX(-50%)',
+                }}
 
-            <Image
-                src="/assets/snakes_with_cookies.png"
-                alt="Snakes with Cookies"
-                className={homeStyles.snakesLogo}
-                width={800}  // Erhöhe auf eine größere Größe
-                height={300} // Passe proportional an
-                quality={100} // Maximale Qualität
-                priority
             />
 
             <div className={styles.lobbyContainer}>
@@ -632,6 +630,22 @@ const LobbyPage: React.FC = () => {
                     </button>
                 </div>
             </div>
+            <Image
+                src="/assets/snakes_with_cookies.png"
+                alt="Snakes with Cookies"
+                className={homeStyles.snakesLogo}
+                width={800}  // Erhöhe auf eine größere Größe
+                height={300} // Passe proportional an
+                quality={100} // Maximale Qualität
+                priority
+                style={{
+                    position: 'absolute',
+                    top: '20vh',  // Feste Position vom oberen Bildschirmrand
+                    left: '82%',
+                    transform: 'translateX(-50%)',
+                }}
+
+            />
         </div>
     );
 };

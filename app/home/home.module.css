@@ -54,7 +54,7 @@
 
 /*__________________________________________ Snakes Logo ___________________________________________*/
 .snakesLogo {
-  position: fixed; /* Fixierte Position am Bildschirm */
+  position: absolute; /* Fixierte Position am Bildschirm */
   right: 20px; /* Abstand vom rechten Bildschirmrand */
   top: 50%; /* Platziere das Logo bei 50% der Bildschirmhöhe */
   transform: translateY(-50%); /* Verschiebe es um die Hälfte seiner Höhe nach oben */
