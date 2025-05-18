@@ -1,575 +1,639 @@
 "use client"
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useApi } from "@/hooks/useApi";
+import React, {useState, useEffect, useRef} from "react";
+import {useRouter, useParams} from "next/navigation";
+import {useApi} from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
-import { useLobbySocket } from '@/hooks/useLobbySocket';
+import homeStyles from "@/home/home.module.css";
+import {useLobbySocket} from '@/hooks/useLobbySocket';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
-import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faAngleLeft} from '@fortawesome/free-solid-svg-icons';
+import {faAngleRight} from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
 
 interface Player {
-  username: string;
-  level: number;
+    username: string;
+    level: number;
 }
 
 interface LobbyData {
-  code: string;
-  players: Player[];
-  settings: {
-    spawnRate: "Slow" | "Medium" | "Fast";
-    powerupsWanted: boolean;
-    sugarRush: boolean;
-  };
-  adminId?: number | string;
+    code: string;
+    players: Player[];
+    settings: {
+        spawnRate: "Slow" | "Medium" | "Fast";
+        powerupsWanted: boolean;
+        sugarRush: boolean;
+    };
+    adminId?: number | string;
 }
 
 const LobbyPage: React.FC = () => {
-  const router = useRouter();
-  const params = useParams();
-  const lobbyCode = params?.code as string;
-  const apiService = useApi();
-  
-  // Add isAdmin localStorage hook
-  const { set: setAdminStorage } = useLocalStorage<boolean>("isAdmin", false);
-  const { set: setLobbySettingsStorage } = useLocalStorage<string>("lobbySettings", "medium");
-  const { set: setSugarRushStorage } = useLocalStorage<boolean>("sugarRush", false);
-  const { set: setIncludePowerUpsStorage } = useLocalStorage<boolean>("includePowerUps", false);
-  
-  const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [connectionError, setConnectionError] = useState(false);
+    const router = useRouter();
+    const params = useParams();
+    const lobbyCode = params?.code as string;
+    const apiService = useApi();
 
-  const [isAdmin, setIsAdmin] = useState(false); // Track if current user is admin
-  const [adminUsername, setAdminUsername] = useState(""); // Track admin's username
+    // Add isAdmin localStorage hook
+    const {set: setAdminStorage} = useLocalStorage<boolean>("isAdmin", false);
+    const {set: setLobbySettingsStorage} = useLocalStorage<string>("lobbySettings", "medium");
+    const {set: setSugarRushStorage} = useLocalStorage<boolean>("sugarRush", false);
+    const {set: setIncludePowerUpsStorage} = useLocalStorage<boolean>("includePowerUps", false);
 
-  const [spawnRate, setSpawnRate] = useState("Medium");
-  const [includePowerUps, setIncludePowerUps] = useState(false);
-  const [sugarRush, setSugarRush] = useState(false);
-  const [gameMode, setGameMode] = useState("Classic"); // Track the selected game mode
-  
-  // Initialize WebSocket connection
-  const { isConnected, connect, send, getSocket, disconnect} = useLobbySocket();
-  const intentionalDisconnect = useRef(false);
+    const [lobbyData, setLobbyData] = useState<LobbyData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [connectionError, setConnectionError] = useState(false);
 
-  // Function to handle start game
-  const handleStartGame = () => {
-    if (!isAdmin) return; // Only admin can start the game
-    
-    console.log("handleStartGame function called");
-    
-    // Save spawnRate to localStorage
-    setLobbySettingsStorage(spawnRate);
-    setSugarRushStorage(sugarRush); // Save sugarRush to localStorage
-    setIncludePowerUpsStorage(includePowerUps); // Save powerUps to localStorage
-    
-    // Send start game message
-    send({
-      type: "startGame",
-      lobbyId: lobbyCode,
-      settings: {
-        spawnRate: spawnRate,
-        sugarRush: sugarRush,
-        powerupsWanted: includePowerUps
-      }
-    });
-    console.log("Start game message sent:", {
-      type: "startGame",
-      lobbyId: lobbyCode,
-      settings: {
-        spawnRate: spawnRate,
-        sugarRush: sugarRush,
-        powerupsWanted: includePowerUps
+    const [isAdmin, setIsAdmin] = useState(false); // Track if current user is admin
+    const [adminUsername, setAdminUsername] = useState(""); // Track admin's username
 
-      }
-    });
-  };
+    const [spawnRate, setSpawnRate] = useState("Medium");
+    const [includePowerUps, setIncludePowerUps] = useState(false);
+    const [sugarRush, setSugarRush] = useState(false);
+    const [gameMode, setGameMode] = useState("Classic"); // Track the selected game mode
 
-  // Function to handle leave lobby
-  const handleLeaveLobby = () => {
-    disconnect();
-    intentionalDisconnect.current = true; // Set flag to indicate intentional disconnect
-    console.log("Disconnected from WebSocket");
-    router.push("/home");
-  };
+    // Initialize WebSocket connection
+    const {isConnected, connect, send, getSocket, disconnect} = useLobbySocket();
+    const intentionalDisconnect = useRef(false);
 
-  const [isAnimating, setIsAnimating] = useState(false); // Track animation state
-  const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
-  const [animationPhase, setAnimationPhase] = useState<"out" | "in" | null>(null);
+    // Function to handle start game
+    const handleStartGame = () => {
+        if (!isAdmin) return; // Only admin can start the game
 
-  const handleGameModeChange = (direction: "left" | "right") => {
-    if (!isAdmin || isAnimating) return; // Only allow admin to change game mode and prevent rapid clicking
+        console.log("handleStartGame function called");
 
-    setIsAnimating(true);
-    setSlideDirection(direction);
-    setAnimationPhase("out");
+        // Save spawnRate to localStorage
+        setLobbySettingsStorage(spawnRate);
+        setSugarRushStorage(sugarRush); // Save sugarRush to localStorage
+        setIncludePowerUpsStorage(includePowerUps); // Save powerUps to localStorage
 
-    const modes = ["Classic", "Sugar Rush", "Power-Ups"];
-    const currentIndex = modes.indexOf(gameMode);
-    const newIndex =
-      direction === "left"
-        ? (currentIndex - 1 + modes.length) % modes.length
-        : (currentIndex + 1) % modes.length;
-    
-    // Calculate the next game mode and store it
-    const newGameMode = modes[newIndex];
-
-    // First phase: slide out current game mode
-    setTimeout(() => {
-      // Change the game mode during the transition
-      setGameMode(newGameMode);
-      
-      // Set appropriate values for sugarRush and includePowerUps based on the game mode
-      if (newGameMode === "Sugar Rush") {
-        setSugarRush(true);
-        setIncludePowerUps(false);
-        setSugarRushStorage(true);
-        setIncludePowerUpsStorage(false);
-      } else if (newGameMode === "Power-Ups") {
-        setSugarRush(false);
-        setIncludePowerUps(true);
-        setSugarRushStorage(false);
-        setIncludePowerUpsStorage(true);
-      } else {
-        // Classic mode
-        setSugarRush(false);
-        setIncludePowerUps(false);
-        setSugarRushStorage(false);
-        setIncludePowerUpsStorage(false);
-      }
-      
-      // Start the slide in animation
-      setAnimationPhase("in");
-      
-      // Second phase: slide in new game mode
-      setTimeout(() => {
-        // Animation complete
-        setIsAnimating(false);
-        setAnimationPhase(null);
-      }, 150);
-    }, 100); // Match the animation duration
-  };
-
-  // Check localStorage for debugging
-  useEffect(() => {
-    try {
-      console.log("Checking localStorage contents:");
-      Object.keys(localStorage).forEach(key => {
-        console.log(`${key}: ${localStorage.getItem(key)}`);
-      });
-    } catch (error) {
-      console.error("Error accessing localStorage:", error);
-    }
-  }, []);
-
-  // Admin check effect - runs when lobbyData changes
-  useEffect(() => {
-    if (!lobbyData) {
-      console.log("No lobby data available yet");
-      return;
-    }
-    
-    console.log("Checking admin status with lobbyData:", JSON.stringify(lobbyData, null, 2));
-    
-    // Extract all possible user identifiers
-    const userId = localStorage.getItem("userId");
-    const username = localStorage.getItem("username");
-    
-    // Try to match with adminId
-    if (lobbyData.adminId !== undefined) {
-      // Clean all values aggressively
-      const cleanUserId = userId ? userId.replace(/"/g, '') : '';
-      const cleanUsername = username ? username.replace(/"/g, '') : '';
-      const adminIdStr = String(lobbyData.adminId);
-      
-      console.log("Admin ID comparison:", {
-        userId, 
-        username,
-        cleanUserId,
-        cleanUsername, 
-        adminId: lobbyData.adminId,
-        adminIdStr
-      });
-      
-      // Also try to match with the user's ID in the participants array
-      const isUserInParticipants = lobbyData.players.some(player => {
-        const playerName = player.username.replace(/"/g, '');
-        console.log(`Comparing player: ${playerName} with username: ${cleanUsername}`);
-        return playerName === cleanUsername;
-      });
-      
-      // Try multiple approaches to determine admin status
-      const isAdminById = cleanUserId === adminIdStr;
-      const isAdminByUsername = cleanUsername === adminIdStr;
-      
-      console.log("Admin check results:", {
-        isAdminById,
-        isAdminByUsername,
-        isUserInParticipants
-      });
-      
-      // Set as admin if any check passes
-      setIsAdmin(isAdminById || isAdminByUsername);
-      setAdminStorage(isAdminById || isAdminByUsername); // Update localStorage
-      
-      // Find the admin username from the players list
-      if (lobbyData.players && lobbyData.players.length > 0) {
-        // Try to find the admin by matching adminId with username
-        const adminPlayer = lobbyData.players.find(player => 
-          player.username.replace(/"/g, '') === adminIdStr
-        );
-        
-        if (adminPlayer) {
-          setAdminUsername(adminPlayer.username);
-        } else {
-          // If we can't find by direct match, use the current user's username if they're admin
-          if (isAdminById || isAdminByUsername) {
-            setAdminUsername(cleanUsername);
-          }
-        }
-      }
-    } else {
-      console.log("No adminId in lobbyData, cannot determine admin status");
-    }
-  }, [lobbyData]);
-
-  // Initialize connection and set up message handlers
-  useEffect(() => {
-    
-    const setupWebSocket = async () => {
-      try {
-        // Connect if not already connected
-        let socket;
-        if (!isConnected) {
-          const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
-          socket = await connect({ token });
-        }
-        
-        // Always set up the message handler regardless of connection status
-        // This ensures we handle messages even after reconnection
-        const currentSocket = socket || (isConnected ? getSocket() : null);
-        if (currentSocket) {
-          currentSocket.onmessage = (event: MessageEvent) => {
-            try {
-              console.log("Received WebSocket message:", event.data);
-              const data = JSON.parse(event.data);
-              
-              // Log the entire data structure
-              console.log("FULL DATA STRUCTURE:", JSON.stringify(data, null, 2));
-              
-              // Handle all possible lobby update message types
-              if (data.type === 'lobby_data' || data.type === 'lobby_update' || data.type === 'lobby_state') {
-                if (data.lobby) {
-                  // Try to get adminId from multiple places
-                  const adminId = data.adminId || (data.lobby && data.lobby.adminId);
-                  console.log("Extracted adminId:", adminId);
-                  
-                  const completeData = {
-                    ...data.lobby,
-                    adminId: adminId // Set the adminId explicitly
-                  };
-                  
-                  console.log("Final lobbyData object:", completeData);
-                  setLobbyData(completeData);
-                  
-                  // Only update settings if they exist in the data
-                  if (data.lobby.settings) {
-                    setSpawnRate(data.lobby.settings.spawnRate);
-                    setIncludePowerUps(data.lobby.settings.includePowerUps);
-                    setSugarRush(data.lobby.settings.sugarRush);
-                  }
-                  setLoading(false);
-                  setConnectionError(false);
-
-                } else if (data.adminId) {
-                  // If there's no lobby property but there is an adminId,
-                  // create a simplified structure with the available data
-                  console.log("No lobby property but found adminId:", data.adminId);
-                  
-                  // If participants exist at the top level
-                  const players = data.participants || [];
-                  
-                  const completeData = {
-                    code: data.lobbyId || lobbyCode,
-                    players: players,
-                    settings: {
-                      spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
-                      powerupsWanted: includePowerUps,
-                      sugarRush: sugarRush
-                    },
-                    adminId: data.adminId
-                  };
-                  
-                  console.log("Constructed lobbyData from top-level data:", completeData);
-                  setLobbyData(completeData);
-                }
-              } 
-
-              else if (data.type === "gameStarted") {
-                console.log("Game started! Redirecting to game page...");
-                // Redirect to the game page with the same lobby code
-                router.push(`/game/${lobbyCode}`);
-              }
-
-              else if (data.type === 'connection_success') {
-                console.log("WebSocket connection established successfully");
-                setConnectionError(false);
-                
-                // No need to request lobby data as server will push updates automatically
-              }
-              else if (data.type === 'error') {
-                console.error("WebSocket error:", data.message);
-                setConnectionError(true);
-              }
-              else if (data.type === 'lobby_joined') {
-                console.log("Successfully joined lobby:", data);
-                if (data.lobby) {
-                  // Try to get adminId from multiple places
-                  const adminId = data.adminId || (data.lobby && data.lobby.adminId);
-                  console.log("Extracted adminId (lobby_joined):", adminId);
-                  
-                  const completeData = {
-                    ...data.lobby,
-                    adminId: adminId // Set the adminId explicitly
-                  };
-                  
-                  console.log("Final lobbyData object (lobby_joined):", completeData);
-                  setLobbyData(completeData);
-                  
-                  if (data.lobby.settings) {
-                    setSpawnRate(data.lobby.settings.spawnRate);
-                    setIncludePowerUps(data.lobby.settings.includePowerUps);
-                    setSugarRush(data.lobby.settings.sugarRush);
-                  }
-                  
-                  setLoading(false);
-                } else if (data.adminId) {
-                  // If there's no lobby property but there is an adminId,
-                  // create a simplified structure with the available data
-                  console.log("No lobby property in lobby_joined but found adminId:", data.adminId);
-                  
-                  // If participants exist at the top level
-                  const players = data.participants || [];
-                  
-                  const completeData = {
-                    code: data.lobbyId || lobbyCode,
-                    players: players,
-                    settings: {
-                      spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
-                      powerupsWanted: includePowerUps,
-                      sugarRush: sugarRush
-                    },
-                    adminId: data.adminId
-                  };
-                  
-                  console.log("Constructed lobbyData from top-level data (lobby_joined):", completeData);
-                  setLobbyData(completeData);
-                }
-              }
-              
-            } catch (error) {
-              console.error('Error handling WebSocket message:', error);
-            }
-          };
-        }
-        
-        // Create some placeholder data for the UI in case of connection error
-        if (!lobbyData) {
-          setLobbyData({
-            code: lobbyCode,
-            players: [
-              { username: localStorage.getItem("username") || "You", level: 1 }
-            ],
+        // Send start game message
+        send({
+            type: "startGame",
+            lobbyId: lobbyCode,
             settings: {
-              spawnRate: "Medium",
-              sugarRush: false,
-              powerupsWanted: false
+                spawnRate: spawnRate,
+                sugarRush: sugarRush,
+                powerupsWanted: includePowerUps
             }
-          });
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('WebSocket setup error:', error);
-        setConnectionError(true);
-        setLoading(false);
-      }
+        });
+        console.log("Start game message sent:", {
+            type: "startGame",
+            lobbyId: lobbyCode,
+            settings: {
+                spawnRate: spawnRate,
+                sugarRush: sugarRush,
+                powerupsWanted: includePowerUps
+
+            }
+        });
     };
-    
-    setupWebSocket();
-    
-    // At the end of your setupWebSocket useEffect, add this return statement:
-    return () => {
-      if (intentionalDisconnect.current) {
-        console.log("Disconnecting WebSocket on unmount");
+
+    // Function to handle leave lobby
+    const handleLeaveLobby = () => {
         disconnect();
-      } else {
-        console.log("Not disconnecting WebSocket on unmount");
-      }
+        intentionalDisconnect.current = true; // Set flag to indicate intentional disconnect
+        console.log("Disconnected from WebSocket");
+        router.push("/home");
     };
-  
-  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate, disconnect]); // Added missing dependencies
 
-  // Request lobby state when component mounts
-  // This is to ensure we have the latest data when the component loads
-  useEffect(() => {
-    send({
-      type: "lobbystate",
-    });
-  }
-   // eslint-disable-next-line react-hooks/exhaustive-deps
-  , []); 
+    const [isAnimating, setIsAnimating] = useState(false); // Track animation state
+    const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
+    const [animationPhase, setAnimationPhase] = useState<"out" | "in" | null>(null);
 
+    const handleGameModeChange = (direction: "left" | "right") => {
+        if (!isAdmin || isAnimating) return; // Only allow admin to change game mode and prevent rapid clicking
 
-  useEffect(() => {
-    const checkToken = async () => {
-      // Check if token exists in localStorage
-      const token = localStorage.getItem("token");
-      if (!token) {
-        // If no token, redirect to login page
-        router.push("/login");
-        return;
-      }
+        setIsAnimating(true);
+        setSlideDirection(direction);
+        setAnimationPhase("out");
 
-      try {
-        // If token exists, verify it's still valid with the backend
-        const formatedToken = token.replace(/"/g, '');
-        const response = await apiService.post<{ authorized: boolean }>(
-          "/auth/verify",
-          { formatedToken }
-        );
+        const modes = ["Classic", "Sugar Rush", "Power-Ups"];
+        const currentIndex = modes.indexOf(gameMode);
+        const newIndex =
+            direction === "left"
+                ? (currentIndex - 1 + modes.length) % modes.length
+                : (currentIndex + 1) % modes.length;
 
-        // If token is not authorized, redirect to login
-        if (!response.authorized) {
-          router.push("/login");
-          return;
+        // Calculate the next game mode and store it
+        const newGameMode = modes[newIndex];
+
+        // First phase: slide out current game mode
+        setTimeout(() => {
+            // Change the game mode during the transition
+            setGameMode(newGameMode);
+
+            // Set appropriate values for sugarRush and includePowerUps based on the game mode
+            if (newGameMode === "Sugar Rush") {
+                setSugarRush(true);
+                setIncludePowerUps(false);
+                setSugarRushStorage(true);
+                setIncludePowerUpsStorage(false);
+            } else if (newGameMode === "Power-Ups") {
+                setSugarRush(false);
+                setIncludePowerUps(true);
+                setSugarRushStorage(false);
+                setIncludePowerUpsStorage(true);
+            } else {
+                // Classic mode
+                setSugarRush(false);
+                setIncludePowerUps(false);
+                setSugarRushStorage(false);
+                setIncludePowerUpsStorage(false);
+            }
+
+            // Start the slide in animation
+            setAnimationPhase("in");
+
+            // Second phase: slide in new game mode
+            setTimeout(() => {
+                // Animation complete
+                setIsAnimating(false);
+                setAnimationPhase(null);
+            }, 150);
+        }, 100); // Match the animation duration
+    };
+
+    // Check localStorage for debugging
+    useEffect(() => {
+        try {
+            console.log("Checking localStorage contents:");
+            Object.keys(localStorage).forEach(key => {
+                console.log(`${key}: ${localStorage.getItem(key)}`);
+            });
+        } catch (error) {
+            console.error("Error accessing localStorage:", error);
         }
-      } catch (error) {
-        console.error('Error verifying user token:', error);
-        router.push("/login");
-      }
+    }, []);
+
+    // Admin check effect - runs when lobbyData changes
+    useEffect(() => {
+        if (!lobbyData) {
+            console.log("No lobby data available yet");
+            return;
+        }
+
+        console.log("Checking admin status with lobbyData:", JSON.stringify(lobbyData, null, 2));
+
+        // Extract all possible user identifiers
+        const userId = localStorage.getItem("userId");
+        const username = localStorage.getItem("username");
+
+        // Try to match with adminId
+        if (lobbyData.adminId !== undefined) {
+            // Clean all values aggressively
+            const cleanUserId = userId ? userId.replace(/"/g, '') : '';
+            const cleanUsername = username ? username.replace(/"/g, '') : '';
+            const adminIdStr = String(lobbyData.adminId);
+
+            console.log("Admin ID comparison:", {
+                userId,
+                username,
+                cleanUserId,
+                cleanUsername,
+                adminId: lobbyData.adminId,
+                adminIdStr
+            });
+
+            // Also try to match with the user's ID in the participants array
+            const isUserInParticipants = lobbyData.players.some(player => {
+                const playerName = player.username.replace(/"/g, '');
+                console.log(`Comparing player: ${playerName} with username: ${cleanUsername}`);
+                return playerName === cleanUsername;
+            });
+
+            // Try multiple approaches to determine admin status
+            const isAdminById = cleanUserId === adminIdStr;
+            const isAdminByUsername = cleanUsername === adminIdStr;
+
+            console.log("Admin check results:", {
+                isAdminById,
+                isAdminByUsername,
+                isUserInParticipants
+            });
+
+            // Set as admin if any check passes
+            setIsAdmin(isAdminById || isAdminByUsername);
+            setAdminStorage(isAdminById || isAdminByUsername); // Update localStorage
+
+            // Find the admin username from the players list
+            if (lobbyData.players && lobbyData.players.length > 0) {
+                // Try to find the admin by matching adminId with username
+                const adminPlayer = lobbyData.players.find(player =>
+                    player.username.replace(/"/g, '') === adminIdStr
+                );
+
+                if (adminPlayer) {
+                    setAdminUsername(adminPlayer.username);
+                } else {
+                    // If we can't find by direct match, use the current user's username if they're admin
+                    if (isAdminById || isAdminByUsername) {
+                        setAdminUsername(cleanUsername);
+                    }
+                }
+            }
+        } else {
+            console.log("No adminId in lobbyData, cannot determine admin status");
+        }
+    }, [lobbyData]);
+
+    // Initialize connection and set up message handlers
+    useEffect(() => {
+
+        const setupWebSocket = async () => {
+            try {
+                // Connect if not already connected
+                let socket;
+                if (!isConnected) {
+                    const token = localStorage.getItem("token")?.replace(/"/g, '') || '';
+                    socket = await connect({token});
+                }
+
+                // Always set up the message handler regardless of connection status
+                // This ensures we handle messages even after reconnection
+                const currentSocket = socket || (isConnected ? getSocket() : null);
+                if (currentSocket) {
+                    currentSocket.onmessage = (event: MessageEvent) => {
+                        try {
+                            console.log("Received WebSocket message:", event.data);
+                            const data = JSON.parse(event.data);
+
+                            // Log the entire data structure
+                            console.log("FULL DATA STRUCTURE:", JSON.stringify(data, null, 2));
+
+                            // Handle all possible lobby update message types
+                            if (data.type === 'lobby_data' || data.type === 'lobby_update' || data.type === 'lobby_state') {
+                                if (data.lobby) {
+                                    // Try to get adminId from multiple places
+                                    const adminId = data.adminId || (data.lobby && data.lobby.adminId);
+                                    console.log("Extracted adminId:", adminId);
+
+                                    const completeData = {
+                                        ...data.lobby,
+                                        adminId: adminId // Set the adminId explicitly
+                                    };
+
+                                    console.log("Final lobbyData object:", completeData);
+                                    setLobbyData(completeData);
+
+                                    // Only update settings if they exist in the data
+                                    if (data.lobby.settings) {
+                                        setSpawnRate(data.lobby.settings.spawnRate);
+                                        setIncludePowerUps(data.lobby.settings.includePowerUps);
+                                        setSugarRush(data.lobby.settings.sugarRush);
+                                    }
+                                    setLoading(false);
+                                    setConnectionError(false);
+
+                                } else if (data.adminId) {
+                                    // If there's no lobby property but there is an adminId,
+                                    // create a simplified structure with the available data
+                                    console.log("No lobby property but found adminId:", data.adminId);
+
+                                    // If participants exist at the top level
+                                    const players = data.participants || [];
+
+                                    const completeData = {
+                                        code: data.lobbyId || lobbyCode,
+                                        players: players,
+                                        settings: {
+                                            spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
+                                            powerupsWanted: includePowerUps,
+                                            sugarRush: sugarRush
+                                        },
+                                        adminId: data.adminId
+                                    };
+
+                                    console.log("Constructed lobbyData from top-level data:", completeData);
+                                    setLobbyData(completeData);
+                                }
+                            } else if (data.type === "gameStarted") {
+                                console.log("Game started! Redirecting to game page...");
+                                // Redirect to the game page with the same lobby code
+                                router.push(`/game/${lobbyCode}`);
+                            } else if (data.type === 'connection_success') {
+                                console.log("WebSocket connection established successfully");
+                                setConnectionError(false);
+
+                                // No need to request lobby data as server will push updates automatically
+                            } else if (data.type === 'error') {
+                                console.error("WebSocket error:", data.message);
+                                setConnectionError(true);
+                            } else if (data.type === 'lobby_joined') {
+                                console.log("Successfully joined lobby:", data);
+                                if (data.lobby) {
+                                    // Try to get adminId from multiple places
+                                    const adminId = data.adminId || (data.lobby && data.lobby.adminId);
+                                    console.log("Extracted adminId (lobby_joined):", adminId);
+
+                                    const completeData = {
+                                        ...data.lobby,
+                                        adminId: adminId // Set the adminId explicitly
+                                    };
+
+                                    console.log("Final lobbyData object (lobby_joined):", completeData);
+                                    setLobbyData(completeData);
+
+                                    if (data.lobby.settings) {
+                                        setSpawnRate(data.lobby.settings.spawnRate);
+                                        setIncludePowerUps(data.lobby.settings.includePowerUps);
+                                        setSugarRush(data.lobby.settings.sugarRush);
+                                    }
+
+                                    setLoading(false);
+                                } else if (data.adminId) {
+                                    // If there's no lobby property but there is an adminId,
+                                    // create a simplified structure with the available data
+                                    console.log("No lobby property in lobby_joined but found adminId:", data.adminId);
+
+                                    // If participants exist at the top level
+                                    const players = data.participants || [];
+
+                                    const completeData = {
+                                        code: data.lobbyId || lobbyCode,
+                                        players: players,
+                                        settings: {
+                                            spawnRate: spawnRate as "Slow" | "Medium" | "Fast",
+                                            powerupsWanted: includePowerUps,
+                                            sugarRush: sugarRush
+                                        },
+                                        adminId: data.adminId
+                                    };
+
+                                    console.log("Constructed lobbyData from top-level data (lobby_joined):", completeData);
+                                    setLobbyData(completeData);
+                                }
+                            }
+
+                        } catch (error) {
+                            console.error('Error handling WebSocket message:', error);
+                        }
+                    };
+                }
+
+                // Create some placeholder data for the UI in case of connection error
+                if (!lobbyData) {
+                    setLobbyData({
+                        code: lobbyCode,
+                        players: [
+                            {username: localStorage.getItem("username") || "You", level: 1}
+                        ],
+                        settings: {
+                            spawnRate: "Medium",
+                            sugarRush: false,
+                            powerupsWanted: false
+                        }
+                    });
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('WebSocket setup error:', error);
+                setConnectionError(true);
+                setLoading(false);
+            }
+        };
+
+        setupWebSocket();
+
+        // At the end of your setupWebSocket useEffect, add this return statement:
+        return () => {
+            if (intentionalDisconnect.current) {
+                console.log("Disconnecting WebSocket on unmount");
+                disconnect();
+            } else {
+                console.log("Not disconnecting WebSocket on unmount");
+            }
+        };
+
+    }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate, disconnect]); // Added missing dependencies
+
+    // Request lobby state when component mounts
+    // This is to ensure we have the latest data when the component loads
+    useEffect(() => {
+            send({
+                type: "lobbystate",
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        , []);
+
+
+    useEffect(() => {
+        const checkToken = async () => {
+            // Check if token exists in localStorage
+            const token = localStorage.getItem("token");
+            if (!token) {
+                // If no token, redirect to login page
+                router.push("/login");
+                return;
+            }
+
+            try {
+                // If token exists, verify it's still valid with the backend
+                const formatedToken = token.replace(/"/g, '');
+                const response = await apiService.post<{ authorized: boolean }>(
+                    "/auth/verify",
+                    {formatedToken}
+                );
+
+                // If token is not authorized, redirect to login
+                if (!response.authorized) {
+                    router.push("/login");
+                    return;
+                }
+            } catch (error) {
+                console.error('Error verifying user token:', error);
+                router.push("/login");
+            }
+        };
+
+        checkToken();
+    }, [apiService, router]);
+
+    const handleSpawnRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!isAdmin) return; // Only allow admin to change spawn rate
+
+        const value = event.target.value;
+        const newSpawnRate = value === "0" ? "Slow" : value === "1" ? "Medium" : "Fast";
+        setSpawnRate(newSpawnRate);
+
     };
 
-    checkToken();
-  }, [apiService, router]);
 
-  const handleSpawnRateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAdmin) return; // Only allow admin to change spawn rate
+    if (loading) {
+        return <div>Loading lobby data... {connectionError ? "(WebSocket connection issue)" : ""}</div>;
+    }
 
-    const value = event.target.value;
-    const newSpawnRate = value === "0" ? "Slow" : value === "1" ? "Medium" : "Fast";
-    setSpawnRate(newSpawnRate);
-    
-  };
-
-  
-  if (loading) {
-    return <div>Loading lobby data... {connectionError ? "(WebSocket connection issue)" : ""}</div>;
-  }
-
-  return (
-    <div className={styles.mainPage}>
-      <div className={styles.lobbyContainer}>
-        <h1>Lobby</h1>
-        <h3>({lobbyData?.code})</h3>
-        {connectionError && <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may not work.</div>}
-        <br></br>
-        <table className={styles.lobbyTable}>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Level</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lobbyData?.players.map((player, index) => (
-              <tr key={index}>
-                <td>
-                  {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
-                </td>
-                <td>{Math.floor(player.level)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        
-        <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
-          <h2>Game Settings</h2>
-          <br></br>
-          <div className={styles.sliderContainer}>
-            <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
-            <input
-              type="range"
-              id="spawnRateSlider"
-              min="0"
-              max="2"
-              step="1"
-              value={spawnRate === "Slow" ? "0" : spawnRate === "Medium" ? "1" : "2"}
-              onChange={handleSpawnRateChange}
-              className={`${styles.spawnRateSlider} ${!isAdmin ? styles.disabledControl : ''}`}
-              disabled={!isAdmin} // Disable the slider for non-admin users
+    return (
+        <div className={styles.mainPage}>
+            <Image
+                src="/assets/snakes_2.png"
+                alt="Lobby Logo"
+                className={homeStyles.snakes_eat}
+                width={800}  // Erhöhe auf eine größere Größe
+                height={300} // Passe proportional an
+                quality={100} // Maximale Qualität (Standardwert ist 75)
+                priority
             />
-            <div className={styles.sliderLabels}>
-              <span>Slow</span>
-              <span>Medium</span>
-              <span>Fast</span>
-            </div>
-          </div>
-          
-          <div className={styles.gameModeContainer}>
-            {isAdmin && (
-              <button
-                className={styles.arrowButton}
-                onClick={() => handleGameModeChange("left")}
-              >
-                <FontAwesomeIcon icon={faAngleLeft} />
-              </button>
-            )}
-            <div className={styles.gameModeTextWrapper}>
-              <span 
-                className={`${styles.gameModeText} ${
-                  isAnimating && animationPhase === "out" 
-                    ? (slideDirection === "left" ? styles.slideOutRight : styles.slideOutLeft) 
-                    : isAnimating && animationPhase === "in"
-                    ? (slideDirection === "left" ? styles.slideInRight : styles.slideInLeft)
-                    : ''
-                }`}
+
+            <Image
+                src="/assets/snakes_with_cookies.png"
+                alt="Snakes with Cookies"
+                className={homeStyles.snakesLogo}
+                width={800}  // Erhöhe auf eine größere Größe
+                height={300} // Passe proportional an
+                quality={100} // Maximale Qualität
+                priority
+            />
+
+            <div className={styles.lobbyContainer}>
+                <Image
+                    src="/assets/lobby_font.png"
+                    alt="Lobby Logo"
+                    className={homeStyles.lobbyHeaderLogo}
+                    width={600}
+                    height={600}
+                    quality={100}
+                    priority
+                
+                />
+                <>
+                    <style jsx global>{`
+                        @keyframes pulseBorder {
+                            0% {
+                                box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+                                border-color: #FFFFFF;
+                            }
+                            50% {
+                                box-shadow: 0 0 15px #FFFFFF, 0 0 30px #FFFFFF, inset 0 0 15px rgba(255, 255, 255, 0.5);
+                                border-color: #FFFFFF;
+                            }
+                            100% {
+                                box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+                                border-color: #FFFFFF;
+                            }
+                        }
+                    `}</style>
+                
+                    <h1 style={{
+                        fontFamily: "'Exo 2', sans-serif",
+                        fontSize: '2rem',
+                        fontWeight: 'bold',
+                        color: '#ffffff',
+                        textShadow: '0 0 12px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5)',
+                        letterSpacing: '1px',
+                        textAlign: 'center',
+                        padding: '0px 15px',
+                        background: '#87a8e1',
+                
+                        borderRadius: '8px',
+                        border: '2px solid #FFFFFF',
+
+                        lineHeight: '1.2',
+                        margin: '-10px 0',
+                        display: 'inline-block',
+                        animation: 'pulseBorder 1.5s ease-in-out infinite'
+                    }}>Code:  {lobbyData?.code}</h1>
+                </>
+                {connectionError &&
+                    <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may not
+                        work.</div>}
+                <br></br>
+                <table className={styles.lobbyTable}>
+                    <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Level</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {lobbyData?.players.map((player, index) => (
+                        <tr key={index}>
+                            <td>
+                                {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
+                            </td>
+                            <td>{Math.floor(player.level)}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+
+                <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
+                    <h2>Game Settings</h2>
+                    <br></br>
+                    <div className={styles.sliderContainer}>
+                        <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
+                        <input
+                            type="range"
+                            id="spawnRateSlider"
+                            min="0"
+                            max="2"
+                            step="1"
+                            value={spawnRate === "Slow" ? "0" : spawnRate === "Medium" ? "1" : "2"}
+                            onChange={handleSpawnRateChange}
+                            className={`${styles.spawnRateSlider} ${!isAdmin ? styles.disabledControl : ''}`}
+                            disabled={!isAdmin} // Disable the slider for non-admin users
+                        />
+                        <div className={styles.sliderLabels}>
+                            <span>Slow</span>
+                            <span>Medium</span>
+                            <span>Fast</span>
+                        </div>
+                    </div>
+
+                    <div className={styles.gameModeContainer}>
+                        {isAdmin && (
+                            <button
+                                className={styles.arrowButton}
+                                onClick={() => handleGameModeChange("left")}
+                            >
+                                <FontAwesomeIcon icon={faAngleLeft}/>
+                            </button>
+                        )}
+                        <div className={styles.gameModeTextWrapper}>
+              <span
+                  className={`${styles.gameModeText} ${
+                      isAnimating && animationPhase === "out"
+                          ? (slideDirection === "left" ? styles.slideOutRight : styles.slideOutLeft)
+                          : isAnimating && animationPhase === "in"
+                              ? (slideDirection === "left" ? styles.slideInRight : styles.slideInLeft)
+                              : ''
+                  }`}
               >
                 {gameMode}
               </span>
+                        </div>
+                        {isAdmin && (
+                            <button
+                                className={styles.arrowButton}
+                                onClick={() => handleGameModeChange("right")}
+                            >
+                                <FontAwesomeIcon icon={faAngleRight}/>
+                            </button>
+                        )}
+                    </div>
+                </div>
+                <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
+                    {isAdmin && (
+                        <button
+                            className={styles.startGameButton}
+                            onClick={() => {
+                                console.log("Start Game button clicked");
+                                handleStartGame();
+                            }}
+                        >
+                            Start Game
+                        </button>
+                    )}
+                    <button
+                        className={styles.leaveLobbyButton}
+                        onClick={handleLeaveLobby}
+                    >
+                        Leave Lobby
+                    </button>
+                </div>
             </div>
-            {isAdmin && (
-              <button
-                className={styles.arrowButton}
-                onClick={() => handleGameModeChange("right")}
-              >
-                <FontAwesomeIcon icon={faAngleRight} />
-              </button>
-            )}
-          </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center"}}>
-          {isAdmin && (
-            <button 
-              className={styles.startGameButton}
-              onClick={() => {
-                console.log("Start Game button clicked");
-                handleStartGame();
-              }}
-            >
-              Start Game
-            </button>
-          )}
-          <button 
-            className={styles.leaveLobbyButton} 
-            onClick={handleLeaveLobby}
-          >
-            Leave Lobby
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default LobbyPage;
