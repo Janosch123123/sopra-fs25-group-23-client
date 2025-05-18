@@ -125,7 +125,7 @@
 .logoHomeImage::after {
   content: '';
   position: absolute;
-  top: 20%; /* Changed from 50% to 40% to move image up */
+  top: 20%;
   left: 50%;
   width: 100%;
   height: 100%;

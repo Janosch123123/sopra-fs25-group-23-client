@@ -10,6 +10,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleLeft} from '@fortawesome/free-solid-svg-icons';
 import {faAngleRight} from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
+import stylesSpecific from "@/home/home.module.css";
 
 interface Player {
     username: string;
@@ -464,130 +465,129 @@ const LobbyPage: React.FC = () => {
     }
 
     return (
-        <div className={styles.mainPage}
-        >
-            <Image
-                src="/assets/snakes_2.png"
-                alt="Lobby Logo"
-                className={homeStyles.snakes_eat}
-                width={800}  // Erhöhe auf eine größere Größe
-                height={300} // Passe proportional an
-                quality={100} // Maximale Qualität (Standardwert ist 75)
-                priority
-                style={{
-                    position: 'absolute',
-                    top: '24vh',  // Feste Position vom oberen Bildschirmrand
-                    left: '18%',
-                    transform: 'translateX(-50%)',
-                }}
-
-            />
-
-            <div className={styles.lobbyContainer}>
+        <div className={styles.mainPage}>
+            <div className={stylesSpecific.mainHomePage}>
                 <Image
-                    src="/assets/lobby_font.png"
+                    src="/assets/snakes_2.png"
                     alt="Lobby Logo"
-                    className={homeStyles.lobbyHeaderLogo}
-                    width={600}
-                    height={600}
-                    quality={100}
-                    priority
-                
+                    className={homeStyles.snakes_eat}
+                    width={800}  // Erhöhe auf eine größere Größe
+                    height={300} // Passe proportional an
+                    quality={100} // Maximale Qualität (Standardwert ist 75)
+                    style={{
+                        top: '24vh',  // Feste Position vom oberen Bildschirmrand
+                        left: '18%',
+                        transform: 'translateX(-50%)',
+                    }}
+
                 />
-                <>
-                    <style jsx global>{`
-                        @keyframes pulseBorder {
-                            0% {
-                                box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
-                                border-color: #FFFFFF;
-                            }
-                            50% {
-                                box-shadow: 0 0 15px #FFFFFF, 0 0 30px #FFFFFF, inset 0 0 15px rgba(255, 255, 255, 0.5);
-                                border-color: #FFFFFF;
-                            }
-                            100% {
-                                box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
-                                border-color: #FFFFFF;
-                            }
-                        }
-                    `}</style>
-                
-                    <h1 style={{
-                        fontFamily: "'Exo 2', sans-serif",
-                        fontSize: '2rem',
-                        fontWeight: 'bold',
-                        color: '#ffffff',
-                        textShadow: '0 0 12px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5)',
-                        letterSpacing: '1px',
-                        textAlign: 'center',
-                        padding: '0px 15px',
-                        background: '#87a8e1',
-                
-                        borderRadius: '8px',
-                        border: '2px solid #FFFFFF',
 
-                        lineHeight: '1.2',
-                        margin: '-10px 0',
-                        display: 'inline-block',
-                        animation: 'pulseBorder 1.5s ease-in-out infinite'
-                    }}>Code:  {lobbyData?.code}</h1>
-                </>
-                {connectionError &&
-                    <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may not
-                        work.</div>}
-                <br></br>
-                <table className={styles.lobbyTable}>
-                    <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Level</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {lobbyData?.players.map((player, index) => (
-                        <tr key={index}>
-                            <td>
-                                {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
-                            </td>
-                            <td>{Math.floor(player.level)}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
+                <div className={styles.lobbyContainer}>
+                    <Image
+                        src="/assets/lobby_font.png"
+                        alt="Lobby Logo"
+                        className={homeStyles.lobbyHeaderLogo}
+                        width={600}
+                        height={600}
+                        quality={100}
+                        priority
 
-                <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
-                    <h2>Game Settings</h2>
+                    />
+                    <>
+                        <style jsx global>{`
+                            @keyframes pulseBorder {
+                                0% {
+                                    box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+                                    border-color: #FFFFFF;
+                                }
+                                50% {
+                                    box-shadow: 0 0 15px #FFFFFF, 0 0 30px #FFFFFF, inset 0 0 15px rgba(255, 255, 255, 0.5);
+                                    border-color: #FFFFFF;
+                                }
+                                100% {
+                                    box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+                                    border-color: #FFFFFF;
+                                }
+                            }
+                        `}</style>
+
+                        <h1 style={{
+                            fontFamily: "'Exo 2', sans-serif",
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            color: '#ffffff',
+                            textShadow: '0 0 12px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5)',
+                            letterSpacing: '1px',
+                            textAlign: 'center',
+                            padding: '0px 15px',
+                            background: '#87a8e1',
+
+                            borderRadius: '8px',
+                            border: '2px solid #FFFFFF',
+
+                            lineHeight: '1.2',
+                            margin: '-10px 0',
+                            display: 'inline-block',
+                            animation: 'pulseBorder 1.5s ease-in-out infinite'
+                        }}>Code: {lobbyData?.code}</h1>
+                    </>
+                    {connectionError &&
+                        <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may
+                            not
+                            work.</div>}
                     <br></br>
-                    <div className={styles.sliderContainer}>
-                        <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
-                        <input
-                            type="range"
-                            id="spawnRateSlider"
-                            min="0"
-                            max="2"
-                            step="1"
-                            value={spawnRate === "Slow" ? "0" : spawnRate === "Medium" ? "1" : "2"}
-                            onChange={handleSpawnRateChange}
-                            className={`${styles.spawnRateSlider} ${!isAdmin ? styles.disabledControl : ''}`}
-                            disabled={!isAdmin} // Disable the slider for non-admin users
-                        />
-                        <div className={styles.sliderLabels}>
-                            <span>Slow</span>
-                            <span>Medium</span>
-                            <span>Fast</span>
-                        </div>
-                    </div>
+                    <table className={styles.lobbyTable}>
+                        <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Level</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {lobbyData?.players.map((player, index) => (
+                            <tr key={index}>
+                                <td>
+                                    {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
+                                </td>
+                                <td>{Math.floor(player.level)}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
 
-                    <div className={styles.gameModeContainer}>
-                        {isAdmin && (
-                            <button
-                                className={styles.arrowButton}
-                                onClick={() => handleGameModeChange("left")}
-                            >
-                                <FontAwesomeIcon icon={faAngleLeft}/>
-                            </button>
-                        )}
-                        <div className={styles.gameModeTextWrapper}>
+                    <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
+                        <h2>Game Settings</h2>
+                        <br></br>
+                        <div className={styles.sliderContainer}>
+                            <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
+                            <input
+                                type="range"
+                                id="spawnRateSlider"
+                                min="0"
+                                max="2"
+                                step="1"
+                                value={spawnRate === "Slow" ? "0" : spawnRate === "Medium" ? "1" : "2"}
+                                onChange={handleSpawnRateChange}
+                                className={`${styles.spawnRateSlider} ${!isAdmin ? styles.disabledControl : ''}`}
+                                disabled={!isAdmin} // Disable the slider for non-admin users
+                            />
+                            <div className={styles.sliderLabels}>
+                                <span>Slow</span>
+                                <span>Medium</span>
+                                <span>Fast</span>
+                            </div>
+                        </div>
+
+                        <div className={styles.gameModeContainer}>
+                            {isAdmin && (
+                                <button
+                                    className={styles.arrowButton}
+                                    onClick={() => handleGameModeChange("left")}
+                                >
+                                    <FontAwesomeIcon icon={faAngleLeft}/>
+                                </button>
+                            )}
+                            <div className={styles.gameModeTextWrapper}>
               <span
                   className={`${styles.gameModeText} ${
                       isAnimating && animationPhase === "out"
@@ -599,53 +599,54 @@ const LobbyPage: React.FC = () => {
               >
                 {gameMode}
               </span>
+                            </div>
+                            {isAdmin && (
+                                <button
+                                    className={styles.arrowButton}
+                                    onClick={() => handleGameModeChange("right")}
+                                >
+                                    <FontAwesomeIcon icon={faAngleRight}/>
+                                </button>
+                            )}
                         </div>
+                    </div>
+                    <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
                         {isAdmin && (
                             <button
-                                className={styles.arrowButton}
-                                onClick={() => handleGameModeChange("right")}
+                                className={styles.startGameButton}
+                                onClick={() => {
+                                    console.log("Start Game button clicked");
+                                    handleStartGame();
+                                }}
                             >
-                                <FontAwesomeIcon icon={faAngleRight}/>
+                                Start Game
                             </button>
                         )}
+                        <button
+                            className={styles.leaveLobbyButton}
+                            onClick={handleLeaveLobby}
+                        >
+                            Leave Lobby
+                        </button>
                     </div>
                 </div>
-                <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                    {isAdmin && (
-                        <button
-                            className={styles.startGameButton}
-                            onClick={() => {
-                                console.log("Start Game button clicked");
-                                handleStartGame();
-                            }}
-                        >
-                            Start Game
-                        </button>
-                    )}
-                    <button
-                        className={styles.leaveLobbyButton}
-                        onClick={handleLeaveLobby}
-                    >
-                        Leave Lobby
-                    </button>
-                </div>
-            </div>
-            <Image
-                src="/assets/snakes_with_cookies.png"
-                alt="Snakes with Cookies"
-                className={homeStyles.snakesLogo}
-                width={800}  // Erhöhe auf eine größere Größe
-                height={300} // Passe proportional an
-                quality={100} // Maximale Qualität
-                priority
-                style={{
-                    position: 'absolute',
-                    top: '20vh',  // Feste Position vom oberen Bildschirmrand
-                    left: '82%',
-                    transform: 'translateX(-50%)',
-                }}
+                <Image
+                    src="/assets/snakes_with_cookies.png"
+                    alt="Snakes with Cookies"
+                    className={homeStyles.snakesLogo}
+                    width={800}  // Erhöhe auf eine größere Größe
+                    height={300} // Passe proportional an
+                    quality={100} // Maximale Qualität
+                    priority
+                    style={{
+                        position: 'absolute',
+                        top: '20vh',  // Feste Position vom oberen Bildschirmrand
+                        left: '82%',
+                        transform: 'translateX(-50%)',
+                    }}
 
-            />
+                />
+            </div>
         </div>
     );
 };
