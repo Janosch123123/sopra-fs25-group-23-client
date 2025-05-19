@@ -11,6 +11,7 @@ import {faAngleRight} from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
 
 interface Player {
+    id?: number;
     username: string;
     level: number;
 }
@@ -112,29 +113,37 @@ const LobbyPage: React.FC = () => {
     if (!isAdmin) return;
 
     // Build settings object with only changed keys
-    const settings: Record<string, string | boolean> = {};
-    if (customSpawnRate !== undefined && customSpawnRate !== spawnRate) {
-      settings.spawnRate = customSpawnRate;
+    const updatedSettings: Record<string, string | boolean> = {};
+    if (customSpawnRate !== undefined) {
+      updatedSettings.spawnRate = customSpawnRate;
     }
-    if (customPowerupsWanted !== undefined && customPowerupsWanted !== includePowerUps) {
-      settings.powerupsWanted = customPowerupsWanted;
+    if (customPowerupsWanted !== undefined){
+      updatedSettings.powerupsWanted = customPowerupsWanted;
     }
-    if (customSugarRush !== undefined && customSugarRush !== sugarRush) {
-      settings.sugarRush = customSugarRush;
+     if (customSugarRush !== undefined){
+    updatedSettings.sugarRush = customSugarRush;
     }
 
     // If nothing changed, do not send
-    if (Object.keys(settings).length === 0) {
+    if (Object.keys(updatedSettings).length === 0) {
       console.log("No settings changed, not sending update.");
       return;
     }
 
     const settingsMessage = {
       type: "lobbySettings",
-      settings
+      settings: updatedSettings
     };
 
-    console.log("Sending updated settings:", settingsMessage);
+    console.log("%c OUTGOING SETTINGS 📤", "background: #007700; color: white; font-size: 12px; padding: 2px 5px; border-radius: 2px;", { 
+      message: settingsMessage,
+      currentState: {
+        spawnRate,
+        sugarRush,
+        includePowerUps,
+        gameMode
+      }
+    });
     send(settingsMessage);
   };
 
@@ -191,6 +200,11 @@ const LobbyPage: React.FC = () => {
     setTimeout(() => {
       setGameModeAndBooleans(newGameMode);
       setTimeout(() => {
+        console.log("111 Lobby settings changed:", {
+          spawnRate,
+          sugarRush: newSugarRush,
+          powerupsWanted: newPowerupsWanted
+        });
         sendUpdatedSettings(spawnRate as "Slow" | "Medium" | "Fast", newSugarRush, newPowerupsWanted);
       }, 0);
       setAnimationPhase("in");
@@ -325,6 +339,16 @@ const LobbyPage: React.FC = () => {
                   
                   // Only update settings if they exist in the data
                   if (data.lobby.settings) {
+                    console.log("%c INITIAL SETTINGS LOAD 🔄", "background: #aa5500; color: white; font-size: 12px; padding: 2px 5px; border-radius: 2px;", {
+                      settings: data.lobby.settings,
+                      previousState: {
+                        spawnRate,
+                        includePowerUps,
+                        sugarRush,
+                        gameMode
+                      }
+                    });
+                    
                     setSpawnRate(data.lobby.settings.spawnRate);
                     setIncludePowerUps(data.lobby.settings.powerupsWanted);
                     setSugarRush(data.lobby.settings.sugarRush);
@@ -357,35 +381,66 @@ const LobbyPage: React.FC = () => {
               } 
               // Handle lobbySettings response from server
               else if (data.type === 'lobbySettings') {
-                console.log("Received lobbySettings update:", data);
+                console.log("%c INCOMING SETTINGS 📥", "background: #0077cc; color: white; font-size: 12px; padding: 2px 5px; border-radius: 2px;", {
+                  rawData: data,
+                  currentState: {
+                    spawnRate,
+                    sugarRush,
+                    includePowerUps,
+                    gameMode
+                  }
+                });
+                
                 // Accept both 'Settings' and 'settings' for compatibility
                 const settings = data.Settings || data.settings;
                 if (settings) {
-                  // Only update if the received settings are different from the current state
-                  const isDifferent =
-                    settings.spawnRate !== spawnRate ||
-                    settings.powerupsWanted !== includePowerUps ||
-                    settings.sugarRush !== sugarRush;
-                  if (isDifferent) {
-                    setSpawnRate(settings.spawnRate);
-                    setIncludePowerUps(settings.powerupsWanted);
-                    setSugarRush(settings.sugarRush);
-                    // Set game mode based on booleans
-                    if (settings.sugarRush) {
+                 // Track if any settings are actually going to change
+                  let hasChanges = false;
+                  let newSpawnRateValue = spawnRate;
+                  let newSugarRushValue = sugarRush;
+                  let newPowerupsWantedValue = includePowerUps;
+                  
+                  // Check each setting individually and only update if it exists in the message
+                  if (settings.spawnRate !== undefined && settings.spawnRate !== spawnRate) {
+                    newSpawnRateValue = settings.spawnRate;
+                    hasChanges = true;
+                  }
+                  
+                  if (settings.sugarRush !== undefined && settings.sugarRush !== sugarRush) {
+                    newSugarRushValue = settings.sugarRush;
+                    hasChanges = true;
+                  }
+                  
+                  if (settings.powerupsWanted !== undefined && settings.powerupsWanted !== includePowerUps) {
+                    newPowerupsWantedValue = settings.powerupsWanted;
+                    hasChanges = true;
+                  }
+                  
+                  if (hasChanges) {
+                    // Apply all the changes atomically
+                    setSpawnRate(newSpawnRateValue);
+                    setSugarRush(newSugarRushValue);
+                    setIncludePowerUps(newPowerupsWantedValue);
+                    
+                    // Update localStorage with new values
+                    setLobbySettingsStorage(newSpawnRateValue);
+                    setSugarRushStorage(newSugarRushValue);
+                    setIncludePowerUpsStorage(newPowerupsWantedValue);
+                    
+                    // Set game mode based on updated booleans
+                    if (newSugarRushValue) {
                       setGameModeAndBooleans("Sugar Rush");
-                    } else if (settings.powerupsWanted) {
+                    } else if (newPowerupsWantedValue) {
                       setGameModeAndBooleans("Power-Ups");
                     } else {
                       setGameModeAndBooleans("Classic");
                     }
-                    setLobbySettingsStorage(settings.spawnRate);
-                    setIncludePowerUpsStorage(settings.powerupsWanted);
-                    setSugarRushStorage(settings.sugarRush);
+                    
                     console.log("Updated settings from server:", {
-                      spawnRate: settings.spawnRate,
-                      includePowerUps: settings.powerupsWanted,
-                      sugarRush: settings.sugarRush,
-                      gameMode: settings.sugarRush ? "Sugar Rush" : settings.powerupsWanted ? "Power-Ups" : "Classic"
+                      spawnRate: newSpawnRateValue,
+                      sugarRush: newSugarRushValue,
+                      powerupsWanted: newPowerupsWantedValue,
+                      gameMode: newSugarRushValue ? "Sugar Rush" : newPowerupsWantedValue ? "Power-Ups" : "Classic"
                     });
                   } else {
                     console.log("Received settings are the same as local state, skipping UI update.");
@@ -548,7 +603,13 @@ const LobbyPage: React.FC = () => {
 
     // Send updated settings to all users after spawn rate change
     setTimeout(() => {
-      sendUpdatedSettings(newSpawnRate as "Slow" | "Medium" | "Fast");
+        // Send updated settings to all users
+        console.log("222 Lobby settings changed:", {
+            spawnRate: newSpawnRate,
+            sugarRush,
+            includePowerUps
+        });
+      sendUpdatedSettings(newSpawnRate as "Slow" | "Medium" | "Fast", sugarRush, includePowerUps );
     }, 0);
   };
 
@@ -593,7 +654,7 @@ const LobbyPage: React.FC = () => {
                         {lobbyData?.players.map((player, index) => (
                             <tr key={index}>
                                 <td>
-                                    {player.username} {lobbyData?.adminId && player.username === adminUsername && "👑"}
+                                    {player.username} {lobbyData?.adminId && (player.id === lobbyData.adminId) && "👑"}
                                 </td>
                                 <td>{Math.floor(player.level)}</td>
                             </tr>
