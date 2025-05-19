@@ -3,14 +3,12 @@ import React, {useState, useEffect, useRef} from "react";
 import {useRouter, useParams} from "next/navigation";
 import {useApi} from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
-import homeStyles from "@/home/home.module.css";
 import {useLobbySocket} from '@/hooks/useLobbySocket';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleLeft} from '@fortawesome/free-solid-svg-icons';
 import {faAngleRight} from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
-import stylesSpecific from "@/home/home.module.css";
 
 interface Player {
     username: string;
@@ -553,27 +551,15 @@ const LobbyPage: React.FC = () => {
 
     return (
         <div className={styles.mainPage}>
-            <div className={stylesSpecific.mainHomePage}>
-                <Image
-                    src="/assets/snakes_2.png"
-                    alt="Lobby Logo"
-                    className={homeStyles.snakes_eat}
-                    width={800}  // Erhöhe auf eine größere Größe
-                    height={300} // Passe proportional an
-                    quality={100} // Maximale Qualität (Standardwert ist 75)
-                    style={{
-                        top: '24vh',  // Feste Position vom oberen Bildschirmrand
-                        left: '18%',
-                        transform: 'translateX(-50%)',
-                    }}
-
-                />
-
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <div className={styles.snakeLobbyImage1}>
+                {/* css handles image */}
+                </div>
                 <div className={styles.lobbyContainer}>
                     <Image
                         src="/assets/lobby_font.png"
                         alt="Lobby Logo"
-                        className={homeStyles.lobbyHeaderLogo}
+                        className={styles.lobbyHeaderLogo}
                         width={600}
                         height={600}
                         quality={100}
@@ -581,42 +567,7 @@ const LobbyPage: React.FC = () => {
 
                     />
                     <>
-                        <style jsx global>{`
-                            @keyframes pulseBorder {
-                                0% {
-                                    box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
-                                    border-color: #FFFFFF;
-                                }
-                                50% {
-                                    box-shadow: 0 0 15px #FFFFFF, 0 0 30px #FFFFFF, inset 0 0 15px rgba(255, 255, 255, 0.5);
-                                    border-color: #FFFFFF;
-                                }
-                                100% {
-                                    box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
-                                    border-color: #FFFFFF;
-                                }
-                            }
-                        `}</style>
-
-                        <h1 style={{
-                            fontFamily: "'Exo 2', sans-serif",
-                            fontSize: '2rem',
-                            fontWeight: 'bold',
-                            color: '#ffffff',
-                            textShadow: '0 0 12px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5)',
-                            letterSpacing: '1px',
-                            textAlign: 'center',
-                            padding: '0px 15px',
-                            background: '#87a8e1',
-
-                            borderRadius: '8px',
-                            border: '2px solid #FFFFFF',
-
-                            lineHeight: '1.2',
-                            margin: '-10px 0',
-                            display: 'inline-block',
-                            animation: 'pulseBorder 1.5s ease-in-out infinite'
-                        }}>Code: {lobbyData?.code}</h1>
+                        <h1 className={styles.lobbyCode}>Code: {lobbyData?.code}</h1>
                     </>
                     {connectionError &&
                         <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may
@@ -717,22 +668,9 @@ const LobbyPage: React.FC = () => {
                         </button>
                     </div>
                 </div>
-                <Image
-                    src="/assets/snakes_with_cookies.png"
-                    alt="Snakes with Cookies"
-                    className={homeStyles.snakesLogo}
-                    width={800}  // Erhöhe auf eine größere Größe
-                    height={300} // Passe proportional an
-                    quality={100} // Maximale Qualität
-                    priority
-                    style={{
-                        position: 'absolute',
-                        top: '20vh',  // Feste Position vom oberen Bildschirmrand
-                        left: '82%',
-                        transform: 'translateX(-50%)',
-                    }}
-
-                />
+                <div className={styles.snakeLobbyImage2}>
+                {/* css handles image */}
+                </div>
             </div>
         </div>
     );

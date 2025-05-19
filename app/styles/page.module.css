@@ -1057,3 +1057,135 @@ a.secondary {
     transform: translateX(0);
   }
 }
+
+/*__________________________________________ Lobby Logo ___________________________________________*/
+.snakeLobbyImage1 {
+  position: relative;
+  width: 420px;
+  height: 420px;
+  margin-right: 50px;
+}
+
+.snakeLobbyImage1::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/logo/snakes_2.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+.snakeLobbyImage2 {
+  position: relative;
+  width: 450px;
+  height: 450px;
+  margin-left: 40px;
+}
+
+.snakeLobbyImage2::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/logo/snakes_3.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+
+@media (max-width: 768px) {
+  .snakes_eat {
+    width: 45%; /* Auf mobilen Geräten prozentuale Größe */
+    left: 10px; /* Geringerer seitlicher Abstand auf mobilen Geräten */
+    max-width: 250px; /* Maximalgröße für mobile Geräte */
+  }
+}
+/*__________________________________________ Lobby Header Logo ___________________________________________*/
+.lobbyHeaderLogo {
+  width: auto;
+  max-width: 300px;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  margin: 0 auto 0 auto; /* Kein negativer Wert mehr nach oben */
+  image-rendering: -webkit-optimize-contrast;
+  display: block;
+  position: relative;
+  top: 0px; /* Positive Verschiebung nach unten statt nach oben */
+  transform: translateY(-10%); /* Keine Verschiebung mehr nach oben */
+  padding-bottom: 0; /* Weiterhin kein Abstand nach unten */
+  line-height: 0; /* Weiterhin reduzierter vertikaler Raum */
+}
+
+
+@media (max-width: 768px) {
+  .lobbyHeaderLogo {
+    max-width: 180px;
+    margin-top: -20px; /* Kleinerer negativer Wert für mobile Geräte */
+  }
+}
+
+
+/*__________________________________________ Snakes Logo ___________________________________________*/
+.snakesLogo {
+  position: absolute; /* Fixierte Position am Bildschirm */
+  right: 20px; /* Abstand vom rechten Bildschirmrand */
+  top: 50%; /* Platziere das Logo bei 50% der Bildschirmhöhe */
+  transform: translateY(-50%); /* Verschiebe es um die Hälfte seiner Höhe nach oben */
+  width: 40vw; /* 40% der Bildschirmbreite - reicht fast bis zur Mitte */
+  height: auto;
+  z-index: 5;
+  max-width: 500px; /* Maximalgröße, damit es auf großen Bildschirmen nicht zu riesig wird */
+}
+
+@media (max-width: 768px) {
+  .snakesLogo {
+    width: 45%; /* Auf mobilen Geräten prozentuale Größe */
+    right: 10px; /* Geringerer seitlicher Abstand auf mobilen Geräten */
+    max-width: 250px; /* Maximalgröße für mobile Geräte */
+  }
+}
+
+/* Animation for pulsing border effect */
+@keyframes pulseBorder {
+    0% {
+        box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+        border-color: #FFFFFF;
+    }
+    50% {
+        box-shadow: 0 0 15px #FFFFFF, 0 0 30px #FFFFFF, inset 0 0 15px rgba(255, 255, 255, 0.5);
+        border-color: #FFFFFF;
+    }
+    100% {
+        box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+        border-color: #FFFFFF;
+    }
+}
+
+/* Lobby Code Display */
+.lobbyCode {
+    font-family: 'OswaldBold';
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 0px 15px;
+    background: #87a8e1;
+    border-radius: 8px;
+    border: 4px solid #FFFFFF;
+    line-height: 1.2;
+    margin: -10px 0;
+    display: inline-block;
+    animation: pulseBorder 1.5s ease-in-out infinite;
+}

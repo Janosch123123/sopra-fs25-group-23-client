@@ -7,70 +7,7 @@
   margin-top: 20px;
 }
 
-/*__________________________________________ Lobby Logo ___________________________________________*/
-.snakes_eat {
-  position: fixed; /* Fixierte Position am Bildschirm */
-  left: 20px; /* Abstand vom linken Bildschirmrand */
-  top: 50%; /* Platziere das Logo bei 50% der Bildschirmhöhe */
-  transform: translateY(-50%); /* Verschiebe es um die Hälfte seiner Höhe nach oben */
-  width: 30vw; /* 40% der Bildschirmbreite - reicht fast bis zur Mitte */
-  height: auto;
-  z-index: 5;
-  max-width: 500px; /* Maximalgröße, damit es auf großen Bildschirmen nicht zu riesig wird */
-}
 
-@media (max-width: 768px) {
-  .snakes_eat {
-    width: 45%; /* Auf mobilen Geräten prozentuale Größe */
-    left: 10px; /* Geringerer seitlicher Abstand auf mobilen Geräten */
-    max-width: 250px; /* Maximalgröße für mobile Geräte */
-  }
-}
-/*__________________________________________ Lobby Header Logo ___________________________________________*/
-.lobbyHeaderLogo {
-  width: auto;
-  max-width: 300px;
-  height: auto;
-  object-fit: contain;
-  object-position: center;
-  margin: 0 auto 0 auto; /* Kein negativer Wert mehr nach oben */
-  image-rendering: -webkit-optimize-contrast;
-  display: block;
-  position: relative;
-  top: 0px; /* Positive Verschiebung nach unten statt nach oben */
-  transform: translateY(-10%); /* Keine Verschiebung mehr nach oben */
-  padding-bottom: 0; /* Weiterhin kein Abstand nach unten */
-  line-height: 0; /* Weiterhin reduzierter vertikaler Raum */
-}
-
-
-@media (max-width: 768px) {
-  .lobbyHeaderLogo {
-    max-width: 180px;
-    margin-top: -20px; /* Kleinerer negativer Wert für mobile Geräte */
-  }
-}
-
-
-/*__________________________________________ Snakes Logo ___________________________________________*/
-.snakesLogo {
-  position: absolute; /* Fixierte Position am Bildschirm */
-  right: 20px; /* Abstand vom rechten Bildschirmrand */
-  top: 50%; /* Platziere das Logo bei 50% der Bildschirmhöhe */
-  transform: translateY(-50%); /* Verschiebe es um die Hälfte seiner Höhe nach oben */
-  width: 40vw; /* 40% der Bildschirmbreite - reicht fast bis zur Mitte */
-  height: auto;
-  z-index: 5;
-  max-width: 500px; /* Maximalgröße, damit es auf großen Bildschirmen nicht zu riesig wird */
-}
-
-@media (max-width: 768px) {
-  .snakesLogo {
-    width: 45%; /* Auf mobilen Geräten prozentuale Größe */
-    right: 10px; /* Geringerer seitlicher Abstand auf mobilen Geräten */
-    max-width: 250px; /* Maximalgröße für mobile Geräte */
-  }
-}
 /*__________________________________________ User Statistics Table_____________________________________*/
 .dashboardContainer {
   flex: 0.8; /* Make the container smaller */
