@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Button, Form, Input } from "antd";
 import styles from "@/styles/page.module.css"; // Import styles
+import Image from "next/image";
 
 interface FormFieldProps {
   username: string;
@@ -50,60 +51,70 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className={styles.mainPage}>
-      <div className={styles.loginContainer}>
-        <div className={styles.loginContent}>
-          <h1 className={styles.title}>Snake with Friends</h1>
-          <div className={styles.greenContainer}>
-            <Form
-              form={form}
-              name="login"
-              size="large"
-              variant="outlined"
-              onFinish={handleLogin}
-              layout="vertical"
-            >
-              <Form.Item>
-                <h1 className={styles.loginTitle}>Login with existing User</h1>
-              </Form.Item>
-              <Form.Item
-                name="username"
-                label="Username"
-                rules={[{ required: true, message: "Please input your username!" }]}
-              >
-                <Input placeholder="Enter username" />
-              </Form.Item>
-              <Form.Item
-                name="password"
-                label="Password"
-                rules={[{ required: true, message: "Please enter your password!" }]}
-              >
-                <Input.Password placeholder="Enter password" />
-              </Form.Item>
-              <Form.Item>
-                <Button 
-                  type="primary"
-                  variant="solid"
-                  htmlType="submit"
-                  className={styles["login-button"]}>
-                  Login
-                </Button>
-              </Form.Item>
-              <h3 className={styles.loginTitle}>Or</h3>
-              <Button
-                  type="primary"
-                  variant="solid"
-                  className={styles["login-button"]}
-                  onClick={() => router.push("/register")}
-                >
-                  Register a new User
-              </Button>
-            </Form>
-          </div>
+        <div className={styles.mainPage}>
+            <div className={styles.loginContainer}>
+                <div className={styles.logoWrapper}>
+                    <Image
+                        src="/assets/logo.png"
+                        alt="Snake with Friends Logo"
+                        className={styles.centeredLogo}
+                        width={1600}
+                        height={1000}
+                        priority
+                    />
+
+                    <div className={styles.loginContent1}>
+                        <h1 className={styles.registerUser}>Login with your account</h1>
+                        <div className={styles.greenContainer}>
+                            <Form
+                                form={form}
+                                name="login"
+                                size="large"
+                                variant="outlined"
+                                onFinish={handleLogin}
+                                layout="vertical"
+                            >
+                                <Form.Item
+                                    name="username"
+                                    label="Username"
+                                    rules={[{ required: true, message: "Please input your username!" },{ min: 3, message: "Username must be at least 3 characters long!" },{ max: 15, message: "Username cannot exceed 15 characters!" },]}
+                                >
+                                    <Input placeholder="Enter username"/>
+                                </Form.Item>
+                                <Form.Item
+                                    name="password"
+                                    label="Password"
+                                    rules={[{ required: true, message: "Please enter a password!" },{ min: 8, message: "Password must be at least 8 characters long!" },{ max: 15, message: "Username cannot exceed 15 characters!" },]}
+                                >
+                                    <Input.Password placeholder="Enter password"/>
+                                </Form.Item>
+                                <Form.Item>
+                                    <Button
+                                        type="primary"
+                                        variant="solid"
+                                        htmlType="submit"
+                                        className={styles["login-button"]}>
+                                        Login
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </div>
+                        <br></br>
+                        <div className={styles.greenContainer}>
+                            <Button
+                                type="primary"
+                                variant="solid"
+                                className={styles["login-button"]}
+                                onClick={() => router.push("/register")}
+                            >
+                                Register a new User
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Login;
