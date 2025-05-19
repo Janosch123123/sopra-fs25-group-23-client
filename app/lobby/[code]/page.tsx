@@ -56,6 +56,14 @@ const LobbyPage: React.FC = () => {
     const {isConnected, connect, send, getSocket, disconnect} = useLobbySocket();
     const intentionalDisconnect = useRef(false);
 
+    const [isSinglePlayer, setIsSinglePlayer] = useState(false);
+
+    useEffect(() => {
+        // Retrieve isSinglePlayer from localStorage
+        const singlePlayerValue = localStorage.getItem("isSinglePlayer") === "true";
+        setIsSinglePlayer(singlePlayerValue);
+    }, []);
+
     // Function to handle start game
     const handleStartGame = () => {
         if (!isAdmin) return; // Only admin can start the game
@@ -697,25 +705,38 @@ const LobbyPage: React.FC = () => {
                             )}
                         </div>
                     </div>
-                    <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                        {isAdmin && (
-                            <button
-                                className={styles.startGameButton}
-                                onClick={() => {
-                                    console.log("Start Game button clicked");
-                                    handleStartGame();
-                                }}
-                            >
-                                Start Game
-                            </button>
-                        )}
-                        <button
-                            className={styles.leaveLobbyButton}
-                            onClick={handleLeaveLobby}
-                        >
-                            Leave Lobby
-                        </button>
-                    </div>
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+  {isAdmin && (
+    <>
+      {isSinglePlayer || (lobbyData?.players && lobbyData.players.length > 1) ? (
+        // Green clickable button for singleplayer or more than 1 player
+        <button
+          className={styles.startGameButton}
+          onClick={() => {
+            handleStartGame();
+          }}
+        >
+          Start Game
+        </button>
+      ) : (
+        // Greyed-out button for only 1 player in non-singleplayer mode
+        <button
+          className={`${styles.startGameButton} ${styles.disabledButton}`}
+          disabled
+        >
+          Start Game
+        </button>
+      )}
+    </>
+  )}
+  {!isAdmin && null /* No button for non-admin users */}
+  <button
+    className={styles.leaveLobbyButton}
+    onClick={handleLeaveLobby}
+  >
+    Leave Lobby
+  </button>
+</div>
                 </div>
                 <Image
                     src="/assets/snakes_with_cookies.png"

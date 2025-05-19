@@ -84,8 +84,8 @@ interface UserStats {
           } catch (error) {
             console.error("Error handling message:", error);
           }
-        };
-
+        };  
+        localStorage.setItem("isSinglePlayer", "true");
         send({
           type: "soloLobby",
         });
@@ -173,6 +173,10 @@ interface UserStats {
     useEffect(() => {
       setDisplayedValue(currentStation || '')
     }, [currentStation]);
+
+    useEffect(() => {
+      localStorage.setItem("isSinglePlayer", "false");
+    }, []);
 
     const handleOnFocus = () => {
       setDisplayedValue('');
