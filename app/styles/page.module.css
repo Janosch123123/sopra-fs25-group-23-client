@@ -1195,3 +1195,20 @@ a.secondary {
     display: inline-block;
     animation: pulseBorder 1.5s ease-in-out infinite;
 }
+
+
+.settingsLogo {
+  width: auto;
+  max-width: 180px;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  margin: 10px auto 0 auto; 
+  image-rendering: -webkit-optimize-contrast;
+  display: block;
+  position: relative;
+  top: 0px; /* Positive Verschiebung nach unten statt nach oben */
+  transform: translateY(-10%); /* Keine Verschiebung mehr nach oben */
+  padding-bottom: 0; /* Weiterhin kein Abstand nach unten */
+  line-height: 0; /* Weiterhin reduzierter vertikaler Raum */
+}
