@@ -98,9 +98,7 @@ const Login: React.FC = () => {
                                     </Button>
                                 </Form.Item>
                             </Form>
-                        </div>
-                        <br></br>
-                        <div className={styles.greenContainer}>
+                        <h3 className={styles.loginTitle}>Or</h3>
                             <Button
                                 type="primary"
                                 variant="solid"

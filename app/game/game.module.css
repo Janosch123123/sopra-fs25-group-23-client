@@ -778,7 +778,7 @@ ake sure the leaderboard remains visible in different screen sizes */
   border-radius: 12px;
   padding: 30px 50px;
   text-align: center;
-  animation: messageAppear 0.5 forwards; /* Changed to 1s as requested */
+  animation: messageAppear 0.5s forwards; /* Changed to 1s as requested */
   border: 2px solid #920707;
   opacity: 0; /* Start fully transparent */
 }
@@ -791,7 +791,7 @@ ake sure the leaderboard remains visible in different screen sizes */
 
 /* Animation for death message fade out - matches the fade-in animation */
 .fadeOut .deathMessage {
-  animation: messageDisappear 0.5 forwards !important;
+  animation: messageDisappear 1s forwards !important;
 }
 
 @keyframes messageDisappear {
