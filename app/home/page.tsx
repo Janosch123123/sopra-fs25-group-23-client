@@ -198,7 +198,6 @@ interface UserStats {
       if (e.key === "Enter" && onFocusBool) {
         // Save the current value as the genre search term
         
-        // Use the handleGenreSearch function to search for the genre
         if (displayedValue.trim()) {
           playGenre(displayedValue);
         } else {
@@ -513,13 +512,13 @@ interface UserStats {
                   <div className={stylesSpecific.radioImage}>
                     {/* Radio will be displayed via CSS */}
                     <Input
-                        className={stylesSpecific.stationDisplay}
-                        value={isPlaying ? displayedValue || '' : onFocusBool ? displayedValue : 'No Station playing...'}
-                        onFocus={handleOnFocus}
-                        onBlur={handleOffFocus}
-                        onChange={handleInputChange}
-                        onKeyDown={handleInputKeyDown}
-                      />
+                      className={stylesSpecific.stationDisplay}
+                      value={isPlaying ? displayedValue || '' : onFocusBool ? displayedValue : 'No Station playing...'}
+                      onFocus={handleOnFocus}
+                      onBlur={handleOffFocus}
+                      onChange={handleInputChange}
+                      onKeyDown={handleInputKeyDown}
+                    />
                     <Button
                       type="primary"
                       variant="solid"
