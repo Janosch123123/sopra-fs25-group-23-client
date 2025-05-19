@@ -84,8 +84,8 @@ interface UserStats {
           } catch (error) {
             console.error("Error handling message:", error);
           }
-        };
-
+        };  
+        localStorage.setItem("isSinglePlayer", "true");
         send({
           type: "soloLobby",
         });
@@ -173,6 +173,10 @@ interface UserStats {
     useEffect(() => {
       setDisplayedValue(currentStation || '')
     }, [currentStation]);
+
+    useEffect(() => {
+      localStorage.setItem("isSinglePlayer", "false");
+    }, []);
 
     const handleOnFocus = () => {
       setDisplayedValue('');
@@ -349,34 +353,34 @@ interface UserStats {
             <tbody>
               <tr>
                 <td>Username:</td>
-                <td>{userStats.username.length > 9 ? `${userStats.username.slice(0, 7)}...` : userStats.username}</td>
+                <td className={stylesSpecific.rightAlign}>{userStats.username.length > 9 ? `${userStats.username.slice(0, 7)}...` : userStats.username}</td>
               </tr>
               <tr>
                 <td>#Wins:</td>
-                <td>{userStats.wins}</td>
+                <td className={stylesSpecific.rightAlign}>{userStats.wins}</td>
               </tr>
               <tr>
                 <td>#Kills:</td>
-                <td>{userStats.kills}</td>
+                <td className={stylesSpecific.rightAlign}>{userStats.kills}</td>
               </tr>
               <tr>
                 <td>#Games:</td>
-                <td>{userStats.playedGames}</td>
+                <td className={stylesSpecific.rightAlign}>{userStats.playedGames}</td>
               </tr>
               <tr>
-                <td>Winrate:</td>
-                <td>{userStats.winRate !== undefined ? `${Math.round(userStats.winRate * 100)}%` : 
-                    userStats.playedGames > 0 ? `${Math.round((userStats.wins / userStats.playedGames) * 100)}%` : '0%'}</td>
+                <td>Winrate [%]:</td>
+                <td className={stylesSpecific.rightAlign}>{userStats.winRate !== undefined ? `${Math.round(userStats.winRate * 100)}` : 
+                    userStats.playedGames > 0 ? `${Math.round((userStats.wins / userStats.playedGames) * 100)}%` : '0'}</td>
               </tr>
               <tr>
                 <td>Length-PR:</td>
-                <td>{userStats.lengthPR}</td>
+                <td className={stylesSpecific.rightAlign}>{userStats.lengthPR}</td>
               </tr>
               <tr>
                 <td style={{
                   borderBottom: 'none',
                 }}>Level:</td>
-                <td style={{
+                <td className={stylesSpecific.rightAlign} style={{
                   borderBottom: 'none',
                 }}>{Math.floor(userStats.level)}</td>
               </tr>

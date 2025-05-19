@@ -56,13 +56,13 @@
 .logoHomeImage {
   position: relative;
   width: 330px;
-  height: 270px;
+  height: 305px;
 }
 
 .logoHomeImage::after {
   content: '';
   position: absolute;
-  top: 20%;
+  top: 25%;
   left: 50%;
   width: 100%;
   height: 100%;
@@ -291,3 +291,6 @@
   font-weight: bold;
 }
 
+.rightAlign {
+  text-align: right;
+}
