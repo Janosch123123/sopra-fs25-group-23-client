@@ -601,7 +601,41 @@ const LobbyPage: React.FC = () => {
                         </tbody>
                     </table>
 
-                    <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
+                    
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                      {isAdmin && (
+                        <>
+                          {isSinglePlayer || (lobbyData?.players && lobbyData.players.length > 1) ? (
+                            // Green clickable button for singleplayer or more than 1 player
+                            <button
+                              className={styles.startGameButton}
+                              onClick={() => {
+                                handleStartGame();
+                              }}
+                            >
+                              Start Game
+                            </button>
+                          ) : (
+                            // Greyed-out button for only 1 player in non-singleplayer mode
+                            <button
+                              className={`${styles.startGameButton} ${styles.disabledButton}`}
+                              disabled
+                            >
+                              Start Game
+                            </button>
+                          )}
+                        </>
+                      )}
+                      {!isAdmin && null /* No button for non-admin users */}
+                      <button
+                        className={styles.leaveLobbyButton}
+                        onClick={handleLeaveLobby}
+                      >
+                        Leave Lobby
+                      </button>
+                    </div>
+                </div>
+                <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
                         <h2>Game Settings</h2>
                         <br></br>
                         <div className={styles.sliderContainer}>
@@ -656,42 +690,6 @@ const LobbyPage: React.FC = () => {
                             )}
                         </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-  {isAdmin && (
-    <>
-      {isSinglePlayer || (lobbyData?.players && lobbyData.players.length > 1) ? (
-        // Green clickable button for singleplayer or more than 1 player
-        <button
-          className={styles.startGameButton}
-          onClick={() => {
-            handleStartGame();
-          }}
-        >
-          Start Game
-        </button>
-      ) : (
-        // Greyed-out button for only 1 player in non-singleplayer mode
-        <button
-          className={`${styles.startGameButton} ${styles.disabledButton}`}
-          disabled
-        >
-          Start Game
-        </button>
-      )}
-    </>
-  )}
-  {!isAdmin && null /* No button for non-admin users */}
-  <button
-    className={styles.leaveLobbyButton}
-    onClick={handleLeaveLobby}
-  >
-    Leave Lobby
-  </button>
-</div>
-                </div>
-                <div className={styles.snakeLobbyImage2}>
-                {/* css handles image */}
-                </div>
             </div>
         </div>
     );
