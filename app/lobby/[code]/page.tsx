@@ -636,8 +636,16 @@ const LobbyPage: React.FC = () => {
                     </div>
                 </div>
                 <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
-                        <h2>Game Settings</h2>
-                        <br></br>
+                        <Image
+                        src="/assets/settings.png"
+                        alt="Settings Logo"
+                        className={styles.settingsLogo}
+                        width={250}
+                        height={250}
+
+
+                    />
+
                         <div className={styles.sliderContainer}>
                             <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
                             <input
