@@ -44,7 +44,6 @@ const LobbyPage: React.FC = () => {
     const [connectionError, setConnectionError] = useState(false);
 
     const [isAdmin, setIsAdmin] = useState(false); // Track if current user is admin
-    const [adminUsername, setAdminUsername] = useState(""); // Track admin's username
 
     const [spawnRate, setSpawnRate] = useState("Medium");
     const [includePowerUps, setIncludePowerUps] = useState(false);
