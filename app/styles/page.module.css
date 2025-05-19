@@ -1067,9 +1067,9 @@ a.secondary {
 /*__________________________________________ Lobby Logo ___________________________________________*/
 .snakeLobbyImage1 {
   position: relative;
-  width: 350px;
-  height: 350px;
-  margin-right: 100px;
+  width: 430px;
+  height: 430px;
+  margin-right: 50px;
 }
 
 .snakeLobbyImage1::after {
