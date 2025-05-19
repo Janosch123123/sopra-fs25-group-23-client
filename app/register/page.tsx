@@ -70,14 +70,14 @@ const Login: React.FC = () => {
               <Form.Item
                 name="username"
                 label="Username"
-                rules={[{ required: true, message: "Please input your username!" }]}
+                rules={[{ required: true, message: "Please input your username!" },{ min: 3, message: "Username must be at least 3 characters long!" },{ max: 15, message: "Username cannot exceed 15 characters!" },]}
               >
                 <Input placeholder="Enter username" />
               </Form.Item>
               <Form.Item
                 name="password"
                 label="Password"
-                rules={[{ required: true, message: "Please enter your password!" }]}
+                rules={[{ required: true, message: "Please enter a password!" },{ min: 8, message: "Password must be at least 8 characters long!" },{ max: 15, message: "Username cannot exceed 15 characters!" },]}
               >
                 <Input.Password placeholder="Enter password" />
               </Form.Item>
