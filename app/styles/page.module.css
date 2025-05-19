@@ -870,19 +870,25 @@ a.secondary {
 
 /* Settings container styling */
 .settingsContainer {
+  background-color: #427fa7; 
+  border-color: #345a97;
+    border: 4px solid #345a97; /* White border */
+
+  max-width: 300px;
   margin-top: 20px;
+  margin-left:100px;
   padding: 15px;
-  border: 4px solid #44618f;
   border-radius: 10px;
-  background-color:#6996dd;
   width: 100%;
 }
 
 .settingsContainer h2 {
+  padding-top: 10px;
   font-size: 2rem;
   text-decoration: underline;
   font-weight: 600;
   font-family: 'OswaldBold';
+  text-align: center;
 }
 
 /* Connection error styling */
@@ -1061,9 +1067,9 @@ a.secondary {
 /*__________________________________________ Lobby Logo ___________________________________________*/
 .snakeLobbyImage1 {
   position: relative;
-  width: 420px;
-  height: 420px;
-  margin-right: 50px;
+  width: 350px;
+  height: 350px;
+  margin-right: 100px;
 }
 
 .snakeLobbyImage1::after {
