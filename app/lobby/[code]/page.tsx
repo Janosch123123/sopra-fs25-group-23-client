@@ -106,7 +106,7 @@ const LobbyPage: React.FC = () => {
     if (!isAdmin) return;
 
     // Build settings object with only changed keys
-    const settings: Record<string, any> = {};
+    const settings: Record<string, string | boolean> = {};
     if (customSpawnRate !== undefined && customSpawnRate !== spawnRate) {
       settings.spawnRate = customSpawnRate;
     }
@@ -276,7 +276,7 @@ const LobbyPage: React.FC = () => {
         } else {
             console.log("No adminId in lobbyData, cannot determine admin status");
         }
-    }, [lobbyData]);
+    }, [lobbyData, setAdminStorage]);
 
   // Initialize connection and set up message handlers
   useEffect(() => {
@@ -488,7 +488,7 @@ const LobbyPage: React.FC = () => {
       }
     };
   
-  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate, disconnect]); // Added missing dependencies
+  }, [connect, lobbyCode, isConnected, send, getSocket, router, lobbyData, includePowerUps, spawnRate, disconnect, setGameModeAndBooleans, setIncludePowerUpsStorage, setLobbySettingsStorage, setSugarRushStorage, sugarRush]); // Added missing dependencies
 
     // Request lobby state when component mounts
     // This is to ensure we have the latest data when the component loads
