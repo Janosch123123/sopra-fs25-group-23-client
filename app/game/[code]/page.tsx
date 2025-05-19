@@ -1282,7 +1282,7 @@ useEffect(() => {
         
         {/* Countdown display - only show during pregame phase (when gameLive is false) */}
         {countdown !== null && countdown > 0 && !gameLive && (
-          <div className={stylesSpecific.finalCountdownOverlay}>
+          <div className={stylesSpecific.countdownCircle}>
             <span>{countdown}</span>
           </div>
         )}
