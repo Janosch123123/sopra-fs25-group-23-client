@@ -3,6 +3,7 @@ import React, {useState, useEffect, useRef} from "react";
 import {useRouter, useParams} from "next/navigation";
 import {useApi} from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
+import stylesSpecific from "@/styles/lobby.module.css";
 import {useLobbySocket} from '@/hooks/useLobbySocket';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -605,14 +606,14 @@ const LobbyPage: React.FC = () => {
     return (
         <div className={styles.mainPage}>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                <div className={styles.snakeLobbyImage1}>
+                <div className={stylesSpecific.snakeLobbyImage1}>
                 {/* css handles image */}
                 </div>
-                <div className={styles.lobbyContainer}>
+                <div className={stylesSpecific.lobbyContainer}>
                     <Image
                         src="/assets/lobby_font.png"
                         alt="Lobby Logo"
-                        className={styles.lobbyHeaderLogo}
+                        className={stylesSpecific.lobbyHeaderLogo}
                         width={600}
                         height={600}
                         quality={100}
@@ -620,7 +621,7 @@ const LobbyPage: React.FC = () => {
 
                     />
                     <>
-                        <h1 className={styles.lobbyCode}>Code: {lobbyData?.code}</h1>
+                        <h1 className={stylesSpecific.lobbyCode}>Code: {lobbyData?.code}</h1>
                     </>
                     {connectionError &&
                         <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may
@@ -680,19 +681,19 @@ const LobbyPage: React.FC = () => {
                       </button>
                     </div>
                 </div>
-                <div className={`${styles.settingsContainer} ${!isAdmin ? styles.disabledSettingContainer : ''}`}>
+                <div className={`${stylesSpecific.settingsContainer} ${!isAdmin ? stylesSpecific.disabledSettingContainer : ''}`}>
                         <Image
                         src="/assets/settings.png"
                         alt="Settings Logo"
-                        className={styles.settingsLogo}
+                        className={stylesSpecific.settingsLogo}
                         width={250}
                         height={250}
 
 
                     />
 
-                        <div className={styles.sliderContainer}>
-                            <label htmlFor="spawnRateSlider" className={styles.optionTitle}>Cookies Spawn-Rate</label>
+                        <div className={stylesSpecific.sliderContainer}>
+                            <label htmlFor="spawnRateSlider" className={stylesSpecific.optionTitle}>Cookies Spawn-Rate</label>
                             <input
                                 type="range"
                                 id="spawnRateSlider"
@@ -701,32 +702,32 @@ const LobbyPage: React.FC = () => {
                                 step="1"
                                 value={spawnRate === "Slow" ? "0" : spawnRate === "Medium" ? "1" : "2"}
                                 onChange={handleSpawnRateChange}
-                                className={`${styles.spawnRateSlider} ${!isAdmin ? styles.disabledControl : ''}`}
+                                className={`${stylesSpecific.spawnRateSlider} ${!isAdmin ? stylesSpecific.disabledControl : ''}`}
                                 disabled={!isAdmin} // Disable the slider for non-admin users
                             />
-                            <div className={styles.sliderLabels}>
+                            <div className={stylesSpecific.sliderLabels}>
                                 <span>Slow</span>
                                 <span>Medium</span>
                                 <span>Fast</span>
                             </div>
                         </div>
 
-                        <div className={styles.gameModeContainer}>
+                        <div className={stylesSpecific.gameModeContainer}>
                             {isAdmin && (
                                 <button
-                                    className={styles.arrowButton}
+                                    className={stylesSpecific.arrowButton}
                                     onClick={() => handleGameModeChange("left")}
                                 >
                                     <FontAwesomeIcon icon={faAngleLeft}/>
                                 </button>
                             )}
-                            <div className={styles.gameModeTextWrapper}>
+                            <div className={stylesSpecific.gameModeTextWrapper}>
               <span
-                  className={`${styles.gameModeText} ${
+                  className={`${stylesSpecific.gameModeText} ${
                       isAnimating && animationPhase === "out"
-                          ? (slideDirection === "left" ? styles.slideOutRight : styles.slideOutLeft)
+                          ? (slideDirection === "left" ? stylesSpecific.slideOutRight : stylesSpecific.slideOutLeft)
                           : isAnimating && animationPhase === "in"
-                              ? (slideDirection === "left" ? styles.slideInRight : styles.slideInLeft)
+                              ? (slideDirection === "left" ? stylesSpecific.slideInRight : stylesSpecific.slideInLeft)
                               : ''
                   }`}
               >
@@ -735,7 +736,7 @@ const LobbyPage: React.FC = () => {
                             </div>
                             {isAdmin && (
                                 <button
-                                    className={styles.arrowButton}
+                                    className={stylesSpecific.arrowButton}
                                     onClick={() => handleGameModeChange("right")}
                                 >
                                     <FontAwesomeIcon icon={faAngleRight}/>

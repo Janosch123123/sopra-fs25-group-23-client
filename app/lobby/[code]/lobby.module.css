@@ -1,0 +1,315 @@
+/*__________________________________________ Lobby ___________________________________________*/
+
+.lobbyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #427fa7; 
+  border-color: #345a97;
+  padding: 20px;
+  border-radius: 15px;
+  min-width: 420px;
+  border: 4px solid #345a97; /* White border */
+}
+
+.lobbyContainer h1 {
+  font-weight: bold; /* Make the title bold */
+}
+
+/*__________________________________________ Settings Container ___________________________________________*/
+/* Settings container styling */
+.settingsContainer {
+  background-color: #427fa7; 
+  border-color: #345a97;
+  border: 4px solid #345a97; /* White border */
+  max-width: 300px;
+  margin-top: 20px;
+  margin-left:100px;
+  padding: 15px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.settingsContainer h2 {
+  padding-top: 10px;
+  font-size: 2rem;
+  text-decoration: underline;
+  font-weight: 600;
+  font-family: 'OswaldBold';
+  text-align: center;
+}
+
+/* Disabled settings container styling */
+.disabledSettingContainer {
+  opacity: 0.8;
+  filter: grayscale(40%);
+  pointer-events: none;
+}
+
+.sliderContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.optionTitle {
+  font-weight: bold;
+}
+
+.spawnRateSlider {
+  width: 100%;
+  max-width: 300px;
+  margin: 10px 0;
+}
+
+/* Disabled control styling */
+.disabledControl {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(30%);
+}
+
+.sliderLabels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 300px;
+  font-weight: bold;
+  font: 1.2rem;
+  font-family: 'OswaldBold'; /* Updated to Oswald font */
+}
+
+.gameModeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  height: 50px;
+}
+
+.gameModeTextWrapper {
+  width: 150px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.arrowButton {
+  background-color: #f9f9f900;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 15px;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.arrowButton:hover:not(:disabled) {
+  transform: scale(1.2);
+  color: #ffd700;
+}
+
+.arrowButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.arrowButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gameModeText {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: 'OswaldBold';
+  color: white;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  opacity: 1;
+}
+
+/* Animation classes */
+.slideOutLeft {
+  animation: slideOutLeft 0.15s forwards;
+}
+
+.slideOutRight {
+  animation: slideOutRight 0.15s forwards;
+}
+
+.slideInLeft {
+  animation: slideInLeft 0.15s forwards;
+}
+
+.slideInRight {
+  animation: slideInRight 0.15s forwards;
+}
+
+@keyframes slideOutLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-150px);
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(150px);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(150px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(-150px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.settingsLogo {
+  width: auto;
+  max-width: 180px;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  margin: 10px auto 0 auto; 
+  image-rendering: -webkit-optimize-contrast;
+  display: block;
+  position: relative;
+  top: 0px; /* Positive Verschiebung nach unten statt nach oben */
+  transform: translateY(-10%); /* Keine Verschiebung mehr nach oben */
+  padding-bottom: 0; /* Weiterhin kein Abstand nach unten */
+  line-height: 0; /* Weiterhin reduzierter vertikaler Raum */
+}
+
+/*__________________________________________ Lobby Images ___________________________________________*/
+.snakeLobbyImage1 {
+  position: relative;
+  width: 430px;
+  height: 430px;
+  margin-right: 50px;
+}
+
+.snakeLobbyImage1::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/logo/snakes_2.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+.snakeLobbyImage2 {
+  position: relative;
+  width: 450px;
+  height: 450px;
+  margin-left: 40px;
+}
+
+.snakeLobbyImage2::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-image: url('../styles/logo/snakes_3.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+
+
+/*__________________________________________ Lobby Header Logo ___________________________________________*/
+.lobbyHeaderLogo {
+  width: auto;
+  max-width: 300px;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  margin: 0 auto 0 auto; /* Kein negativer Wert mehr nach oben */
+  image-rendering: -webkit-optimize-contrast;
+  display: block;
+  position: relative;
+  top: 0px; /* Positive Verschiebung nach unten statt nach oben */
+  transform: translateY(-10%); /* Keine Verschiebung mehr nach oben */
+  padding-bottom: 0; /* Weiterhin kein Abstand nach unten */
+  line-height: 0; /* Weiterhin reduzierter vertikaler Raum */
+}
+
+
+@media (max-width: 768px) {
+  .lobbyHeaderLogo {
+    max-width: 180px;
+    margin-top: -20px; /* Kleinerer negativer Wert für mobile Geräte */
+  }
+}
+
+/*__________________________________________ Lobby Code Display ___________________________________________*/
+
+.lobbyCode {
+    font-family: 'OswaldBold';
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 0px 15px;
+    background: #87a8e1;
+    border-radius: 8px;
+    border: 4px solid #FFFFFF;
+    line-height: 1.2;
+    margin: -10px 0;
+    display: inline-block;
+    animation: pulseBorder 1.5s ease-in-out infinite;
+}
+
+/* Animation for pulsing border effect */
+@keyframes pulseBorder {
+    0% {
+        box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+        border-color: #FFFFFF;
+    }
+    50% {
+        box-shadow: 0 0 15px #FFFFFF, 0 0 30px #FFFFFF, inset 0 0 15px rgba(255, 255, 255, 0.5);
+        border-color: #FFFFFF;
+    }
+    100% {
+        box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, inset 0 0 10px rgba(255, 255, 255, 0.3);
+        border-color: #FFFFFF;
+    }
+}
