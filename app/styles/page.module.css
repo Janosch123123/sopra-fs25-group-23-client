@@ -209,7 +209,8 @@ a.secondary {
 
 .greenContainer {
   background-color: #43a047; /* Darker medium green background */
-  padding: 20px;
+  padding: 15px;
+  margin-bottom: 5px;
   border-radius: 8px;
   border: 2px solid #43a047; /* Darker dark green border */
 }
@@ -524,6 +525,11 @@ a.secondary {
   min-width: 420px;
   border: 4px solid #345a97; /* White border */
 }
+.registerUser{
+  font-family: 'OswaldBold';
+  margin-bottom: 20px;
+  text-align: center;
+}
 
 .lobbyContainer h1 {
   font-weight: bold; /* Make the title bold */
@@ -638,13 +644,14 @@ a.secondary {
 .loginContent {
   background-color: #66bb6a; /* Darker medium green background */
   padding: 40px;
+  padding-bottom: 10px !important;
   border-radius: 15px;
   border: 8px solid #43a047; /* Darker dark green border */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;
-  margin-top: 20px;
-  margin-bottom: 50px;
+  max-height: 650px;
+  margin-top: 60px;
 }
 
 
@@ -821,6 +828,7 @@ a.secondary {
   background-color: #1858b8 !important; /* Volcano color */
   color: #ffffff !important; /* Ensure text color is applied */
   margin-left: 0;
+  margin-bottom: 0 !important;
   font-family: 'OswaldBold' !important; /* Updated to Oswald font */
 }
 
@@ -1062,6 +1070,21 @@ a.secondary {
   100% {
     transform: translateX(0);
   }
+}
+
+.logoWrapper {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  margin-bottom: -20px; /* Erzeugt die Überlappung mit dem Container darunter */
+  margin-top: 0;
+}
+
+.centeredLogo {
+  object-fit: contain;
+  max-width: 800px;
+  height: auto;
 }
 
 /*__________________________________________ Lobby Logo ___________________________________________*/
