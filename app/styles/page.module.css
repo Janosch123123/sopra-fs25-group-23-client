@@ -215,7 +215,7 @@ a.secondary {
 }
 
 .mainPage {
-  background-color: #0e4b10; /* Base forest green background */
+  background-color: #0c430e; /* Base forest green background */
   position: relative;
   display: flex;
   align-items: center;
@@ -234,7 +234,7 @@ a.secondary {
   background: 
     radial-gradient(circle at 30% 20%, #0c6610 0%, rgba(46, 125, 50, 0) 90%),
     radial-gradient(circle at 70% 60%, #0c6610 0%, rgba(46, 125, 50, 0) 40%),
-    radial-gradient(circle at 50% 50%, #055416 0%, rgba(23, 0, 171, 0) 60%);
+    radial-gradient(circle at 50% 50%, #19e144 0%, rgba(23, 0, 171, 0) 60%);
   z-index: 0;
 }
 
