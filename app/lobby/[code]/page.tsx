@@ -276,22 +276,7 @@ const LobbyPage: React.FC = () => {
             setIsAdmin(isAdminById || isAdminByUsername);
             setAdminStorage(isAdminById || isAdminByUsername); // Update localStorage
 
-            // Find the admin username from the players list
-            if (lobbyData.players && lobbyData.players.length > 0) {
-                // Try to find the admin by matching adminId with username
-                const adminPlayer = lobbyData.players.find(player =>
-                    player.username.replace(/"/g, '') === adminIdStr
-                );
 
-                if (adminPlayer) {
-                    setAdminUsername(adminPlayer.username);
-                } else {
-                    // If we can't find by direct match, use the current user's username if they're admin
-                    if (isAdminById || isAdminByUsername) {
-                        setAdminUsername(cleanUsername);
-                    }
-                }
-            }
         } else {
             console.log("No adminId in lobbyData, cannot determine admin status");
         }
