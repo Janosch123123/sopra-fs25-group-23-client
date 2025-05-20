@@ -3,7 +3,7 @@ import React, {useState, useEffect, useRef} from "react";
 import {useRouter, useParams} from "next/navigation";
 import {useApi} from "@/hooks/useApi";
 import styles from "@/styles/page.module.css";
-import stylesSpecific from "@/styles/lobby.module.css";
+import stylesSpecific from "@/lobby/lobby.module.css";
 import {useLobbySocket} from '@/hooks/useLobbySocket';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -61,6 +61,10 @@ const LobbyPage: React.FC = () => {
         // Retrieve isSinglePlayer from localStorage
         const singlePlayerValue = localStorage.getItem("isSinglePlayer") === "true";
         setIsSinglePlayer(singlePlayerValue);
+        send({
+            type: "requestSettings"
+        });
+        console.log("Requesting settings from server");
     }, []);
 
     // Function to handle start game
