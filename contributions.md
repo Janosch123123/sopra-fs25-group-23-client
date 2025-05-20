@@ -151,3 +151,21 @@ reason).
 | **[@StalyTV]** | [14.05.]   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/65d5694452aa21a0209804c2d84d978ae8a221fa) | [Created page specific CSS files to decentralize the CSS Classes. Also downloaded and integrated/referenced the Oswald font, which was displayed locally but not on deployed Version on Vercel] | [Made CSS Classes and Styling more Clear and understandable with structure and comments]                                                                                                                   |
 |                  | [10.05.]   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/9ea01463c5dd5f0cf370d5d80079949064bd38c1) | [Added Progressbars and move-blocks for active effects of current player for Multiplier and reverseControls effect] | [Makes it clear for Users if an effect is currently active on your snake and for how long it is still active]                                                                                                                   |
 ---
+
+## Contributions Week 8 - 15.04.25 to 21.05.25
+
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@Janosch123123/@JanoschBeck]** | [19.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/b2332e9f49610c36da423f212ec4422d31b472f9] | [Start button not clickable if not enough players are in the lobby, and not shown for non-admins] | Othwerwise weird bugs happend if you started a game with not enogh players |
+|                    | [19.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/a51d200e327f5137a71f2429d14787101771f1fb] | [min+max length for password/username] | [sanitize data, pls more secure but still not too difficult to remeber of a password] |
+|                    | [19.05]   | [https://github.com/Janosch123123/sopra-fs25-group-23-client/commit/88981ee3c0c2b73d47f5dbe89bc69cabb9f6343b] | [nice UI in lobby page, not everything in one column] | [better UX, looks better if game settings is next to the rest, otherwise it was too packed] |
+| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+
+---
