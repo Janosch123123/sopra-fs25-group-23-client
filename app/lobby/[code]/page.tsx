@@ -625,7 +625,9 @@ const LobbyPage: React.FC = () => {
 
                     />
                     <>
-                        <h1 className={stylesSpecific.lobbyCode}>Code: {lobbyData?.code}</h1>
+                        {!isSinglePlayer && (
+                          <h1 className={stylesSpecific.lobbyCode}>Code: {lobbyData?.code}</h1>
+                        )}
                     </>
                     {connectionError &&
                         <div className={styles.connectionError}>WebSocket connection issue. Some real-time updates may

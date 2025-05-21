@@ -1127,7 +1127,7 @@ useEffect(() => {
             >
               <div className={stylesSpecific.effectLabel}>
                 <img 
-                  src={isMultiplier ? '/assets/2x.png' : '/assets/reverse.png'} 
+                  src={isMultiplier ? '/assets/2x.png' : '/assets/bottle.png'} 
                   alt={effectName}
                   className={stylesSpecific.effectIcon}
                 />
