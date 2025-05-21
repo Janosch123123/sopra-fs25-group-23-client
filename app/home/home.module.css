@@ -15,8 +15,8 @@
   padding: 30px;
   border-radius: 20px;
   border: 4px solid #345a97; /* Darker dark green border */
-  margin-right: 20px;
-  margin-left: 120px; /* Added margin-left to move it to the right */
+  margin-right: 0px;
+  margin-left: 110px; /* Added margin-left to move it to the right */
 }
 
 .statisticsTable {
@@ -80,7 +80,7 @@
   position: relative;
   width: 400px;
   height: 300px;
-  margin-right: -80px;
+  margin-right: -60px;
 }
 
 .radioImage::after {
@@ -239,7 +239,7 @@
   padding: 20px;
   border-radius: 20px;
   border: 4px solid #72870d; /* White border */
-  margin-left: 20px;
+  margin-left: -10px;
 }
 
 .globalLobbyContainer h1 {

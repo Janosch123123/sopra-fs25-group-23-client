@@ -460,7 +460,7 @@ interface UserStats {
                    
                   </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: "-80px"}}>
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginTop: "-80px", marginLeft: "-20px"}}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                     <Button
                       type="primary"
