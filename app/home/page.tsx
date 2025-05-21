@@ -606,8 +606,8 @@ interface UserStats {
                     {userRankInfo && (
                       <>
                         <tr>
-                          <td colSpan={4} style={{ textAlign: 'center', padding: '5px', fontSize: '2rem' }}>
-                            ...
+                          <td colSpan={4} style={{ textAlign: 'center', padding: '5px', fontSize: '2rem', paddingTop: '50px',  }}>
+                            <h2>Your Rank</h2>
                           </td>
                         </tr>
                         <tr className={stylesSpecific.userRank}>
