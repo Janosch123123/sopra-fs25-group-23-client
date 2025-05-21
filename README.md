@@ -4,7 +4,7 @@ Snake With Friends is a modern multiplayer twist on the classic Snake game – w
 
 ---
 
-## 🎮 Game Modes
+## 🎮 How to Play
 
 ### 🔹 Quickplay
 Jump into a game with random players from the internet. If nobody joins, **bots** will fill in so you never have to wait.
@@ -17,7 +17,7 @@ Invite your friends and play together. Choose the rules, chat, start the game �
 
 ---
 
-## ⚙️ Game Settings
+## ⚙️ Game Modes
 
 Each game mode supports custom rules:
 
