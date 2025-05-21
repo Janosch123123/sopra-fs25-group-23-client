@@ -449,15 +449,15 @@ ake sure the leaderboard remains visible in different screen sizes */
   position: absolute;
   top: 100%;
   left: 100%;
-  width: 210%;
-  height: 210%;
+  width: 200%;
+  height: 200%;
   transform: translate(-50%, -50%);
-  background-image: url('../styles/items/reverse.png');
+  background-image: url('../styles/items/bottle.png');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 6;
-  animation: pulseate 3s ease-in-out infinite;
+  animation: pulseateBottle 3s ease-in-out infinite;
 }
 
 /* Divider cell styling */
@@ -511,6 +511,24 @@ ake sure the leaderboard remains visible in different screen sizes */
   }
   50% {
     transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes pulseateBottle {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  40% {
+    transform: translate(-50%, -50%) scale(1.08)rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1) rotate(5deg);
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1.08) rotate(0deg);
   }
   100% {
     transform: translate(-50%, -50%) scale(1);
@@ -637,6 +655,7 @@ ake sure the leaderboard remains visible in different screen sizes */
   border-radius: 20px; /* Match leaderboard border-radius */
   padding: 15px;
   min-width: 250px;
+  z-index: 21;
 }
 
 .ProgressWrapper{
@@ -705,8 +724,8 @@ ake sure the leaderboard remains visible in different screen sizes */
 }
 
 .effectIcon {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   margin-right: 8px;
   object-fit: contain;
   border-radius: 30%;
