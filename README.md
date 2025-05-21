@@ -71,7 +71,7 @@ If you want to run our project locally, you will first need to clone this reposi
 
 Additionally, you will need Node.js
 
-We were urged to install the exact version v20.11.0 that also comes with the npm package manager. You can download it here.
+We were urged to install the exact version v20.11.0 that also comes with the npm package manager. 
 
 After installation, update the npm package manager to 10.4.0 by running npm install -g npm@10.4.0
 
