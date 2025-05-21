@@ -1,6 +1,6 @@
 # 🐍 Snake With Friends
 
-Snake With Friends is a modern multiplayer twist on the classic Snake game – with a focus on fun, social interaction, and personalization. Whether alone, with friends, or strangers: there's something for everyone – even your favorite background music!
+Snake With Friends is a modern multiplayer twist on the classic Snake game, with a focus on fun, social interaction, and personalization. Whether alone, with friends, or strangers: there's something for everyone, even your favorite background music!
 
 ---
 
