@@ -772,6 +772,106 @@ ake sure the leaderboard remains visible in different screen sizes */
   100% { background-color: rgba(0, 0, 0, 0); }
 }
 
+/*_____________________________________________ Divider Flash Effect _____________________________________________*/
+/* Red flash overlay for the Divider effect - heavier on borders, less in the middle */
+.dividerFlash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 0, 0, 0.2) 0%, 
+    rgba(255, 0, 0, 0.4) 50%, 
+    rgba(255, 0, 0, 0.7) 80%, 
+    rgba(255, 0, 0, 0.8) 100%
+  );
+  z-index: 20; /* Higher than most other elements to ensure it covers everything */
+  pointer-events: none; /* Allow clicks to pass through */
+  animation: flashRed 0.3s forwards;
+}
+
+@keyframes flashRed {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/*_____________________________________________ Reverse Controls Drunk Effect _____________________________________________*/
+/* Drunk overlay effect for the ReverseControls power-up */
+.reverseControlsOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 19; /* Just below the divider flash */
+  pointer-events: none; /* Allow clicks to pass through */
+  filter: url('#reverseControlsFilter');
+  backdrop-filter: blur(2px);
+  animation: drunkEffect 5s infinite alternate ease-in-out;
+}
+
+/* SVG filter definitions will be added directly in the JSX */
+@keyframes drunkEffect {
+  0% {
+    backdrop-filter: blur(1px);
+    transform: scale(1.01) rotate(0.5deg);
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 0, 255, 0) 30%, 
+      rgba(255, 0, 255, 0.1) 60%, 
+      rgba(255, 0, 255, 0.2) 80%, 
+      rgba(255, 0, 255, 0.3) 100%
+    );
+  }
+  25% {
+    backdrop-filter: blur(2px);
+    transform: scale(1.02) rotate(-0.5deg);
+    background: radial-gradient(
+      circle at center,
+      rgba(0, 255, 255, 0) 30%, 
+      rgba(0, 255, 255, 0.1) 60%, 
+      rgba(0, 255, 255, 0.2) 80%, 
+      rgba(0, 255, 255, 0.3) 100%
+    );
+  }
+  50% {
+    backdrop-filter: blur(3px);
+    transform: scale(1.01) rotate(1deg);
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 255, 0, 0) 30%, 
+      rgba(255, 255, 0, 0.1) 60%, 
+      rgba(255, 255, 0, 0.2) 80%, 
+      rgba(255, 255, 0, 0.3) 100%
+    );
+  }
+  75% {
+    backdrop-filter: blur(2px);
+    transform: scale(1.02) rotate(-1deg);
+    background: radial-gradient(
+      circle at center,
+      rgba(0, 255, 255, 0) 30%, 
+      rgba(0, 255, 255, 0.1) 60%, 
+      rgba(0, 255, 255, 0.2) 80%, 
+      rgba(0, 255, 255, 0.3) 100%
+    );
+  }
+  100% {
+    backdrop-filter: blur(1px);
+    transform: scale(1.01) rotate(0.5deg);
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 0, 255, 0) 30%, 
+      rgba(255, 0, 255, 0.1) 60%, 
+      rgba(255, 0, 255, 0.2) 80%, 
+      rgba(255, 0, 255, 0.3) 100%
+    );
+  }
+}
+
 .deathMessage {
   color: white;
   background-color: #b70808;

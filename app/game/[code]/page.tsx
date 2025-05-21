@@ -20,7 +20,7 @@ const GamePage: React.FC = () => {
   const [gameLive, setGameLive] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [snakes, setSnakes] = useState<SnakeData>({});
-  // Store item locations in state
+
   const [timestamp, setTimestamp] = useState<number>(0);
   const [playerIsDead, setPlayerIsDead] = useState(false); // Add state for tracking player death
   const [showDeathScreen, setShowDeathScreen] = useState(false); // Add state for showing the death screen
@@ -29,6 +29,12 @@ const GamePage: React.FC = () => {
   // State for tracking active effects and their durations
   type Effect = { type: string; baseType: string; duration: number; maxDuration: number; };
   const [activeEffects, setActiveEffects] = useState<Effect[]>([]);
+  
+  // State for handling the red screen flash for the Divider effect
+  const [showDividerFlash, setShowDividerFlash] = useState(false);
+  
+  // State for handling the drunk effect for the ReverseControls effect
+  const [showReverseControlsEffect, setShowReverseControlsEffect] = useState(false);
   
   // Game end states
   const [gameEnded, setGameEnded] = useState(false);
@@ -689,7 +695,7 @@ useEffect(() => {
           currentSocket.onmessage = (event: MessageEvent) => {
             try {
               const data = JSON.parse(event.data);
-              // console.log("Received message:", data);
+              console.log("Received message:", data);
               
               // Handle pre-game countdown messages
               if (data.type === 'preGame') {
@@ -746,6 +752,7 @@ useEffect(() => {
                 
                 // Clear any active effects
                 setActiveEffects([]);
+                setShowReverseControlsEffect(false);
               }
               
               // Handle gameState updates with the new expected format
@@ -774,8 +781,24 @@ useEffect(() => {
                   const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
                   const userEffects = data.effects[currentUsername] || [];
                   
+                  // Check for Divider effect first (special case)
+                  if (userEffects.includes("Divider")) {
+                    // Trigger the red flash effect
+                    setShowDividerFlash(true);
+                    
+                    // Remove flash after a short period (300ms)
+                    setTimeout(() => {
+                      setShowDividerFlash(false);
+                    }, 300);
+                  }
+                  
                   // Transform the effects into a more usable format
                   const parsedEffects: Effect[] = userEffects.map((effectString: string) => {
+                    // Skip the Divider effect as it's handled separately
+                    if (effectString === "Divider") {
+                      return null;
+                    }
+                    
                     // Parse the effect string to extract type and duration
                     const effectMatch = effectString.match(/^([a-zA-Z]+)([0-9.]+)$/);
                     if (effectMatch) {
@@ -800,10 +823,17 @@ useEffect(() => {
                     return null;
                   }).filter((effect: unknown): effect is Effect => effect !== null);
                   
+                  // Check if ReverseControls effect is active to show the drunk overlay
+                  const hasReverseControlEffect = parsedEffects.some(effect => 
+                    effect.baseType.includes('ReverseControl')
+                  );
+                  setShowReverseControlsEffect(hasReverseControlEffect);
+                  
                   setActiveEffects(parsedEffects);
                 } else {
                   // Clear effects if none are provided
                   setActiveEffects([]);
+                  setShowReverseControlsEffect(false);
                 }
                 
                 // Update timestamp if available
@@ -1202,6 +1232,11 @@ useEffect(() => {
 
   return (
     <div className={styles.mainPage}>
+      {/* Divider effect red flash overlay */}
+      {showDividerFlash && (
+        <div className={stylesSpecific.dividerFlash}></div>
+      )}
+      
       {/* Timer display */}
       {gameLive && (
         <div className={stylesSpecific.timer}>
@@ -1303,6 +1338,56 @@ useEffect(() => {
             <div className={stylesSpecific.spectatorMessage}>
               <h2>SPECTATING</h2>
             </div>
+          </div>
+        )}
+        
+        {/* Drunk effect overlay when Reverse Controls effect is active */}
+        {showReverseControlsEffect && gameLive && (
+          <div className={stylesSpecific.reverseControlsOverlay}>
+            {/* SVG filters for the drunk effect */}
+            <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+              <defs>
+                <filter id="reverseControlsFilter">
+                  {/* Add a slight color shift/chromatic aberration */}
+                  <feColorMatrix
+                    type="matrix"
+                    values="1 0 0 0 0
+                            0 1 0 0 0
+                            0 0 1 0 0
+                            0 0 0 1 0"
+                    result="original"
+                  />
+                  <feOffset in="original" dx="2" dy="0" result="redOffset" />
+                  <feColorMatrix
+                    in="redOffset"
+                    type="matrix"
+                    values="1 0 0 0 0
+                            0 0 0 0 0
+                            0 0 0 0 0
+                            0 0 0 0.5 0"
+                    result="colorRed"
+                  />
+                  <feOffset in="original" dx="-2" dy="0" result="blueOffset" />
+                  <feColorMatrix
+                    in="blueOffset"
+                    type="matrix"
+                    values="0 0 0 0 0
+                            0 0 0 0 0
+                            0 0 1 0 0
+                            0 0 0 0.5 0"
+                    result="colorBlue"
+                  />
+                  <feBlend mode="screen" in="colorRed" in2="colorBlue" result="colorDistortion" />
+                  
+                  {/* Add a subtle turbulence/distortion effect */}
+                  <feTurbulence baseFrequency="0.01 0.01" numOctaves="2" seed="1" result="turbulence" />
+                  <feDisplacementMap in="original" in2="turbulence" scale="10" result="displaced" />
+                  
+                  {/* Combine the effects */}
+                  <feBlend mode="screen" in="colorDistortion" in2="displaced" />
+                </filter>
+              </defs>
+            </svg>
           </div>
         )}
       </div>
