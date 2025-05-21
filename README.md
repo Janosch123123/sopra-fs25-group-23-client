@@ -52,7 +52,7 @@ Our game is built using:
 - Java
 - Spring Boot (Backend)
 - WebSockets (Real-time Communication)
-- TypeScript & Angular (Frontend)
+- TypeScript & React (Frontend)
 - Google App Engine (Deployment)
 - Docker (Containerization)
 
@@ -64,18 +64,13 @@ Our game is built using:
 
 ---
 
-## 🚣 Roadmap (Planned Features)
-
-- Spectator mode
-- More power-ups
-- Custom avatars & skins
-- Special event game rules
-
----
-
 ## 👥 Team
 
-*(Add developer names here.)*
+- Marc Mahler
+- Janosch Beck
+- Jarno Bucher
+- Joel Schmidt
+- Luke Fohringer
 
 ---
 
