@@ -82,37 +82,13 @@ reason).
 
 ---
 
-## Contributions Week 4 - 17.04.25 to 24.04.25
+## Contributions Week 4 - 17.04.25 to 24.04.25 (Easter Break)
 
-| **Student**        | **Date** | **Link to Commit** | **Description**                                                                                                                                                                                                                                                                               | **Relevance**                             |
-|--------------------|----------| ------------------ |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| **[@Janosch123123/@JanoschBeck]** | [date]   | [Link to Commit 1] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
-| **[@MarcMahler]**     | 21.04.25 | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/a55a2fc26ffa5b1cfdd4fca57e41b07c11629e91) | In general a broadcast to let all players know, that the game ended and who won... . And I added a field in the game class which keeps track who won the game. (initial state: null, game ends: Username of winner). With that, the "gameEnd" function can send the winner username to the FE | To display the winner when the game ended |
-|                    | 21.04.25   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/3cd3cbc130b179883981c80d4363a4090ba6692c) | Code missed a small issue which let the database be inconsistand. When a player leaves a lobby, the user entity must also be changed (field: LobbyCode, value: 0)... | prevent inconsistant data in DB |
-|                    | 21.04.25   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/df099e0559950f89d19aa2bb25fa5dce54d6a4ad) | I configured a win counter which keeps track of all wins a user ever had such that it can be displayed on the home screen! | Having Wins in player statistics |
-|                    | 21.04.25   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/a12860edf375c5475f27b2170d806ebb09b9bfe3) | I configured a win counter which keeps track of all wins a user ever had such that it can be displayed on the home screen! | Having Wins in player statistics |
-|                    | 21.04.25   | [🔗](https://github.com/Janosch123123/sopra-fs25-group-23-server/commit/9d761c8ad758d54dade11d48c7ae9ec662b70c44) | Levels get tracked now! For each win a player gets 0.5 Level and for each kill he gets 0.25 Level. Now we see the levels of the player on /home and also in the lobby (from all players in the lobby) | Having Levels in player statistics and with that having a measurement value between two players |
-| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task]        | [Why this contribution is relevant]       |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
-| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task]                                                                                                                                                                                                                                                               | [Why this contribution is relevant]       |
----
 
-## Contributions Week 5 - 25.04.25 to [End Date]
 
-| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
-| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+## Contributions Week 5 - 25.04.25 to 29.04.25 (Hand-in week)
 
----
+
 
 ## Contributions Week 6 - [30.04.2025] to [07.05.2025]
 
