@@ -123,10 +123,8 @@ interface UserStats {
           setLeaderboardPlayers(response);
           
           // Check if the user needs to fetch their rank
-          const username = localStorage.getItem("username")?.replace(/"/g, '') || '';
-          const userInTop5 = response.slice(0, 5).some(player => player.username === username);
           
-          if (!userInTop5 && userId) {
+          if (userId) {
             try {
               // Fetch user's rank if not in top 5
               const rankResponse = await apiService.get<{ rank: number }>(`/leaderboard/${userId}`);
@@ -606,13 +604,13 @@ interface UserStats {
                     {userRankInfo && (
                       <>
                         <tr>
-                          <td colSpan={4} style={{ textAlign: 'center', padding: '5px', fontSize: '2rem', paddingTop: '50px',  }}>
+                          <td colSpan={4} style={{ textAlign: 'center', padding: '5px', fontSize: '2rem', paddingTop: '40px', paddingBottom: '20px' }}>
                             <h2>Your Rank</h2>
                           </td>
                         </tr>
                         <tr className={stylesSpecific.userRank}>
                           <td>{userRankInfo.rank}</td>
-                          <td>{userStats?.username} (You)</td>
+                          <td>{userStats?.username}</td>
                           <td>{userStats ? Math.floor(userStats.level) : '-'}</td>
                           <td>{userStats?.winRate !== undefined ? `${Math.round(userStats.winRate * 100)}%` : 
                               userStats && userStats.playedGames > 0 ? `${Math.round((userStats.wins / userStats.playedGames) * 100)}%` : '0%'}</td>
