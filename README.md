@@ -196,6 +196,6 @@ For developers interested in contributing to Snake With Friends, here are the to
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+This project is licensed under the Apache License 2.0 - see the [LICENSE](https://github.com/Janosch123123/sopra-fs25-group-23-server/blob/main/LICENSE) file for details.
