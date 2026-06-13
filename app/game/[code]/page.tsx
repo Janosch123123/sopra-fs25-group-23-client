@@ -15,6 +15,11 @@ const GamePage: React.FC = () => {
   // Grid dimensions
   const COLS = 30;
   const ROWS = 25;
+
+  // Smooth-movement glide duration. The server ticks every 200ms, so we glide
+  // toward each new state in slightly less time (200 - 20ms buffer) so the
+  // snake settles on its cell just before the next state arrives.
+  const SNAKE_ANIM_MS = 180;
   
   // Game state - update to match expected message format
   const [gameLive, setGameLive] = useState(false);
@@ -44,8 +49,8 @@ const GamePage: React.FC = () => {
   const [playerColorMapping, setPlayerColorMapping] = useState<Record<string, string>>({});
   
   // Add new state variables for collision animation
-  const [collisionPoint, setCollisionPoint] = useState<[number, number] | null>(null); // Store collision coordinates
-  const [collidedSnakes, setCollidedSnakes] = useState<Record<string, boolean>>({}); // Track which snakes have collided
+  const [, setCollisionPoint] = useState<[number, number] | null>(null); // Store collision coordinates (consumed by dead-code collision animation)
+  const [, setCollidedSnakes] = useState<Record<string, boolean>>({}); // Track which snakes have collided (consumed by dead-code collision animation)
   const [lastGameState, setLastGameState] = useState<{snakes: SnakeData, timestamp: number} | null>(null); // Store previous game state for comparison
   const [lastHeadPositions, setLastHeadPositions] = useState<Record<string, [number, number]>>({}); // Store last known head positions
   
@@ -63,6 +68,26 @@ const GamePage: React.FC = () => {
   const [connectionError, setConnectionError] = useState(false);
   // Reference to store all grid cells for direct access
   const gridCellsRef = useRef<HTMLDivElement[]>([]);
+
+  // Positions drawn on the previous tick (per snake). Lets the sprite layer
+  // tell a normal one-cell move (which we glide) from a teleport such as
+  // spawn / respawn / restart (which we snap instantly).
+  const prevSnakePositionsRef = useRef<Record<string, [number, number][]>>({});
+  // Snakes object from the previous *distinct* tick. We derive the previous
+  // positions during render (guarded by object identity) rather than in an
+  // effect: several effects setState on every `snakes` change, so each tick
+  // re-renders twice. An effect-based prev would already equal the current
+  // positions on the 2nd render -> headStep 0 -> transition:none -> the glide
+  // gets cancelled (teleport). Identity-guarding keeps prev correct all tick.
+  const lastSnakesObjRef = useRef<SnakeData | null>(null);
+  if (snakes !== lastSnakesObjRef.current) {
+    prevSnakePositionsRef.current = lastSnakesObjRef.current ?? {};
+    lastSnakesObjRef.current = snakes;
+  }
+  // Continuous (unwrapped) tail rotation per snake, so the tail cap's rotation
+  // transition always turns the short way (90°) around a corner instead of
+  // spinning the long way when the raw angle wraps (e.g. -90deg -> 180deg).
+  const tailRotRef = useRef<Record<string, { geom: number; unwrapped: number }>>({});
   
   // Add router for navigation
   const router = useRouter();
@@ -147,164 +172,82 @@ const GamePage: React.FC = () => {
     return color;
   }, []);
   
-  // Updated function to render a player's snake using [col, row] coordinates with PNG images and different color classes
-  // Now includes support for collision animation and improved glow effect positioning
-  const renderPlayerSnake = useCallback((username: string, positions: [number, number][], playerIndex: number) => {
-    if (!positions || positions.length === 0) return;
-    
-    // Define color classes based on player index - expanded with more color options
-    const playerColorClasses = [
-      stylesSpecific.playerRed,     // Red (1st player)
-      stylesSpecific.playerBlue,    // Blue (2nd player) 
-      stylesSpecific.playerGreen,   // Green (3rd player)
-      stylesSpecific.playerPurple,  // Purple (4th player)
-    ];
-    
-    // Get the appropriate color class for this player
-    let playerColorClass = '';
-    if (playerIndex < playerColorClasses.length) {
-      playerColorClass = playerColorClasses[playerIndex];
-    } else {
-      // For any additional players beyond our predefined colors, use a color based on their username
-      // This is a fallback that shouldn't normally be needed with 8 color options
-      playerColorClass = stylesSpecific.playerRed; // Default to red but apply custom filter
-    }
-    
-    // Get current username for highlighting the current player's snake
-    const currentUsername = localStorage.getItem("username")?.replace(/"/g, '') || '';
-
-    
-    // Second pass: Add all snake elements
-    positions.forEach((position, i) => {
-      // Convert [col, row] to grid cell index
-      const index = colRowToIndex(position[0], position[1]);
-      const cell = getCell(index);
-      
-      if (cell) {
-        cell.classList.add(stylesSpecific.playerCell);
-        
-        // Add color class to apply the correct hue-rotate filter
-        if (playerColorClass) {
-          cell.classList.add(playerColorClass);
-        }
-        
-        // Add collision animation class if this snake has collided
-        if (collidedSnakes[username]) {
-          cell.classList.add(stylesSpecific.collidedSnake);
-          
-          // Add dying effect to the current player's snake
-          if (username === currentUsername) {
-            cell.classList.add(stylesSpecific.dyingSnake);
-          }
-        }
-        
-        // Add collision point effect to the exact collision location
-        if (collisionPoint && 
-            position[0] === collisionPoint[0] && 
-            position[1] === collisionPoint[1]) {
-          cell.classList.add(stylesSpecific.collisionPoint);
-        }
-        
-        // Mark head (first element)
+  
+  // Decide the sprite (head / tail / curve / straight body) and rotation for
+  // each snake segment from its discrete grid coordinates. Ported from the old
+  // per-cell renderer: only the *drawing* changed (a sprite layer instead of
+  // grid-cell classes); this sprite/rotation logic is unchanged.
+  const computeSnakeSegments = useCallback(
+    (positions: [number, number][]): { roleClass: string; rotation: number }[] => {
+      return positions.map((position, i) => {
+        // Head (first element)
         if (i === 0) {
-          cell.classList.add(stylesSpecific.firstSquare);
-          
-          // Calculate head rotation based on the next segment (if it exists)
+          let rotation = 0;
           if (positions.length > 1) {
             const head = positions[0];
             const neck = positions[1];
-            
-            // Determine the direction the head is facing (adjusted by -90 degrees)
-            let rotationDeg = 0;
-            if (neck[0] < head[0]) rotationDeg = 90;    // Head facing right
-            else if (neck[0] > head[0]) rotationDeg = -90;  // Head facing left
-            else if (neck[1] < head[1]) rotationDeg = 180;   // Head facing down
-            else if (neck[1] > head[1]) rotationDeg = 0; // Head facing up
-            
-            // Apply rotation using inline style
-            cell.style.setProperty('--rotation', `${rotationDeg}deg`);
+            if (neck[0] < head[0]) rotation = 90;
+            else if (neck[0] > head[0]) rotation = -90;
+            else if (neck[1] < head[1]) rotation = 180;
+            else if (neck[1] > head[1]) rotation = 0;
           }
+          return { roleClass: stylesSpecific.firstSquare, rotation };
         }
-        
-        // Mark tail (last element)
-        else if (i === positions.length - 1) {
-          cell.classList.add(stylesSpecific.lastSquare);
-          
-          // Calculate tail rotation based on the previous segment
+
+        // Tail (last element)
+        if (i === positions.length - 1) {
+          let rotation = 0;
           if (positions.length > 1) {
             const tail = positions[positions.length - 1];
             const beforeTail = positions[positions.length - 2];
-            
-            // Determine the direction the tail is facing (adjusted by -90 degrees)
-            let rotationDeg = 0;
-            if (beforeTail[0] > tail[0]) rotationDeg = 90;    // Tail facing left
-            else if (beforeTail[0] < tail[0]) rotationDeg = -90;   // Tail facing right
-            else if (beforeTail[1] > tail[1]) rotationDeg = 180;    // Tail facing up
-            else if (beforeTail[1] < tail[1]) rotationDeg = 0;  // Tail facing down
-            
-            // Apply rotation using inline style
-            cell.style.setProperty('--rotation', `${rotationDeg}deg`);
+            if (beforeTail[0] > tail[0]) rotation = 90;
+            else if (beforeTail[0] < tail[0]) rotation = -90;
+            else if (beforeTail[1] > tail[1]) rotation = 180;
+            else if (beforeTail[1] < tail[1]) rotation = 0;
           }
+          return { roleClass: stylesSpecific.lastSquare, rotation };
         }
-        
-        // Handle body segments (check if curved)
-        else {
-          const prev = positions[i - 1];   // Previous segment
-          const current = position;        // Current segment
-          const next = positions[i + 1];   // Next segment
-          
-          // Check if this is a curve (direction changes)
-          const isCurve = 
-            (prev[0] !== next[0] && prev[1] !== next[1]); // Neither x nor y coordinates are the same
-          
-          if (isCurve) {
-            // This is a curved segment
-            cell.classList.add(stylesSpecific.curveBody);
-            
-            // Define curve types based on movement direction
-            // Bottom-Right curve (coming from down, going left OR coming from left, going down)
-            if ((prev[0] < current[0] && next[1] > current[1]) || 
-                (prev[1] > current[1] && next[0] < current[0])) {
-              cell.style.setProperty('--rotation', '90deg');
-            }
-            
-            // Bottom-Left curve (coming from right, going down OR coming from up, going left)
-            else if ((prev[0] < current[0] && next[1] < current[1]) || 
-                     (prev[1] < current[1] && next[0] < current[0])) {
-              cell.style.setProperty('--rotation', '180deg');
-            }
-            
-            // Top-Left curve (coming from right, going up OR coming from down, going left)
-            else if ((prev[0] > current[0] && next[1] < current[1]) || 
-                     (prev[1] < current[1] && next[0] > current[0])) {
-              cell.style.setProperty('--rotation', '270deg');
-            }
-            
-            // Top-Right curve (coming from left, going up OR coming from down, going right)
-            else if ((prev[0] > current[0] && next[1] > current[1]) || 
-                     (prev[1] > current[1] && next[0] > current[0])) {
-              cell.style.setProperty('--rotation', '0deg');
-            }
-          } else {
-            // This is a straight segment (adjusted by -90 degrees)
-            if (prev[0] === next[0]) {
-              // Vertical segment
-              cell.style.setProperty('--rotation', '0deg');  // Adjusted from 90 to 0
-            } else {
-              // Horizontal segment
-              cell.style.setProperty('--rotation', '-90deg'); // Adjusted from 0 to -90
-            }
+
+        // Body segment: curved (direction changes) or straight
+        const prev = positions[i - 1];
+        const current = position;
+        const next = positions[i + 1];
+        const isCurve = prev[0] !== next[0] && prev[1] !== next[1];
+
+        if (isCurve) {
+          let rotation = 0;
+          if (
+            (prev[0] < current[0] && next[1] > current[1]) ||
+            (prev[1] > current[1] && next[0] < current[0])
+          ) {
+            rotation = 90; // bottom-right
+          } else if (
+            (prev[0] < current[0] && next[1] < current[1]) ||
+            (prev[1] < current[1] && next[0] < current[0])
+          ) {
+            rotation = 180; // bottom-left
+          } else if (
+            (prev[0] > current[0] && next[1] < current[1]) ||
+            (prev[1] < current[1] && next[0] > current[0])
+          ) {
+            rotation = 270; // top-left
+          } else if (
+            (prev[0] > current[0] && next[1] > current[1]) ||
+            (prev[1] > current[1] && next[0] > current[0])
+          ) {
+            rotation = 0; // top-right
           }
+          return { roleClass: stylesSpecific.curveBody, rotation };
         }
-        
-        // Add indicator if this is the current player's snake
-        if (username === currentUsername) {
-          cell.classList.add(stylesSpecific.currentPlayerCell);
-        }
-      }
-    });
-  }, [colRowToIndex, getCell, collidedSnakes, collisionPoint]);
-  
+
+        // Straight body
+        const rotation = prev[0] === next[0] ? 0 : -90;
+        return { roleClass: '', rotation };
+      });
+    },
+    [],
+  );
+
   // Updated function to render cookies and special items using [col, row] coordinates
   const renderItems = useCallback((cookies: [number, number][] = [], 
                                goldenCookies: [number, number][] = [], 
@@ -433,52 +376,13 @@ const GamePage: React.FC = () => {
   }, [animatingCells, animationStartTime]);
 
 
-  // Function to render all player snakes immediately without waiting for state update
-  // Updated to handle missing snakes during collision animation
-  // Function to render all player snakes immediately without waiting for state update
-// Updated to handle missing snakes during collision animation
-const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
-  // Always clear all cells first to ensure a clean state
-  clearAllCells();
-  
-  // Get list of player usernames
-  const playerUsernames = Object.keys(snakesData);
-  
-  // First, render ALL snakes from the current state
-  // This ensures all living snakes remain visible
-  playerUsernames.forEach((username, playerIndex) => {
-    // Only render if the snake exists and has segments
-    if (snakesData[username] && snakesData[username].length > 0) {
-      renderPlayerSnake(username, snakesData[username], playerIndex);
-    }
-  });
-  
-  // If we're in collision state, also render any dead snakes from lastGameState
-  // that aren't in the current state
-  if (Object.keys(collidedSnakes).length > 0 && lastGameState) {
-    Object.keys(collidedSnakes).forEach(username => {
-      // Check if this snake is missing or empty in the current state but exists in last state
-      const isEmptyOrMissingInCurrent = !snakesData[username] || 
-                                        (snakesData[username] && snakesData[username].length === 0);
-                                        
-      const existsInLastState = lastGameState.snakes[username] && 
-                              lastGameState.snakes[username].length > 0;
-                              
-      if (isEmptyOrMissingInCurrent && existsInLastState) {
-        // console.log(`Adding collided snake ${username} from last state`);
-        
-        // Find original player index
-        const originalIndex = Object.keys(lastGameState.snakes).indexOf(username);
-        
-        // Render the snake using last known positions
-        renderPlayerSnake(username, lastGameState.snakes[username], originalIndex);
-      }
-    });
-  }
-  setTimeout(() => {
-    preserveAnimationClasses();
-  }, 0);
-}, [clearAllCells, renderPlayerSnake, collidedSnakes, lastGameState, preserveAnimationClasses]);
+  // Snakes are now drawn by the declarative smooth sprite layer (see the
+  // `snakeLayer` JSX in the render). This helper just clears the grid cells so
+  // item rendering (renderItems) starts from a clean slate each tick.
+  const renderPlayerSnakes = useCallback((snakesData: SnakeData) => {
+    if (snakesData) clearAllCells();
+  }, [clearAllCells]);
+
   // Update lastHeadPositions whenever snakes change
   useEffect(() => {
     // Update the last known head positions for all snakes
@@ -1064,6 +968,195 @@ useEffect(() => {
     return grid;
   };
 
+  // ---- Smooth snake layer: "head & tail move, body stays put" ----
+  // Body segments are drawn statically at their cells (keyed by cell) so they
+  // NEVER move — that keeps curves rock-solid. Only the head and tail caps
+  // slide. To connect them seamlessly the body cell right behind the head is
+  // wiped IN (in the head's movement direction, tracking its trailing edge),
+  // and the body cell the tail slides onto is wiped OUT beneath the tail. The
+  // wipes are clip-path animations (see snakeReveal*/snakeHide* in the CSS), so
+  // the uniform-red sprite is revealed/hidden without distortion.
+  const renderSnakeSprites = () => {
+    const playerColorClasses = [
+      stylesSpecific.playerRed,
+      stylesSpecific.playerBlue,
+      stylesSpecific.playerGreen,
+      stylesSpecific.playerPurple,
+    ];
+    const currentUsername =
+      localStorage.getItem("username")?.replace(/"/g, '') || '';
+    const slide = `transform ${SNAKE_ANIM_MS}ms linear`;
+
+    // Wipe-in keyframe class, chosen from the head's movement direction.
+    const revealClassFor = (dx: number, dy: number): string => {
+      if (dx > 0) return stylesSpecific.snakeRevealFromLeft;
+      if (dx < 0) return stylesSpecific.snakeRevealFromRight;
+      if (dy > 0) return stylesSpecific.snakeRevealFromTop;
+      return stylesSpecific.snakeRevealFromBottom;
+    };
+    // Wipe-out keyframe class, chosen from the tail's movement direction.
+    const hideClassFor = (dx: number, dy: number): string => {
+      if (dx > 0) return stylesSpecific.snakeHideToLeft;
+      if (dx < 0) return stylesSpecific.snakeHideToRight;
+      if (dy > 0) return stylesSpecific.snakeHideToTop;
+      return stylesSpecific.snakeHideToBottom;
+    };
+
+    return Object.keys(snakes).flatMap((username, playerIndex) => {
+      const positions = snakes[username];
+      if (!positions || positions.length === 0) return [];
+
+      const colorClass =
+        playerColorClasses[playerIndex] ?? stylesSpecific.playerRed;
+      const isCurrent = username === currentUsername;
+      const prev = prevSnakePositionsRef.current[username];
+      const n = positions.length;
+      const segments = computeSnakeSegments(positions);
+
+      // A single sprite <div> at `pos`. `cap` lifts it above body sprites;
+      // `transition` slides it; `animationClass` runs a reveal/hide wipe.
+      const mkSprite = (
+        key: string,
+        pos: [number, number],
+        roleClass: string,
+        rotation: number,
+        opts: { cap?: boolean; transition?: string; animationClass?: string; rotTransition?: string } = {},
+      ) => {
+        const className = [
+          stylesSpecific.snakeSprite,
+          colorClass,
+          roleClass,
+          isCurrent ? stylesSpecific.currentPlayerCell : '',
+          opts.cap ? stylesSpecific.snakeCap : '',
+          opts.animationClass ?? '',
+        ]
+          .filter(Boolean)
+          .join(' ');
+        return (
+          <div
+            key={`${username}-${key}`}
+            className={className}
+            style={
+              {
+                transform: `translate(${pos[0] * 100}%, ${pos[1] * 100}%)`,
+                transition: opts.transition ?? 'none',
+                '--rotation': `${rotation}deg`,
+                '--snake-rot-trans': opts.rotTransition ?? '0ms',
+              } as React.CSSProperties
+            }
+          />
+        );
+      };
+
+      const headStep =
+        prev && prev.length > 0
+          ? Math.abs(prev[0][0] - positions[0][0]) +
+            Math.abs(prev[0][1] - positions[0][1])
+          : Infinity;
+
+      // SNAP (spawn / respawn / restart / teleport, or no previous state):
+      // render everything static at its cell, no animation.
+      if (headStep > 1) {
+        return positions.map((pos, i) => {
+          if (i === 0) {
+            return mkSprite('head', pos, stylesSpecific.firstSquare, segments[0].rotation, { cap: true });
+          }
+          if (i === n - 1 && n >= 2) {
+            // Reset the unwrapped-rotation tracking so the next move tweens from here.
+            tailRotRef.current[username] = { geom: segments[n - 1].rotation, unwrapped: segments[n - 1].rotation };
+            return mkSprite('tail', pos, stylesSpecific.lastSquare, segments[n - 1].rotation, { cap: true });
+          }
+          return mkSprite(`cell-${pos[0]}_${pos[1]}`, pos, segments[i].roleClass, segments[i].rotation);
+        });
+      }
+
+      const headMoved = headStep === 1;
+      // Changes whenever the head advances, so the reveal/hide wipe elements
+      // remount and replay their one-shot animation each tick.
+      const tickKey = `${positions[0][0]}_${positions[0][1]}`;
+      const els: React.ReactElement[] = [];
+
+      // Head cap — slides from its previous cell into the new head cell.
+      els.push(
+        mkSprite('head', positions[0], stylesSpecific.firstSquare, segments[0].rotation, {
+          cap: true,
+          transition: headMoved ? slide : 'none',
+        }),
+      );
+
+      // Tail cap — slides from the old tail cell to the new tail cell.
+      const oldTail = prev && prev.length > 0 ? prev[prev.length - 1] : undefined;
+      const newTail = positions[n - 1];
+      const tailMoved =
+        !!oldTail &&
+        Math.abs(oldTail[0] - newTail[0]) + Math.abs(oldTail[1] - newTail[1]) === 1;
+      // Tail movement direction (drives the wipe-out direction further below).
+      const tdx = oldTail ? newTail[0] - oldTail[0] : 0;
+      const tdy = oldTail ? newTail[1] - oldTail[1] : 0;
+      // Tail orientation: the geometry-based target (which already points the way
+      // the tail will face after a turn), UNWRAPPED relative to its previous
+      // value so the rotation transition takes the short 90° path. Together with
+      // the rotation transition (see --snake-rot-trans in the CSS) the tail
+      // rounds corners gradually over the tick instead of snapping/blinking.
+      const tailGeom = segments[n - 1].rotation;
+      const tracked = tailRotRef.current[username];
+      let tailRot = tailGeom;
+      if (tracked && tracked.geom === tailGeom) {
+        tailRot = tracked.unwrapped; // unchanged (no turn, or same-tick re-render)
+      } else {
+        const base = tracked ? tracked.unwrapped : tailGeom;
+        const delta = ((((tailGeom - base) % 360) + 540) % 360) - 180;
+        tailRot = base + delta;
+        tailRotRef.current[username] = { geom: tailGeom, unwrapped: tailRot };
+      }
+      if (n >= 2) {
+        els.push(
+          mkSprite('tail', newTail, stylesSpecific.lastSquare, tailRot, {
+            cap: true,
+            transition: tailMoved ? slide : 'none',
+            rotTransition: `${SNAKE_ANIM_MS}ms`,
+          }),
+        );
+      }
+
+      // Body cell right behind the head: wipe IN as the head slides off it.
+      if (headMoved && n >= 3) {
+        const dx = positions[0][0] - positions[1][0];
+        const dy = positions[0][1] - positions[1][1];
+        els.push(
+          mkSprite(`reveal-${tickKey}`, positions[1], segments[1].roleClass, segments[1].rotation, {
+            animationClass: revealClassFor(dx, dy),
+          }),
+        );
+      }
+
+      // Static body — keyed by cell so it never moves (solid curves). When the
+      // head didn't move, positions[1] has no wipe and is drawn statically too.
+      const staticStart = headMoved ? 2 : 1;
+      for (let i = staticStart; i <= n - 2; i++) {
+        els.push(
+          mkSprite(`cell-${positions[i][0]}_${positions[i][1]}`, positions[i], segments[i].roleClass, segments[i].rotation),
+        );
+      }
+
+      // Body cell the tail slides onto: wipe OUT beneath the tail cap. Keep the
+      // cell's OWN previous shape so a corner STAYS a curve while the tail passes
+      // over it (on a straight that shape is already aligned with the tail's
+      // movement). Only the wipe direction follows the tail's movement.
+      if (tailMoved && oldTail && n >= 3 && prev.length >= 3) {
+        const oldSegments = computeSnakeSegments(prev);
+        const oldIdx = prev.length - 2;
+        els.push(
+          mkSprite(`hide-${tickKey}`, newTail, oldSegments[oldIdx]?.roleClass ?? '', oldSegments[oldIdx]?.rotation ?? 0, {
+            animationClass: hideClassFor(tdx, tdy),
+          }),
+        );
+      }
+
+      return els;
+    });
+  };
+
   // Function to handle leaving the lobby
   const handleLeaveLobby = () => {
     intentionalDisconnect.current = true;
@@ -1310,6 +1403,10 @@ useEffect(() => {
       <div className={stylesSpecific.gameContainer}>
         <div className={stylesSpecific.gameGrid}>
           {renderGrid()}
+          {/* Smooth snake layer: sprites that glide between cells via CSS transition */}
+          <div className={stylesSpecific.snakeLayer} aria-hidden="true">
+            {renderSnakeSprites()}
+          </div>
         </div>
         
         {/* Active effects progress bars - only show when game is live and there are active effects */}
