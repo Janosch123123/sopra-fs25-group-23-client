@@ -20,6 +20,9 @@ const GamePage: React.FC = () => {
   // toward each new state in slightly less time (200 - 20ms buffer) so the
   // snake settles on its cell just before the next state arrives.
   const SNAKE_ANIM_MS = 180;
+  // The head turn starts when the new tick (gameState) arrives and runs for
+  // HEAD_TURN_MS, so it finishes a little way into the new tile's slide.
+  const HEAD_TURN_MS = 75;
   
   // Game state - update to match expected message format
   const [gameLive, setGameLive] = useState(false);
@@ -88,6 +91,9 @@ const GamePage: React.FC = () => {
   // transition always turns the short way (90°) around a corner instead of
   // spinning the long way when the raw angle wraps (e.g. -90deg -> 180deg).
   const tailRotRef = useRef<Record<string, { geom: number; unwrapped: number }>>({});
+  // Unwrapped-rotation tracking for the head (it turns smoothly too), so its
+  // rotation transition takes the short 90° path around a turn.
+  const headRotRef = useRef<Record<string, { geom: number; unwrapped: number }>>({});
   
   // Add router for navigation
   const router = useRouter();
@@ -1059,6 +1065,7 @@ useEffect(() => {
       if (headStep > 1) {
         return positions.map((pos, i) => {
           if (i === 0) {
+            headRotRef.current[username] = { geom: segments[0].rotation, unwrapped: segments[0].rotation };
             return mkSprite('head', pos, stylesSpecific.firstSquare, segments[0].rotation, { cap: true });
           }
           if (i === n - 1 && n >= 2) {
@@ -1076,11 +1083,26 @@ useEffect(() => {
       const tickKey = `${positions[0][0]}_${positions[0][1]}`;
       const els: React.ReactElement[] = [];
 
-      // Head cap — slides from its previous cell into the new head cell.
+      // Head cap — slides from its previous cell into the new head cell. Its
+      // rotation starts when this tick arrives and runs for HEAD_TURN_MS (so it
+      // finishes a little into the new slide); unwrapped so it takes the short
+      // path around a turn. Same mechanism as the tail, just a quicker tween.
+      const headGeom = segments[0].rotation;
+      const headTracked = headRotRef.current[username];
+      let headRot = headGeom;
+      if (headTracked && headTracked.geom === headGeom) {
+        headRot = headTracked.unwrapped;
+      } else {
+        const base = headTracked ? headTracked.unwrapped : headGeom;
+        const delta = ((((headGeom - base) % 360) + 540) % 360) - 180;
+        headRot = base + delta;
+        headRotRef.current[username] = { geom: headGeom, unwrapped: headRot };
+      }
       els.push(
-        mkSprite('head', positions[0], stylesSpecific.firstSquare, segments[0].rotation, {
+        mkSprite('head', positions[0], stylesSpecific.firstSquare, headRot, {
           cap: true,
           transition: headMoved ? slide : 'none',
+          rotTransition: `${HEAD_TURN_MS}ms`,
         }),
       );
 

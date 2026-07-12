@@ -272,6 +272,7 @@ ake sure the leaderboard remains visible in different screen sizes */
    along the head's own axis (toward the neck) regardless of facing direction. */
 .snakeLayer .snakeCap.firstSquare::after {
   transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translateY(13%);
+  transition: transform var(--snake-rot-trans, 0ms) linear;
 }
 
 /* The tail cap's rotation tweens over a tick so it rounds corners smoothly
