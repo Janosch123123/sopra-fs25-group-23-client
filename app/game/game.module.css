@@ -1,6 +1,7 @@
 /*__________________________________________ Game Grid CSS ___________________________________________*/
 /* Add the following gameGrid related classes */
 .gameGrid {
+  position: relative; /* positioning context for the absolute snake sprite layer */
   display: grid;
   grid-template-columns: repeat(30, 1fr);
   grid-template-rows: repeat(25, 1fr);
@@ -216,6 +217,97 @@ ake sure the leaderboard remains visible in different screen sizes */
   border: none !important; /* Remove any borders */
   box-shadow: none !important; /* Remove any shadows */
 }
+
+/*__________________________________________ Smooth Snake Layer ___________________________________________*/
+/* Overlay holding one absolutely-positioned sprite per snake segment. Each
+   sprite slides between grid cells via a CSS transition for smooth movement. */
+.snakeLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* One grid cell in size. Positioned with transform: translate() expressed in %
+   of its own size, so translate(100%) moves it exactly one cell.
+   Scoped under .snakeLayer so this wins over `.currentPlayerCell { position:
+   relative }` (same single-class specificity) — otherwise the current player's
+   sprites fall into normal flow and stack into a diagonal staircase. */
+.snakeLayer .snakeSprite {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / 30);
+  height: calc(100% / 25);
+  will-change: transform;
+}
+
+/* Mirrors .playerCell::after so every existing colour/part background-image rule
+   (.playerRed.firstSquare::after, etc.) paints onto these sprites unchanged. */
+.snakeSprite::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 105%;
+  height: 105%;
+  transform: translate(-50%, -50%) rotate(var(--rotation, 0deg));
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 5;
+}
+
+/* Head/tail caps sit above the body sprites so they cleanly cover the body that
+   reveals / derenders underneath them. */
+.snakeLayer .snakeCap {
+  z-index: 3;
+}
+
+/* Pull the head sprite slightly toward its neck so it overlaps the body behind
+   it. The head art has transparent padding at the neck and the body cell behind
+   the head is clip-cropped to its cell, which otherwise leaves a small gap
+   between head and body. translateY is applied AFTER rotate, so it always moves
+   along the head's own axis (toward the neck) regardless of facing direction. */
+.snakeLayer .snakeCap.firstSquare::after {
+  transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) translateY(13%);
+  transition: transform var(--snake-rot-trans, 0ms) linear;
+}
+
+/* The tail cap's rotation tweens over a tick so it rounds corners smoothly
+   instead of blinking to the new direction. Duration comes from
+   --snake-rot-trans (set to the tick length while moving, 0ms on spawn/restart
+   so it doesn't spin). Only the rotation animates; position is handled on the
+   element itself. */
+.snakeLayer .snakeCap.lastSquare::after {
+  transition: transform var(--snake-rot-trans, 0ms) linear;
+}
+
+/* Wipe-in: a body cell appearing behind the head. Wipe-out: a body cell the
+   tail slides over. Only clip-path animates (the sprite itself stays put), so
+   the sprite is revealed/hidden without distortion. `forwards` holds the end
+   state until the element is replaced next tick. Durations MUST match
+   SNAKE_ANIM_MS in app/game/[code]/page.tsx. */
+.snakeRevealFromLeft   { animation: snakeRevealFromLeft   180ms linear forwards; }
+.snakeRevealFromRight  { animation: snakeRevealFromRight  180ms linear forwards; }
+.snakeRevealFromTop    { animation: snakeRevealFromTop    180ms linear forwards; }
+.snakeRevealFromBottom { animation: snakeRevealFromBottom 180ms linear forwards; }
+.snakeHideToLeft   { animation: snakeHideToLeft   180ms linear forwards; }
+.snakeHideToRight  { animation: snakeHideToRight  180ms linear forwards; }
+.snakeHideToTop    { animation: snakeHideToTop    180ms linear forwards; }
+.snakeHideToBottom { animation: snakeHideToBottom 180ms linear forwards; }
+
+/* Reveal: visible region grows from the named edge toward the head. */
+@keyframes snakeRevealFromLeft   { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes snakeRevealFromRight  { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes snakeRevealFromTop    { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes snakeRevealFromBottom { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* Hide: visible region shrinks, clipped from the named edge (the side the tail enters from). */
+@keyframes snakeHideToLeft   { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+@keyframes snakeHideToRight  { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 100% 0 0); } }
+@keyframes snakeHideToTop    { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(100% 0 0 0); } }
+@keyframes snakeHideToBottom { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 100% 0); } }
 
 /*__________________________________________ Player Body Parts ___________________________________________*/
 /* Player Red */
